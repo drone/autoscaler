@@ -1,0 +1,8 @@
+NOTES.md
+release
+vendor
+.*.toml
+*.bak
+*.out
+*.db
+*.env

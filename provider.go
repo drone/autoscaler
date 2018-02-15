@@ -15,7 +15,7 @@ const (
 	ProviderAmazon
 	ProviderAzure
 	ProviderDigitalOcean
-	ProviateGoogle
+	ProviderGoogle
 )
 
 // A Provider represents a hosting provider, such as Digital Ocean

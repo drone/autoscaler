@@ -16,6 +16,9 @@ import (
 
 func TestDefaults(t *testing.T) {
 	conf := MustLoad()
+	if got, want := conf.Logs.Debug, true; got != want {
+		t.Errorf("Want default DRONE_LOGS_DEBUG of %v, got %v", want, got)
+	}
 	if got, want := conf.Interval, time.Minute*5; got != want {
 		t.Errorf("Want default DRONE_INTERVAL of %s, got %s", want, got)
 	}
@@ -42,7 +45,7 @@ func TestDefaults(t *testing.T) {
 	if got, want := conf.DigitalOcean.Region, "nyc3"; got != want {
 		t.Errorf("Want default DRONE_DIGITALOCEAN_REGION of %s, got %s", want, got)
 	}
-	if got, want := conf.DigitalOcean.Size, "s-1vcpu-1gb"; got != want {
+	if got, want := conf.DigitalOcean.Size, "s-1vcpu-3gb"; got != want {
 		t.Errorf("Want default DRONE_DIGITALOCEAN_SIZE of %s, got %s", want, got)
 	}
 	//
@@ -104,6 +107,8 @@ func TestLoad(t *testing.T) {
 		"DRONE_GOOGLE_DISK_SIZE":     "10",
 		"DRONE_GOOGLE_PROJECT":       "project-foo",
 		"DRONE_GOOGLE_TAGS":          "drone,agent,prod",
+		"DRONE_AMAZON_INSTANCE":      "t2.micro",
+		"DRONE_AMAZON_REGION":        "us-east-1",
 	}
 
 	defer func() {
@@ -181,7 +186,11 @@ var jsonConfig = []byte(`{
       "agent",
       "prod"
     ]
-  },
+	},
+	"Amazon": {
+    "Instance": "t2.micro",
+    "Region": "us-east-1"
+	},
   "Google": {
     "Zone": "us-central1-b",
     "MachineType": "f1-micro",

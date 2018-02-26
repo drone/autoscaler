@@ -17,7 +17,7 @@ type (
 
 		Logs struct {
 			Color  bool
-			Debug  bool
+			Debug  bool `default:"true"`
 			Pretty bool
 		}
 
@@ -59,12 +59,18 @@ type (
 			Path string `default:"snapshot.db"`
 		}
 
+		Amazon struct {
+			Instance string `default:"t2.micro"`
+			Region   string `default:"us-east-1"`
+			Tags     []string
+		}
+
 		DigitalOcean struct {
 			Token  string
 			Image  string `default:"docker-16-04"`
 			Region string `default:"nyc3"`
-			SSHKey string
-			Size   string `default:"s-1vcpu-1gb"`
+			SSHKey string `default:"/root/.ssh/id_rsa"`
+			Size   string `default:"s-1vcpu-3gb"`
 			IPv6   bool
 			Tags   []string
 		}

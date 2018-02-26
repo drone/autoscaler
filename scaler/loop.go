@@ -16,7 +16,9 @@ func Start(ctx context.Context, scaler autoscaler.Scaler, duration time.Duration
 	for {
 		select {
 		case <-time.After(duration):
-			scaler.Scale(ctx)
+			if !scaler.Paused() {
+				scaler.Scale(ctx)
+			}
 		case <-ctx.Done():
 			return ctx.Err()
 		}

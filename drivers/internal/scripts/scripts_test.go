@@ -43,6 +43,35 @@ func TestGenerateInstall(t *testing.T) {
 	}
 }
 
+func TestGenerateTeardown(t *testing.T) {
+	conf := config.Config{}
+
+	script, err := GenerateTeardown(conf)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if got, want := script, teardownScript; got != want {
+		t.Errorf("Invalid script")
+		diff := difflib.UnifiedDiff{
+			A:        difflib.SplitLines(got),
+			B:        difflib.SplitLines(want),
+			FromFile: "Got",
+			ToFile:   "Want",
+			Context:  5,
+		}
+		text, _ := difflib.GetUnifiedDiffString(diff)
+		t.Log(text)
+	}
+}
+
+var teardownScript = `
+set -x;
+set -e;
+
+docker stop -t 60m agent
+`
+
 var installScript = `
 set -x;
 

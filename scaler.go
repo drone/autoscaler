@@ -11,15 +11,9 @@ import (
 // A Scaler implements an algorithm to automatically scale up
 // or scale down the available pool of servers.
 type Scaler interface {
+	Pause()
+	Paused() bool
+	Resume()
+
 	Scale(context.Context) error
 }
-
-// // Stats stores details about the synchronization process.
-// type Stats struct {
-// 	Start    int
-// 	Finish   int
-// 	Servers  int
-// 	Capacity int
-// 	Running  int
-// 	Pending  int
-// }

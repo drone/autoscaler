@@ -8,6 +8,7 @@ import (
 	"context"
 	"math"
 	"sort"
+	"sync"
 	"time"
 
 	"github.com/drone/autoscaler"
@@ -20,10 +21,34 @@ import (
 
 // Scaler represents the built-in auto-scaler.
 type Scaler struct {
+	mu sync.Mutex
+
+	paused   bool
 	Client   drone.Client
 	Config   config.Config
 	Servers  autoscaler.ServerStore
 	Provider autoscaler.Provider
+}
+
+// Pause paueses the scaler.
+func (s *Scaler) Pause() {
+	s.mu.Lock()
+	s.paused = true
+	s.mu.Unlock()
+}
+
+// Paused returns true if scaling is paused.
+func (s *Scaler) Paused() bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.paused
+}
+
+// Resume resumes the scaler.
+func (s *Scaler) Resume() {
+	s.mu.Lock()
+	s.paused = false
+	s.mu.Unlock()
 }
 
 // Scale execute the autoscaling algorithm.

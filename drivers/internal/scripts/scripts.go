@@ -15,14 +15,30 @@ import (
 // GenerateInstall generates an installation script.
 func GenerateInstall(config config.Config, server *autoscaler.Server) (string, error) {
 	buf := new(bytes.Buffer)
-	err := tmpl.Execute(buf, map[string]interface{}{
+	err := installT.Execute(buf, map[string]interface{}{
 		"Server": server,
 		"Config": config,
 	})
 	return buf.String(), err
 }
 
-var tmpl = template.Must(template.New("_").Funcs(funcs).Parse(`
+// GenerateTeardown generates a teardown script.
+func GenerateTeardown(config config.Config) (string, error) {
+	buf := new(bytes.Buffer)
+	err := teardownT.Execute(buf, map[string]interface{}{
+		"Config": config,
+	})
+	return buf.String(), err
+}
+
+var teardownT = template.Must(template.New("_").Funcs(funcs).Parse(`
+set -x;
+set -e;
+
+docker stop -t 60m agent
+`))
+
+var installT = template.Must(template.New("_").Funcs(funcs).Parse(`
 set -x;
 
 docker stop cadvisor agent;

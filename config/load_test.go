@@ -107,7 +107,7 @@ func TestLoad(t *testing.T) {
 		"DRONE_GOOGLE_DISK_SIZE":     "10",
 		"DRONE_GOOGLE_PROJECT":       "project-foo",
 		"DRONE_GOOGLE_TAGS":          "drone,agent,prod",
-		"DRONE_AMAZON_INSTANCE":      "t2.micro",
+		"DRONE_AMAZON_INSTANCE":      "t2.medium",
 		"DRONE_AMAZON_REGION":        "us-east-1",
 	}
 
@@ -188,7 +188,7 @@ var jsonConfig = []byte(`{
     ]
 	},
 	"Amazon": {
-    "Instance": "t2.micro",
+    "Instance": "t2.medium",
     "Region": "us-east-1"
 	},
   "Google": {

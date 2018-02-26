@@ -60,7 +60,7 @@ type (
 		}
 
 		Amazon struct {
-			Instance string `default:"t2.micro"`
+			Instance string `default:"t2.medium"`
 			Region   string `default:"us-east-1"`
 			Tags     []string
 		}

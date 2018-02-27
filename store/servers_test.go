@@ -31,7 +31,7 @@ func TestServer(t *testing.T) {
 func testServerCreate(store *serverStore) func(t *testing.T) {
 	return func(t *testing.T) {
 		server := &autoscaler.Server{
-			Provider: autoscaler.ProviateGoogle,
+			Provider: autoscaler.ProviderGoogle,
 			Name:     "i-5203422c",
 			Address:  "54.194.252.215",
 			Capacity: 2,
@@ -74,7 +74,7 @@ func testServerList(store *serverStore) func(t *testing.T) {
 func testServerUpdate(store *serverStore) func(t *testing.T) {
 	return func(t *testing.T) {
 		server := &autoscaler.Server{
-			Provider: autoscaler.ProviateGoogle,
+			Provider: autoscaler.ProviderGoogle,
 			Name:     "i-5203422c",
 			Address:  "54.194.252.215",
 			Capacity: 2,
@@ -129,7 +129,7 @@ func testServer(server *autoscaler.Server) func(t *testing.T) {
 		if got, want := server.Capacity, 2; got != want {
 			t.Errorf("Want server Capacity %d, got %d", want, got)
 		}
-		if got, want := server.Provider, autoscaler.ProviateGoogle; got != want {
+		if got, want := server.Provider, autoscaler.ProviderGoogle; got != want {
 			t.Errorf("Want server Provider %v, got %v", want, got)
 		}
 	}

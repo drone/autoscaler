@@ -87,6 +87,7 @@ func main() {
 	r.Get("/metrics", server.HandleMetrics(conf.Prometheus.Token))
 	r.Get("/version", server.HandleVersion(source, version, commit))
 	r.Get("/healthz", server.HandleHealthz())
+	r.Get("/varz", server.HandleVarz(ascaler))
 	r.Route("/api", func(r chi.Router) {
 		r.Use(server.CheckDrone(conf))
 

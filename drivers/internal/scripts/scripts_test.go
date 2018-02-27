@@ -67,28 +67,31 @@ func TestGenerateTeardown(t *testing.T) {
 
 var teardownScript = `
 set -x;
-set -e;
 
-docker stop -t 60m agent
+sudo docker ps
+sudo docker stop -t 3600 agent
+sudo docker ps -a
 `
 
 var installScript = `
 set -x;
-
-docker stop cadvisor agent;
-docker rm -v cadvisor agent;
-
 set -e;
 
-echo -n 'admin:{SHA}0RIWnjGvcw2wHMferV9MJVSo0Uw=' > /root/.htpasswd;
+if ! [ -x "$(command -v docker)" ]; then
+  curl -fsSL get.docker.com -o get-docker.sh
+  sh get-docker.sh
+  sudo usermod -aG docker $(whoami)
+fi
 
-docker run \
+echo -n 'admin:{SHA}0RIWnjGvcw2wHMferV9MJVSo0Uw=' > $HOME/.htpasswd;
+
+sudo docker run \
 --volume=/:/rootfs:ro \
 --volume=/var/run:/var/run:rw \
 --volume=/sys:/sys:ro \
 --volume=/var/lib/docker/:/var/lib/docker:ro \
 --volume=/dev/disk/:/dev/disk:ro \
---volume=/root/.htpasswd:/root/.htpasswd \
+--volume=$HOME/.htpasswd:/root/.htpasswd \
 --publish=8080:8080 \
 --detach=true \
 --name=cadvisor \
@@ -96,7 +99,7 @@ google/cadvisor:latest \
 --http_auth_realm localhost \
 --http_auth_file /root/.htpasswd;
 
-docker run \
+sudo docker run \
 --detach=true \
 --restart=always \
 --volume /var/run/docker.sock:/var/run/docker.sock \
@@ -107,5 +110,5 @@ docker run \
 --name=agent \
 drone/agent:0.8;
 
-docker ps;
+sudo docker ps;
 `

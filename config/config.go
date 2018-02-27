@@ -60,9 +60,13 @@ type (
 		}
 
 		Amazon struct {
-			Instance string `default:"t2.medium"`
-			Region   string `default:"us-east-1"`
-			Tags     []string
+			Instance      string   `default:"t2.medium"`
+			Region        string   `default:"us-east-1"`
+			SSHKey        string   `default:"/root/.ssh/id_rsa"`
+			SSHKeyName    string   `envconfig:"DRONE_AMAZON_SSHKEY_NAME"`
+			SubnetID      string   `split_words:"true"`
+			SecurityGroup []string `split_words:"true"`
+			Tags          map[string]string
 		}
 
 		DigitalOcean struct {

@@ -191,6 +191,27 @@ func (p *Provider) Destroy(ctx context.Context, server *autoscaler.Server) error
 		Str("name", server.Name).
 		Logger()
 
+	script, err := scripts.GenerateTeardown(p.config)
+	if err != nil {
+		return err
+	}
+
+	signer, err := sshutil.ParsePrivateKey(p.config.DigitalOcean.SSHKey)
+	if err != nil {
+		return err
+	}
+
+	logger.Debug().
+		Msg("teardown droplet")
+
+	_, err = sshutil.Execute(server.Address, "22", "root", script, signer)
+	if err != nil {
+		logger.Error().
+			Err(err).
+			Msg("teardown failed")
+		return err
+	}
+
 	logger.Debug().
 		Msg("deleting droplet")
 

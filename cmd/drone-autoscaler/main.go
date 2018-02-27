@@ -70,6 +70,13 @@ func main() {
 
 	client := setupClient(conf)
 
+	ascaler := &scaler.Scaler{
+		Client:   client,
+		Config:   conf,
+		Servers:  servers,
+		Provider: provider,
+	}
+
 	r := chi.NewRouter()
 	r.Use(hlog.NewHandler(log.Logger))
 	r.Use(hlog.RemoteAddrHandler("ip"))
@@ -83,6 +90,8 @@ func main() {
 	r.Route("/api", func(r chi.Router) {
 		r.Use(server.CheckDrone(conf))
 
+		r.Post("/pause", server.HandleScalerPause(ascaler))
+		r.Post("/resume", server.HandleScalerResume(ascaler))
 		r.Get("/queue", server.HandleQueueList(client))
 		r.Get("/servers", server.HandleServerList(servers))
 		r.Post("/servers", server.HandleServerCreate(servers, provider, conf))
@@ -124,12 +133,7 @@ func main() {
 	//
 
 	g.Go(func() error {
-		return scaler.Start(ctx, &scaler.Scaler{
-			Client:   client,
-			Config:   conf,
-			Servers:  servers,
-			Provider: provider,
-		}, conf.Interval)
+		return scaler.Start(ctx, ascaler, conf.Interval)
 	})
 
 	if err := g.Wait(); err != nil {

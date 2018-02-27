@@ -4,5 +4,5 @@
 
 package mocks
 
-//go:generate mockgen -package=mocks -destination=mocks_gen.go github.com/drone/autoscaler ServerStore,Provider
+//go:generate mockgen -package=mocks -destination=mocks_gen.go github.com/drone/autoscaler Scaler,ServerStore,Provider
 //go:generate mockgen -package=mocks -destination=mocks_gen_drone.go github.com/drone/drone-go/drone Client

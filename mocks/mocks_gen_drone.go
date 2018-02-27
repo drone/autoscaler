@@ -7,6 +7,7 @@ package mocks
 import (
 	drone "github.com/drone/drone-go/drone"
 	gomock "github.com/golang/mock/gomock"
+	http "net/http"
 	reflect "reflect"
 )
 
@@ -401,6 +402,52 @@ func (m *MockClient) Self() (*drone.User, error) {
 // Self indicates an expected call of Self
 func (mr *MockClientMockRecorder) Self() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Self", reflect.TypeOf((*MockClient)(nil).Self))
+}
+
+// Server mocks base method
+func (m *MockClient) Server(arg0 string) (*drone.Server, error) {
+	ret := m.ctrl.Call(m, "Server", arg0)
+	ret0, _ := ret[0].(*drone.Server)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Server indicates an expected call of Server
+func (mr *MockClientMockRecorder) Server(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Server", reflect.TypeOf((*MockClient)(nil).Server), arg0)
+}
+
+// ServerList mocks base method
+func (m *MockClient) ServerList() ([]*drone.Server, error) {
+	ret := m.ctrl.Call(m, "ServerList")
+	ret0, _ := ret[0].([]*drone.Server)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ServerList indicates an expected call of ServerList
+func (mr *MockClientMockRecorder) ServerList() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ServerList", reflect.TypeOf((*MockClient)(nil).ServerList))
+}
+
+// SetAddress mocks base method
+func (m *MockClient) SetAddress(arg0 string) {
+	m.ctrl.Call(m, "SetAddress", arg0)
+}
+
+// SetAddress indicates an expected call of SetAddress
+func (mr *MockClientMockRecorder) SetAddress(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAddress", reflect.TypeOf((*MockClient)(nil).SetAddress), arg0)
+}
+
+// SetClient mocks base method
+func (m *MockClient) SetClient(arg0 *http.Client) {
+	m.ctrl.Call(m, "SetClient", arg0)
+}
+
+// SetClient indicates an expected call of SetClient
+func (mr *MockClientMockRecorder) SetClient(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetClient", reflect.TypeOf((*MockClient)(nil).SetClient), arg0)
 }
 
 // User mocks base method

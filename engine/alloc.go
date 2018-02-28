@@ -60,7 +60,8 @@ func (a *allocator) allocate(ctx context.Context, server *autoscaler.Server) err
 		}
 	}()
 
-	err := a.provider.Create(ctx, server)
+	opt := autoscaler.InstanceCreateOpts{Name: server.Name}
+	instance, err := a.provider.Create(ctx, opt)
 	if err != nil {
 		log.Ctx(ctx).Error().
 			Err(err).
@@ -74,6 +75,15 @@ func (a *allocator) allocate(ctx context.Context, server *autoscaler.Server) err
 			Msg("provisioned server")
 
 		server.State = autoscaler.StateRunning
+	}
+	if instance != nil {
+		server.Address = instance.Address
+		server.UID = instance.ID
+		server.Image = instance.Image
+		server.Provider = instance.Provider
+		server.Region = instance.Region
+		server.Secret = instance.Secret
+		server.Size = instance.Size
 	}
 	return a.servers.Update(ctx, server)
 }

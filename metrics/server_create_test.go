@@ -29,20 +29,24 @@ func TestServerCreate(t *testing.T) {
 	registry := prometheus.NewRegistry()
 	prometheus.DefaultRegisterer = registry
 
-	server := &autoscaler.Server{Name: "server1", Capacity: 1}
+	opts := autoscaler.InstanceCreateOpts{Name: "server1"}
+	instance := &autoscaler.Instance{}
 
 	provider := mocks.NewMockProvider(controller)
-	provider.EXPECT().Create(gomock.Any(), server).Times(3).Return(nil)
-	provider.EXPECT().Create(gomock.Any(), server).Return(errors.New("error"))
+	provider.EXPECT().Create(gomock.Any(), opts).Times(3).Return(instance, nil)
+	provider.EXPECT().Create(gomock.Any(), opts).Return(nil, errors.New("error"))
 
 	providerInst := ServerCreate(provider)
 	for i := 0; i < 3; i++ {
-		err := providerInst.Create(noContext, server)
+		res, err := providerInst.Create(noContext, opts)
 		if err != nil {
 			t.Error(err)
 		}
+		if res != instance {
+			t.Errorf("Expect instance returned")
+		}
 	}
-	err := providerInst.Create(noContext, server)
+	_, err := providerInst.Create(noContext, opts)
 	if err == nil {
 		t.Errorf("Expect error returned from provider")
 	}

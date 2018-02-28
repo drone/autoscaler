@@ -97,7 +97,6 @@ func HandleServerCreate(
 		server := &autoscaler.Server{
 			Name:     "agent-" + uniuri.NewLen(8),
 			State:    autoscaler.StatePending,
-			Secret:   uniuri.New(),
 			Capacity: config.Agent.Concurrency,
 		}
 		err := servers.Create(ctx, server)

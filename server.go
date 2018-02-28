@@ -12,18 +12,17 @@ import (
 )
 
 // ServerState specifies the server state.
-type ServerState int
+type ServerState string
 
 // ServerState type enumeration.
 const (
-	StateUnknown ServerState = iota
-	StatePending
-	StateStaging
-	StateRunning
-	StateShutdown
-	StateStopping
-	StateStopped
-	StateError
+	StatePending  = ServerState("pending")
+	StateStaging  = ServerState("staging")
+	StateRunning  = ServerState("running")
+	StateShutdown = ServerState("shutdown")
+	StateStopping = ServerState("stopping")
+	StateStopped  = ServerState("stopped")
+	StateError    = ServerState("error")
 )
 
 // ErrServerNotFound is returned when the requested server

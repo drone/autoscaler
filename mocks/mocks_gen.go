@@ -198,10 +198,11 @@ func (m *MockProvider) EXPECT() *MockProviderMockRecorder {
 }
 
 // Create mocks base method
-func (m *MockProvider) Create(arg0 context.Context, arg1 *autoscaler.Server) error {
+func (m *MockProvider) Create(arg0 context.Context, arg1 autoscaler.InstanceCreateOpts) (*autoscaler.Instance, error) {
 	ret := m.ctrl.Call(m, "Create", arg0, arg1)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(*autoscaler.Instance)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Create indicates an expected call of Create
@@ -210,7 +211,7 @@ func (mr *MockProviderMockRecorder) Create(arg0, arg1 interface{}) *gomock.Call 
 }
 
 // Destroy mocks base method
-func (m *MockProvider) Destroy(arg0 context.Context, arg1 *autoscaler.Server) error {
+func (m *MockProvider) Destroy(arg0 context.Context, arg1 *autoscaler.Instance) error {
 	ret := m.ctrl.Call(m, "Destroy", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0

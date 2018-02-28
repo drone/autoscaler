@@ -37,8 +37,8 @@ type providerWrapDestroy struct {
 	errors  prometheus.Counter
 }
 
-func (p *providerWrapDestroy) Destroy(ctx context.Context, server *autoscaler.Server) error {
-	err := p.Provider.Destroy(ctx, server)
+func (p *providerWrapDestroy) Destroy(ctx context.Context, instance *autoscaler.Instance) error {
+	err := p.Provider.Destroy(ctx, instance)
 	if err == nil {
 		p.created.Add(1)
 	} else {

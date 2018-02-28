@@ -7,29 +7,26 @@ package scripts
 import (
 	"testing"
 
-	"github.com/drone/autoscaler"
-	"github.com/drone/autoscaler/config"
-
 	"github.com/pmezard/go-difflib/difflib"
 )
 
-func TestGenerateInstall(t *testing.T) {
-	conf := config.Config{}
-	conf.Agent.Host = "localhost:9000"
-	conf.Agent.Image = "drone/agent:0.8"
-	conf.Agent.Token = "a8842634682b789"
+func TestGenerateSetup(t *testing.T) {
+	opts := SetupOpts{}
+	opts.Server.Host = "localhost:9000"
+	opts.Server.Secret = "a8842634682b789"
+	opts.Agent.Image = "drone/agent:0.8"
+	opts.Agent.Capacity = 2
+	opts.Instance.Addr = "1.2.3.4"
+	opts.Instance.Name = "server1"
+	opts.Cadvisor.Disable = false
+	opts.Cadvisor.Secret = "14bb43312eada8a"
 
-	server := autoscaler.Server{}
-	server.Name = "server1"
-	server.Secret = "14bb43312eada8a"
-	server.Capacity = 2
-
-	script, err := GenerateInstall(conf, &server)
+	script, err := GenerateSetup(opts)
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	if got, want := script, installScript; got != want {
+	if got, want := script, setupScript; got != want {
 		t.Errorf("Invalid script")
 		diff := difflib.UnifiedDiff{
 			A:        difflib.SplitLines(got),
@@ -43,37 +40,7 @@ func TestGenerateInstall(t *testing.T) {
 	}
 }
 
-func TestGenerateTeardown(t *testing.T) {
-	conf := config.Config{}
-
-	script, err := GenerateTeardown(conf)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	if got, want := script, teardownScript; got != want {
-		t.Errorf("Invalid script")
-		diff := difflib.UnifiedDiff{
-			A:        difflib.SplitLines(got),
-			B:        difflib.SplitLines(want),
-			FromFile: "Got",
-			ToFile:   "Want",
-			Context:  5,
-		}
-		text, _ := difflib.GetUnifiedDiffString(diff)
-		t.Log(text)
-	}
-}
-
-var teardownScript = `
-set -x;
-
-sudo docker ps
-sudo docker stop -t 3600 agent
-sudo docker ps -a
-`
-
-var installScript = `
+var setupScript = `
 set -x;
 set -e;
 

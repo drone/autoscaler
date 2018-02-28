@@ -29,20 +29,20 @@ func TestServerDelete(t *testing.T) {
 	registry := prometheus.NewRegistry()
 	prometheus.DefaultRegisterer = registry
 
-	server := &autoscaler.Server{Name: "server1", Capacity: 1}
+	instance := &autoscaler.Instance{Name: "server1"}
 
 	provider := mocks.NewMockProvider(controller)
-	provider.EXPECT().Destroy(noContext, server).Times(3).Return(nil)
-	provider.EXPECT().Destroy(noContext, server).Return(errors.New("error"))
+	provider.EXPECT().Destroy(noContext, instance).Times(3).Return(nil)
+	provider.EXPECT().Destroy(noContext, instance).Return(errors.New("error"))
 
 	providerInst := ServerDelete(provider)
 	for i := 0; i < 3; i++ {
-		err := providerInst.Destroy(noContext, server)
+		err := providerInst.Destroy(noContext, instance)
 		if err != nil {
 			t.Error(err)
 		}
 	}
-	err := providerInst.Destroy(noContext, server)
+	err := providerInst.Destroy(noContext, instance)
 	if err == nil {
 		t.Errorf("Expect error returned from provider")
 	}

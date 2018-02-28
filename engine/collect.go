@@ -64,7 +64,16 @@ func (c *collector) collect(ctx context.Context, server *autoscaler.Server) erro
 		}
 	}()
 
-	err := c.provider.Destroy(ctx, server)
+	in := &autoscaler.Instance{
+		Provider: server.Provider,
+		ID:       server.UID,
+		Name:     server.Name,
+		Address:  server.Address,
+		Region:   server.Region,
+		Image:    server.Image,
+		Size:     server.Size,
+	}
+	err := c.provider.Destroy(ctx, in)
 	if err != nil {
 		logger.Error().
 			Str("server", server.Name).
@@ -78,5 +87,6 @@ func (c *collector) collect(ctx context.Context, server *autoscaler.Server) erro
 
 		server.State = autoscaler.StateStopped
 	}
+
 	return c.servers.Update(ctx, server)
 }

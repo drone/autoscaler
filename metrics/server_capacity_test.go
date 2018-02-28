@@ -37,7 +37,7 @@ func TestServerCapacity(t *testing.T) {
 	}
 
 	store := mocks.NewMockServerStore(controller)
-	store.EXPECT().List(gomock.Any()).Return(servers, nil)
+	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
 	ServerCapacity(store)
 
 	metrics, err := registry.Gather()

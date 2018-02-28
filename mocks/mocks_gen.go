@@ -34,6 +34,30 @@ func (m *MockScaler) EXPECT() *MockScalerMockRecorder {
 	return m.recorder
 }
 
+// Allocate mocks base method
+func (m *MockScaler) Allocate(arg0 context.Context) error {
+	ret := m.ctrl.Call(m, "Allocate", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Allocate indicates an expected call of Allocate
+func (mr *MockScalerMockRecorder) Allocate(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Allocate", reflect.TypeOf((*MockScaler)(nil).Allocate), arg0)
+}
+
+// Collect mocks base method
+func (m *MockScaler) Collect(arg0 context.Context) error {
+	ret := m.ctrl.Call(m, "Collect", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Collect indicates an expected call of Collect
+func (mr *MockScalerMockRecorder) Collect(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Collect", reflect.TypeOf((*MockScaler)(nil).Collect), arg0)
+}
+
 // Pause mocks base method
 func (m *MockScaler) Pause() {
 	m.ctrl.Call(m, "Pause")
@@ -151,6 +175,19 @@ func (mr *MockServerStoreMockRecorder) List(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockServerStore)(nil).List), arg0)
 }
 
+// ListState mocks base method
+func (m *MockServerStore) ListState(arg0 context.Context, arg1 autoscaler.ServerState) ([]*autoscaler.Server, error) {
+	ret := m.ctrl.Call(m, "ListState", arg0, arg1)
+	ret0, _ := ret[0].([]*autoscaler.Server)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListState indicates an expected call of ListState
+func (mr *MockServerStoreMockRecorder) ListState(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListState", reflect.TypeOf((*MockServerStore)(nil).ListState), arg0, arg1)
+}
+
 // Update mocks base method
 func (m *MockServerStore) Update(arg0 context.Context, arg1 *autoscaler.Server) error {
 	ret := m.ctrl.Call(m, "Update", arg0, arg1)
@@ -187,11 +224,10 @@ func (m *MockProvider) EXPECT() *MockProviderMockRecorder {
 }
 
 // Create mocks base method
-func (m *MockProvider) Create(arg0 context.Context, arg1 *autoscaler.ServerOpts) (*autoscaler.Server, error) {
+func (m *MockProvider) Create(arg0 context.Context, arg1 *autoscaler.Server) error {
 	ret := m.ctrl.Call(m, "Create", arg0, arg1)
-	ret0, _ := ret[0].(*autoscaler.Server)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Create indicates an expected call of Create

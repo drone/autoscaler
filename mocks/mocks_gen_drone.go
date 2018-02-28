@@ -34,6 +34,43 @@ func (m *MockClient) EXPECT() *MockClientMockRecorder {
 	return m.recorder
 }
 
+// AutoscalePause mocks base method
+func (m *MockClient) AutoscalePause() error {
+	ret := m.ctrl.Call(m, "AutoscalePause")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AutoscalePause indicates an expected call of AutoscalePause
+func (mr *MockClientMockRecorder) AutoscalePause() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AutoscalePause", reflect.TypeOf((*MockClient)(nil).AutoscalePause))
+}
+
+// AutoscaleResume mocks base method
+func (m *MockClient) AutoscaleResume() error {
+	ret := m.ctrl.Call(m, "AutoscaleResume")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AutoscaleResume indicates an expected call of AutoscaleResume
+func (mr *MockClientMockRecorder) AutoscaleResume() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AutoscaleResume", reflect.TypeOf((*MockClient)(nil).AutoscaleResume))
+}
+
+// AutoscaleVersion mocks base method
+func (m *MockClient) AutoscaleVersion() (*drone.Version, error) {
+	ret := m.ctrl.Call(m, "AutoscaleVersion")
+	ret0, _ := ret[0].(*drone.Version)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AutoscaleVersion indicates an expected call of AutoscaleVersion
+func (mr *MockClientMockRecorder) AutoscaleVersion() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AutoscaleVersion", reflect.TypeOf((*MockClient)(nil).AutoscaleVersion))
+}
+
 // Build mocks base method
 func (m *MockClient) Build(arg0, arg1 string, arg2 int) (*drone.Build, error) {
 	ret := m.ctrl.Call(m, "Build", arg0, arg1, arg2)
@@ -160,6 +197,18 @@ func (m *MockClient) Deploy(arg0, arg1 string, arg2 int, arg3 string, arg4 map[s
 // Deploy indicates an expected call of Deploy
 func (mr *MockClientMockRecorder) Deploy(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Deploy", reflect.TypeOf((*MockClient)(nil).Deploy), arg0, arg1, arg2, arg3, arg4)
+}
+
+// LogsPurge mocks base method
+func (m *MockClient) LogsPurge(arg0, arg1 string, arg2 int) error {
+	ret := m.ctrl.Call(m, "LogsPurge", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// LogsPurge indicates an expected call of LogsPurge
+func (mr *MockClientMockRecorder) LogsPurge(arg0, arg1, arg2 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LogsPurge", reflect.TypeOf((*MockClient)(nil).LogsPurge), arg0, arg1, arg2)
 }
 
 // Registry mocks base method

@@ -48,6 +48,20 @@ func (db *serverStore) List(ctx context.Context) ([]*autoscaler.Server, error) {
 	return items, err
 }
 
+func (db *serverStore) ListState(ctx context.Context, state autoscaler.ServerState) ([]*autoscaler.Server, error) {
+	items := []*autoscaler.Server{}
+	all, err := db.List(ctx)
+	if err != nil {
+		return items, err
+	}
+	for _, item := range all {
+		if item.State == state {
+			items = append(items, item)
+		}
+	}
+	return items, err
+}
+
 func (db *serverStore) Create(ctx context.Context, server *autoscaler.Server) error {
 	return db.Update(ctx, server)
 }

@@ -11,6 +11,21 @@ import (
 	"github.com/dchest/uniuri"
 )
 
+// ServerState specifies the server state.
+type ServerState int
+
+// ServerState type enumeration.
+const (
+	StateUnknown ServerState = iota
+	StatePending
+	StateStaging
+	StateRunning
+	StateShutdown
+	StateStopping
+	StateStopped
+	StateError
+)
+
 // ErrServerNotFound is returned when the requested server
 // does not exist in the store.
 var ErrServerNotFound = errors.New("Not Found")
@@ -20,8 +35,11 @@ type ServerStore interface {
 	// Find a server by unique name.
 	Find(context.Context, string) (*Server, error)
 
-	// List all registered servers
+	// List returns all registered servers
 	List(context.Context) ([]*Server, error)
+
+	// ListState returns all servers with the given state.
+	ListState(context.Context, ServerState) ([]*Server, error)
 
 	// Create the server record in the store.
 	Create(context.Context, *Server) error
@@ -36,6 +54,7 @@ type ServerStore interface {
 // Server stores the server details.
 type Server struct {
 	Provider ProviderType `json:"provider"`
+	State    ServerState  `json:"state"`
 	UID      string       `json:"uid"`
 	Name     string       `json:"name"`
 	Image    string       `json:"image"`

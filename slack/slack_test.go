@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/h2non/gock"
-	"github.com/kr/pretty"
 
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/config"
@@ -30,7 +29,7 @@ func TestHumanizeTime(t *testing.T) {
 	}
 }
 
-func TestCreate(t *testing.T) {
+func TestUpdateRunning(t *testing.T) {
 	defer gock.Off()
 
 	controller := gomock.NewController(t)
@@ -40,11 +39,7 @@ func TestCreate(t *testing.T) {
 		Name:   "this-is-a-test-message",
 		Region: "nyc1",
 		Size:   "s-1vcpu-1gb",
-	}
-
-	opts := &autoscaler.ServerOpts{
-		Name:     "i-123789331",
-		Capacity: 2,
+		State:  autoscaler.StateRunning,
 	}
 
 	// TODO: verify the contents of the Slack payload.
@@ -56,21 +51,17 @@ func TestCreate(t *testing.T) {
 	conf := config.Config{}
 	conf.Slack.Webhook = "https://hooks.slack.com/services/XXX/YYY/ZZZ"
 
-	provider := mocks.NewMockProvider(controller)
-	provider.EXPECT().Create(gomock.Any(), gomock.Any()).Return(server, nil)
+	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().Update(gomock.Any(), server).Return(nil)
 
-	slack := New(conf, provider)
-	result, err := slack.Create(noContext, opts)
+	slack := New(conf, store)
+	err := slack.Update(noContext, server)
 	if err != nil {
 		t.Error(err)
 	}
-	if got, want := result, server; got != want {
-		t.Errorf("Unexpected response")
-		pretty.Ldiff(t, got, want)
-	}
 }
 
-func TestDestroy(t *testing.T) {
+func TestUpdateStopped(t *testing.T) {
 	defer gock.Off()
 
 	controller := gomock.NewController(t)
@@ -80,6 +71,7 @@ func TestDestroy(t *testing.T) {
 		Name:   "this-is-a-test-message",
 		Region: "nyc1",
 		Size:   "s-1vcpu-1gb",
+		State:  autoscaler.StateStopped,
 	}
 
 	// TODO: verify the contents of the Slack payload.
@@ -91,11 +83,11 @@ func TestDestroy(t *testing.T) {
 	conf := config.Config{}
 	conf.Slack.Webhook = "https://hooks.slack.com/services/XXX/YYY/ZZZ"
 
-	provider := mocks.NewMockProvider(controller)
-	provider.EXPECT().Destroy(gomock.Any(), server).Return(nil)
+	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().Update(gomock.Any(), server).Return(nil)
 
-	slack := New(conf, provider)
-	err := slack.Destroy(noContext, server)
+	slack := New(conf, store)
+	err := slack.Update(noContext, server)
 	if err != nil {
 		t.Error(err)
 	}
@@ -115,29 +107,23 @@ func TestIntegration(t *testing.T) {
 	defer controller.Finish()
 
 	server := &autoscaler.Server{
-		Name:   "this-is-a-test-message",
-		Region: "nyc1",
-		Size:   "s-1vcpu-1gb",
-	}
-
-	opts := &autoscaler.ServerOpts{
 		Name:     "i-123789331",
+		Address:  "1.2.3.4",
+		Region:   "nyc1",
+		Size:     "s-1vcpu-1gb",
 		Capacity: 2,
+		State:    autoscaler.StateRunning,
 	}
 
 	conf := config.Config{}
 	conf.Slack.Webhook = webhook
 
-	provider := mocks.NewMockProvider(controller)
-	provider.EXPECT().Create(gomock.Any(), gomock.Any()).Return(server, nil)
+	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().Update(gomock.Any(), server).Return(nil)
 
-	slack := New(conf, provider)
-	result, err := slack.Create(noContext, opts)
+	slack := New(conf, store)
+	err := slack.Update(noContext, server)
 	if err != nil {
 		t.Error(err)
-	}
-
-	if result != server {
-		t.Errorf("Invalid response")
 	}
 }

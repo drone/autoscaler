@@ -22,7 +22,7 @@ const (
 // and is responsible for server management.
 type Provider interface {
 	// Create creates a new server.
-	Create(context.Context, *ServerOpts) (*Server, error)
+	Create(context.Context, *Server) error
 
 	// Destroy destroys an existing server.
 	Destroy(context.Context, *Server) error

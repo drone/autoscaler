@@ -32,6 +32,7 @@ func testServerCreate(store *serverStore) func(t *testing.T) {
 	return func(t *testing.T) {
 		server := &autoscaler.Server{
 			Provider: autoscaler.ProviderGoogle,
+			State:    autoscaler.StateRunning,
 			Name:     "i-5203422c",
 			Address:  "54.194.252.215",
 			Capacity: 2,
@@ -122,6 +123,9 @@ func testServer(server *autoscaler.Server) func(t *testing.T) {
 	return func(t *testing.T) {
 		if got, want := server.Name, "i-5203422c"; got != want {
 			t.Errorf("Want server Name %q, got %q", want, got)
+		}
+		if got, want := server.State, autoscaler.StateRunning; got != want {
+			t.Errorf("Want server State %v, got %v", want, got)
 		}
 		if got, want := server.Address, "54.194.252.215"; got != want {
 			t.Errorf("Want server Address %q, got %q", want, got)

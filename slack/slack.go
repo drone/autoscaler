@@ -20,30 +20,25 @@ import (
 // New returns a new provider that is instrumented to send
 // Slack notifications when server instances are provisioned
 // or terminated.
-func New(config config.Config, base autoscaler.Provider) autoscaler.Provider {
+func New(config config.Config, base autoscaler.ServerStore) autoscaler.ServerStore {
 	return &notifier{
-		Provider: base,
-		client:   slack.NewWebHook(config.Slack.Webhook),
+		ServerStore: base,
+		client:      slack.NewWebHook(config.Slack.Webhook),
 	}
 }
 
 type notifier struct {
-	autoscaler.Provider
+	autoscaler.ServerStore
 	client  *slack.WebHook
 	channel string
 }
 
-func (n *notifier) Create(ctx context.Context, opts *autoscaler.ServerOpts) (*autoscaler.Server, error) {
-	server, err := n.Provider.Create(ctx, opts)
-	if err == nil {
+func (n *notifier) Update(ctx context.Context, server *autoscaler.Server) error {
+	err := n.ServerStore.Update(ctx, server)
+	switch {
+	case server.State == autoscaler.StateRunning:
 		n.notifyCreate(server)
-	}
-	return server, err
-}
-
-func (n *notifier) Destroy(ctx context.Context, server *autoscaler.Server) error {
-	err := n.Provider.Destroy(ctx, server)
-	if err == nil {
+	case server.State == autoscaler.StateStopped:
 		n.notifyDestroy(server)
 	}
 	return err

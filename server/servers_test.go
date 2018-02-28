@@ -34,9 +34,7 @@ func TestHandleServerList(t *testing.T) {
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
 
-	router := chi.NewRouter()
-	router.Get("/api/servers", HandleServerList(store))
-	router.ServeHTTP(w, r)
+	HandleServerList(store).ServeHTTP(w, r)
 
 	if got, want := w.Code, 200; want != got {
 		t.Errorf("Want response code %d, got %d", want, got)
@@ -61,9 +59,7 @@ func TestHandleServerListErr(t *testing.T) {
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().List(gomock.Any()).Return(nil, err)
 
-	router := chi.NewRouter()
-	router.Get("/api/servers", HandleServerList(store))
-	router.ServeHTTP(w, r)
+	HandleServerList(store).ServeHTTP(w, r)
 
 	if got, want := w.Code, 500; want != got {
 		t.Errorf("Want response code %d, got %d", want, got)
@@ -139,9 +135,7 @@ func TestHandleServerCreate(t *testing.T) {
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil)
 
-	router := chi.NewRouter()
-	router.Post("/api/servers", HandleServerCreate(store, config.Config{}))
-	router.ServeHTTP(w, r)
+	HandleServerCreate(store, config.Config{}).ServeHTTP(w, r)
 
 	if got, want := w.Code, 200; want != got {
 		t.Errorf("Want response code %d, got %d", want, got)
@@ -159,9 +153,8 @@ func TestHandleServerCreateFailure(t *testing.T) {
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().Create(gomock.Any(), gomock.Any()).Return(err)
 
-	router := chi.NewRouter()
-	router.Post("/api/servers", HandleServerCreate(store, config.Config{}))
-	router.ServeHTTP(w, r)
+	h := HandleServerCreate(store, config.Config{})
+	h.ServeHTTP(w, r)
 
 	if got, want := w.Code, 500; want != got {
 		t.Errorf("Want response code %d, got %d", want, got)

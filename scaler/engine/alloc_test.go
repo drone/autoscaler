@@ -2,7 +2,7 @@
 // Use of this software is governed by the Business Source License
 // that can be found in the LICENSE file.
 
-package runtime
+package engine
 
 import (
 	"context"
@@ -15,63 +15,63 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
-func TestCollect(t *testing.T) {
+func TestAllocate(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
 	mockctx := context.Background()
 	mockServers := []*autoscaler.Server{
-		{State: autoscaler.StateShutdown},
+		{State: autoscaler.StatePending},
 	}
 
 	store := mocks.NewMockServerStore(controller)
-	store.EXPECT().ListState(mockctx, autoscaler.StateShutdown).Return(mockServers, nil)
+	store.EXPECT().ListState(mockctx, autoscaler.StatePending).Return(mockServers, nil)
 	store.EXPECT().Update(mockctx, mockServers[0]).Return(nil)
 	store.EXPECT().Update(mockctx, mockServers[0]).Return(nil)
 
 	provider := mocks.NewMockProvider(controller)
-	provider.EXPECT().Destroy(mockctx, mockServers[0]).Return(nil)
+	provider.EXPECT().Create(mockctx, mockServers[0]).Return(nil)
 
-	c := collector{servers: store, provider: provider}
-	err := c.Collect(mockctx)
-	c.wg.Wait()
+	a := allocator{servers: store, provider: provider}
+	err := a.Allocate(mockctx)
+	a.wg.Wait()
 
 	if err != nil {
 		t.Error(err)
 	}
-	if got, want := mockServers[0].State, autoscaler.StateStopped; got != want {
-		t.Errorf("Want server state Stopped, got %v", got)
+	if got, want := mockServers[0].State, autoscaler.StateRunning; got != want {
+		t.Errorf("Want server state Running, got %v", got)
 	}
 }
 
-func TestCollect_ServerDestroyError(t *testing.T) {
+func TestAllocate_ServerCreateError(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
 	mockctx := context.Background()
 	mockerr := errors.New("mock error")
 	mockServers := []*autoscaler.Server{
-		{State: autoscaler.StateShutdown},
+		{State: autoscaler.StatePending},
 	}
 
 	store := mocks.NewMockServerStore(controller)
-	store.EXPECT().ListState(mockctx, autoscaler.StateShutdown).Return(mockServers, nil)
+	store.EXPECT().ListState(mockctx, autoscaler.StatePending).Return(mockServers, nil)
 	store.EXPECT().Update(mockctx, mockServers[0]).Return(nil)
 	store.EXPECT().Update(mockctx, mockServers[0]).Return(nil)
 
 	provider := mocks.NewMockProvider(controller)
-	provider.EXPECT().Destroy(mockctx, mockServers[0]).Return(mockerr)
+	provider.EXPECT().Create(mockctx, gomock.Any()).Return(mockerr)
 
-	c := collector{servers: store, provider: provider}
-	c.Collect(mockctx)
-	c.wg.Wait()
+	a := allocator{servers: store, provider: provider}
+	a.Allocate(mockctx)
+	a.wg.Wait()
 
 	if got, want := mockServers[0].State, autoscaler.StateError; got != want {
 		t.Errorf("Want server state Error, got %v", got)
 	}
 }
 
-func TestCollect_ServerListError(t *testing.T) {
+func TestAllocate_ServerListError(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
@@ -79,33 +79,33 @@ func TestCollect_ServerListError(t *testing.T) {
 	mockerr := errors.New("mock error")
 
 	store := mocks.NewMockServerStore(controller)
-	store.EXPECT().ListState(mockctx, autoscaler.StateShutdown).Return(nil, mockerr)
+	store.EXPECT().ListState(mockctx, autoscaler.StatePending).Return(nil, mockerr)
 
-	c := collector{servers: store}
-	if got, want := c.Collect(mockctx), mockerr; got != want {
+	a := allocator{servers: store}
+	if got, want := a.Allocate(mockctx), mockerr; got != want {
 		t.Errorf("Want error getting server list")
 	}
 }
 
-func TestCollect_ServerUpdateError(t *testing.T) {
+func TestAllocate_ServerUpdateError(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
 	mockctx := context.Background()
 	mockerr := errors.New("mock error")
 	mockServers := []*autoscaler.Server{
-		{State: autoscaler.StateShutdown},
+		{State: autoscaler.StatePending},
 	}
 
 	store := mocks.NewMockServerStore(controller)
-	store.EXPECT().ListState(mockctx, autoscaler.StateShutdown).Return(mockServers, nil)
+	store.EXPECT().ListState(mockctx, autoscaler.StatePending).Return(mockServers, nil)
 	store.EXPECT().Update(mockctx, mockServers[0]).Return(mockerr)
 
-	c := collector{servers: store}
-	if got, want := c.Collect(mockctx), mockerr; got != want {
+	a := allocator{servers: store}
+	if got, want := a.Allocate(mockctx), mockerr; got != want {
 		t.Errorf("Want error updating server")
 	}
-	if got, want := mockServers[0].State, autoscaler.StateStopping; got != want {
-		t.Errorf("Want server state Stopping, got %v", got)
+	if got, want := mockServers[0].State, autoscaler.StateStaging; got != want {
+		t.Errorf("Want server state Staging, got %v", got)
 	}
 }

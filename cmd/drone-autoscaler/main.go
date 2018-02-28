@@ -15,8 +15,7 @@ import (
 	"github.com/drone/autoscaler/config"
 	"github.com/drone/autoscaler/drivers/digitalocean"
 	"github.com/drone/autoscaler/metrics"
-	"github.com/drone/autoscaler/scaler"
-	"github.com/drone/autoscaler/scaler/runtime"
+	"github.com/drone/autoscaler/scaler/engine"
 	"github.com/drone/autoscaler/server"
 	"github.com/drone/autoscaler/slack"
 	"github.com/drone/autoscaler/store"
@@ -67,7 +66,7 @@ func main() {
 
 	client := setupClient(conf)
 
-	ascaler := runtime.New(
+	enginex := engine.New(
 		client,
 		conf,
 		servers,
@@ -84,12 +83,12 @@ func main() {
 	r.Get("/metrics", server.HandleMetrics(conf.Prometheus.Token))
 	r.Get("/version", server.HandleVersion(source, version, commit))
 	r.Get("/healthz", server.HandleHealthz())
-	r.Get("/varz", server.HandleVarz(ascaler))
+	r.Get("/varz", server.HandleVarz(enginex))
 	r.Route("/api", func(r chi.Router) {
 		r.Use(server.CheckDrone(conf))
 
-		r.Post("/pause", server.HandleScalerPause(ascaler))
-		r.Post("/resume", server.HandleScalerResume(ascaler))
+		r.Post("/pause", server.HandleEnginePause(enginex))
+		r.Post("/resume", server.HandleEngineResume(enginex))
 		r.Get("/queue", server.HandleQueueList(client))
 		r.Get("/servers", server.HandleServerList(servers))
 		r.Post("/servers", server.HandleServerCreate(servers, conf))
@@ -131,7 +130,8 @@ func main() {
 	//
 
 	g.Go(func() error {
-		return scaler.Start(ctx, ascaler, conf.Interval)
+		enginex.Start(ctx)
+		return nil
 	})
 
 	if err := g.Wait(); err != nil {

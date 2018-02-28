@@ -16,10 +16,10 @@ type varz struct {
 
 // HandleVarz creates an http.HandlerFunc that returns system
 // configuration and runtime information.
-func HandleVarz(scaler autoscaler.Scaler) http.HandlerFunc {
+func HandleVarz(engine autoscaler.Engine) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data := varz{
-			Paused: scaler.Paused(),
+			Paused: engine.Paused(),
 		}
 		writeJSON(w, &data, 200)
 	}

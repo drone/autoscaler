@@ -10,20 +10,20 @@ import (
 	"github.com/drone/autoscaler"
 )
 
-// HandleScalerPause returns an http.HandlerFunc that pauses
-// automatic scaling.
-func HandleScalerPause(scaler autoscaler.Scaler) http.HandlerFunc {
+// HandleEnginePause returns an http.HandlerFunc that pauses
+// scaling engine.
+func HandleEnginePause(engine autoscaler.Engine) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		scaler.Pause()
+		engine.Pause()
 		w.WriteHeader(204)
 	}
 }
 
-// HandleScalerResume returns an http.HandlerFunc that resumed
-// automatic scaling.
-func HandleScalerResume(scaler autoscaler.Scaler) http.HandlerFunc {
+// HandleEngineResume returns an http.HandlerFunc that resumes
+// scaling engine.
+func HandleEngineResume(engine autoscaler.Engine) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		scaler.Resume()
+		engine.Resume()
 		w.WriteHeader(204)
 	}
 }

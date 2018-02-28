@@ -35,12 +35,12 @@ type Provider struct {
 }
 
 // Create creates the Amazon instance.
-func (p *Provider) Create(ctx context.Context, opts *autoscaler.ServerOpts) (*autoscaler.Server, error) {
+func (p *Provider) Create(ctx context.Context, server *autoscaler.Server) error {
 	client := p.getClient()
 
 	signer, err := sshutil.ParsePrivateKey(p.config.Amazon.SSHKey)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	in := &ec2.RunInstancesInput{
@@ -62,7 +62,7 @@ func (p *Provider) Create(ctx context.Context, opts *autoscaler.ServerOpts) (*au
 	logger := log.Ctx(ctx).With().
 		Str("image", *in.ImageId).
 		Str("type", *in.InstanceType).
-		Str("name", opts.Name).
+		Str("name", server.Name).
 		Logger()
 
 	logger.Debug().
@@ -73,7 +73,7 @@ func (p *Provider) Create(ctx context.Context, opts *autoscaler.ServerOpts) (*au
 		logger.Error().
 			Err(err).
 			Msg("instance create failed")
-		return nil, err
+		return err
 	}
 
 	instance := results.Instances[0]
@@ -84,17 +84,6 @@ func (p *Provider) Create(ctx context.Context, opts *autoscaler.ServerOpts) (*au
 			Resources: []*string{instance.InstanceId},
 			Tags:      convertTags(p.config.Amazon.Tags),
 		})
-	}
-
-	server := &autoscaler.Server{
-		Provider: autoscaler.ProviderAmazon,
-		UID:      *instance.InstanceId,
-		Name:     opts.Name,
-		Size:     *in.InstanceType,
-		Region:   *instance.Placement.AvailabilityZone,
-		Image:    *in.ImageId,
-		Capacity: opts.Capacity,
-		Secret:   opts.Secret,
 	}
 
 	// wait for the server to be available
@@ -110,7 +99,7 @@ func (p *Provider) Create(ctx context.Context, opts *autoscaler.ServerOpts) (*au
 			logger.Error().
 				Err(err).
 				Msg("instance details failed")
-			return nil, err
+			return err
 		}
 		instance = desc.Reservations[0].Instances[0]
 
@@ -121,6 +110,12 @@ func (p *Provider) Create(ctx context.Context, opts *autoscaler.ServerOpts) (*au
 		break
 	}
 
+	// update server metadata
+	server.Provider = autoscaler.ProviderAmazon
+	server.UID = *instance.InstanceId
+	server.Size = *in.InstanceType
+	server.Region = *instance.Placement.AvailabilityZone
+	server.Image = *in.ImageId
 	server.Address = *instance.PublicIpAddress
 
 	logger.Debug().
@@ -151,7 +146,7 @@ func (p *Provider) Create(ctx context.Context, opts *autoscaler.ServerOpts) (*au
 
 	script, err := scripts.GenerateInstall(p.config, server)
 	if err != nil {
-		return server, err
+		return err
 	}
 
 	logger.Debug().
@@ -167,7 +162,7 @@ func (p *Provider) Create(ctx context.Context, opts *autoscaler.ServerOpts) (*au
 			Str("name", server.Name).
 			Str("ip", server.Address).
 			Msg("install failed")
-		return server, err
+		return err
 	}
 
 	logger.Debug().
@@ -175,7 +170,7 @@ func (p *Provider) Create(ctx context.Context, opts *autoscaler.ServerOpts) (*au
 		Str("ip", server.Address).
 		Msg("install complete")
 
-	return server, nil
+	return nil
 }
 
 // Destroy terminates the AWS instance.

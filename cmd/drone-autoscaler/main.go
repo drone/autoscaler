@@ -16,6 +16,7 @@ import (
 	"github.com/drone/autoscaler/drivers/digitalocean"
 	"github.com/drone/autoscaler/metrics"
 	"github.com/drone/autoscaler/scaler"
+	"github.com/drone/autoscaler/scaler/runtime"
 	"github.com/drone/autoscaler/server"
 	"github.com/drone/autoscaler/slack"
 	"github.com/drone/autoscaler/store"
@@ -41,8 +42,6 @@ var (
 
 func main() {
 	conf := config.MustLoad()
-	metrics.MinPool(conf)
-	metrics.MaxPool(conf)
 	setupLogging(conf)
 
 	provider, err := setupProvider(conf)
@@ -55,27 +54,25 @@ func main() {
 	provider = metrics.ServerCreate(provider)
 	provider = metrics.ServerDelete(provider)
 
+	db := store.Must(conf.Database.Path)
+	servers := store.NewServerStore(db)
 	// instruments the provider with slack notifications
 	// instance creation and termination events.
 	if conf.Slack.Webhook != "" {
-		provider = slack.New(conf, provider)
+		servers = slack.New(conf, servers)
 	}
-
-	db := store.Must(conf.Database.Path)
-	servers := store.NewServerStore(db)
-
 	// instruments the store with prometheus metrics.
 	servers = metrics.ServerCount(servers)
 	defer db.Close()
 
 	client := setupClient(conf)
 
-	ascaler := &scaler.Scaler{
-		Client:   client,
-		Config:   conf,
-		Servers:  servers,
-		Provider: provider,
-	}
+	ascaler := runtime.New(
+		client,
+		conf,
+		servers,
+		provider,
+	)
 
 	r := chi.NewRouter()
 	r.Use(hlog.NewHandler(log.Logger))
@@ -95,9 +92,9 @@ func main() {
 		r.Post("/resume", server.HandleScalerResume(ascaler))
 		r.Get("/queue", server.HandleQueueList(client))
 		r.Get("/servers", server.HandleServerList(servers))
-		r.Post("/servers", server.HandleServerCreate(servers, provider, conf))
+		r.Post("/servers", server.HandleServerCreate(servers, conf))
 		r.Get("/servers/{name}", server.HandleServerFind(servers))
-		r.Delete("/servers/{name}", server.HandleServerDelete(servers, provider))
+		r.Delete("/servers/{name}", server.HandleServerDelete(servers))
 	})
 
 	//

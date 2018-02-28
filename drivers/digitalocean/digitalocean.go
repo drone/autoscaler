@@ -33,14 +33,14 @@ func FromConfig(config config.Config) (autoscaler.Provider, error) {
 }
 
 // Create creates the DigitalOcean instance.
-func (p *Provider) Create(ctx context.Context, opts *autoscaler.ServerOpts) (*autoscaler.Server, error) {
+func (p *Provider) Create(ctx context.Context, server *autoscaler.Server) error {
 	signer, err := sshutil.ParsePrivateKey(p.config.DigitalOcean.SSHKey)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	req := &godo.DropletCreateRequest{
-		Name:   opts.Name,
+		Name:   server.Name,
 		Region: p.config.DigitalOcean.Region,
 		Size:   p.config.DigitalOcean.Size,
 		IPv6:   p.config.DigitalOcean.IPv6,
@@ -79,23 +79,12 @@ func (p *Provider) Create(ctx context.Context, opts *autoscaler.ServerOpts) (*au
 		logger.Error().
 			Err(err).
 			Msg("droplet create failed")
-		return nil, err
+		return err
 	}
 
 	logger.Info().
 		Str("name", droplet.Name).
 		Msg("droplet create success")
-
-	server := &autoscaler.Server{
-		Provider: autoscaler.ProviderDigitalOcean,
-		UID:      strconv.Itoa(droplet.ID),
-		Name:     opts.Name,
-		Size:     req.Size,
-		Region:   req.Region,
-		Image:    req.Image.Slug,
-		Capacity: opts.Capacity,
-		Secret:   opts.Secret,
-	}
 
 	for {
 		logger.Debug().
@@ -107,7 +96,7 @@ func (p *Provider) Create(ctx context.Context, opts *autoscaler.ServerOpts) (*au
 			logger.Error().
 				Err(err).
 				Msg("droplet details unavailable")
-			return nil, err
+			return err
 		}
 
 		for _, network := range droplet.Networks.V4 {
@@ -132,13 +121,19 @@ func (p *Provider) Create(ctx context.Context, opts *autoscaler.ServerOpts) (*au
 		Str("ip", server.Address).
 		Msg("droplet network ready")
 
+	// update server metadata
+	server.Provider = autoscaler.ProviderDigitalOcean
+	server.UID = strconv.Itoa(droplet.ID)
+	server.Size = req.Size
+	server.Region = req.Region
+	server.Image = req.Image.Slug
 	server.Secret = uniuri.New()
 	server.Created = time.Now().Unix()
 	server.Updated = time.Now().Unix()
 
 	script, err := scripts.GenerateInstall(p.config, server)
 	if err != nil {
-		return server, err
+		return err
 	}
 
 	// ping the server in a loop until we can successfully
@@ -171,7 +166,7 @@ func (p *Provider) Create(ctx context.Context, opts *autoscaler.ServerOpts) (*au
 			Str("name", droplet.Name).
 			Str("ip", server.Address).
 			Msg("install failed")
-		return server, err
+		return err
 	}
 
 	logger.Debug().
@@ -179,7 +174,7 @@ func (p *Provider) Create(ctx context.Context, opts *autoscaler.ServerOpts) (*au
 		Str("ip", server.Address).
 		Msg("install complete")
 
-	return server, nil
+	return nil
 }
 
 // Destroy destroyes the DigitalOcean instance.

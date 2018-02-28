@@ -158,17 +158,14 @@ func (p *Provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		Str("ip", instance.Address).
 		Msg("install agent")
 
-	out, err := sshutil.Execute(instance.Address, "22", "root", script, signer)
-	if len(out) != 0 {
-		// TODO bundle server logs in error message
-	}
+	logs, err := sshutil.Execute(instance.Address, "22", "root", script, signer)
 	if err != nil {
 		logger.Error().
 			Err(err).
 			Str("name", instance.Name).
 			Str("ip", instance.Address).
 			Msg("install failed")
-		return instance, err
+		return instance, &autoscaler.InstanceError{Err: err, Logs: logs}
 	}
 
 	logger.Debug().

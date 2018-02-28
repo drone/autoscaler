@@ -76,6 +76,9 @@ func (a *allocator) allocate(ctx context.Context, server *autoscaler.Server) err
 
 		server.State = autoscaler.StateRunning
 	}
+	if lerr, ok := err.(*autoscaler.InstanceError); ok {
+		server.Logs = string(lerr.Logs)
+	}
 	if instance != nil {
 		server.Address = instance.Address
 		server.UID = instance.ID

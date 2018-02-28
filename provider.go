@@ -49,3 +49,15 @@ type Instance struct {
 type InstanceCreateOpts struct {
 	Name string
 }
+
+// InstanceError snapshots an error creating an instance
+// with server logs.
+type InstanceError struct {
+	Err  error
+	Logs []byte
+}
+
+// Error implements the error interface.
+func (e *InstanceError) Error() string {
+	return e.Err.Error()
+}

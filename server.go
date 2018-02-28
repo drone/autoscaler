@@ -7,8 +7,6 @@ package autoscaler
 import (
 	"context"
 	"errors"
-
-	"github.com/dchest/uniuri"
 )
 
 // ServerState specifies the server state.
@@ -75,22 +73,3 @@ type ByCreated []*Server
 func (a ByCreated) Len() int           { return len(a) }
 func (a ByCreated) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByCreated) Less(i, j int) bool { return a[i].Created < a[j].Created }
-
-// ServerOpts defines server creation options.
-type ServerOpts struct {
-	Name     string
-	Secret   string
-	Capacity int
-}
-
-// NewServerOpts returns server options with a unique
-// server identifier and designated capacity.
-func NewServerOpts(prefix string, capacity int) *ServerOpts {
-	suffix := uniuri.NewLen(5)
-	secret := uniuri.New()
-	return &ServerOpts{
-		Name:     prefix + "-" + suffix,
-		Secret:   secret,
-		Capacity: capacity,
-	}
-}

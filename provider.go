@@ -26,9 +26,13 @@ const (
 type Provider interface {
 	// Create creates a new server.
 	Create(context.Context, InstanceCreateOpts) (*Instance, error)
-
 	// Destroy destroys an existing server.
 	Destroy(context.Context, *Instance) error
+	// Execute executes a command on the remote server and
+	// returns the combined terminal output.
+	Execute(context.Context, *Instance, string) ([]byte, error)
+	// Ping pings the remote server.
+	Ping(context.Context, *Instance) error
 }
 
 // An Instance represents a server instance

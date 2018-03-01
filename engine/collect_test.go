@@ -27,10 +27,10 @@ func TestCollect(t *testing.T) {
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().ListState(mockctx, autoscaler.StateShutdown).Return(mockServers, nil)
 	store.EXPECT().Update(mockctx, mockServers[0]).Return(nil)
-	store.EXPECT().Update(mockctx, mockServers[0]).Return(nil)
+	store.EXPECT().Update(gomock.Any(), mockServers[0]).Return(nil)
 
 	provider := mocks.NewMockProvider(controller)
-	provider.EXPECT().Destroy(mockctx, gomock.Any()).Return(nil)
+	provider.EXPECT().Destroy(gomock.Any(), gomock.Any()).Return(nil)
 
 	c := collector{servers: store, provider: provider}
 	err := c.Collect(mockctx)
@@ -57,10 +57,10 @@ func TestCollect_ServerDestroyError(t *testing.T) {
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().ListState(mockctx, autoscaler.StateShutdown).Return(mockServers, nil)
 	store.EXPECT().Update(mockctx, mockServers[0]).Return(nil)
-	store.EXPECT().Update(mockctx, mockServers[0]).Return(nil)
+	store.EXPECT().Update(gomock.Any(), mockServers[0]).Return(nil)
 
 	provider := mocks.NewMockProvider(controller)
-	provider.EXPECT().Destroy(mockctx, gomock.Any()).Return(mockerr)
+	provider.EXPECT().Destroy(gomock.Any(), gomock.Any()).Return(mockerr)
 
 	c := collector{servers: store, provider: provider}
 	c.Collect(mockctx)

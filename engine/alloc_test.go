@@ -28,10 +28,10 @@ func TestAllocate(t *testing.T) {
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().ListState(mockctx, autoscaler.StatePending).Return(mockServers, nil)
 	store.EXPECT().Update(mockctx, mockServers[0]).Return(nil)
-	store.EXPECT().Update(mockctx, mockServers[0]).Return(nil)
+	store.EXPECT().Update(gomock.Any(), mockServers[0]).Return(nil)
 
 	provider := mocks.NewMockProvider(controller)
-	provider.EXPECT().Create(mockctx, gomock.Any()).Return(mockInstance, nil)
+	provider.EXPECT().Create(gomock.Any(), gomock.Any()).Return(mockInstance, nil)
 
 	a := allocator{servers: store, provider: provider}
 	err := a.Allocate(mockctx)
@@ -58,10 +58,10 @@ func TestAllocate_ServerCreateError(t *testing.T) {
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().ListState(mockctx, autoscaler.StatePending).Return(mockServers, nil)
 	store.EXPECT().Update(mockctx, mockServers[0]).Return(nil)
-	store.EXPECT().Update(mockctx, mockServers[0]).Return(nil)
+	store.EXPECT().Update(gomock.Any(), mockServers[0]).Return(nil)
 
 	provider := mocks.NewMockProvider(controller)
-	provider.EXPECT().Create(mockctx, gomock.Any()).Return(nil, mockerr)
+	provider.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil, mockerr)
 
 	a := allocator{servers: store, provider: provider}
 	a.Allocate(mockctx)

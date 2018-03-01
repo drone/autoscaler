@@ -7,6 +7,7 @@ package engine
 import (
 	"context"
 	"sync"
+	"time"
 
 	"github.com/drone/autoscaler"
 
@@ -59,6 +60,9 @@ func (a *allocator) allocate(ctx context.Context, server *autoscaler.Server) err
 				Msg("unexpected panic")
 		}
 	}()
+
+	ctx, cancel := context.WithTimeout(ctx, time.Hour)
+	defer cancel()
 
 	opt := autoscaler.InstanceCreateOpts{Name: server.Name}
 	instance, err := a.provider.Create(ctx, opt)

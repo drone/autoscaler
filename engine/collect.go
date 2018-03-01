@@ -7,6 +7,7 @@ package engine
 import (
 	"context"
 	"sync"
+	"time"
 
 	"github.com/drone/autoscaler"
 
@@ -63,6 +64,9 @@ func (c *collector) collect(ctx context.Context, server *autoscaler.Server) erro
 				Msg("unexpected panic")
 		}
 	}()
+
+	ctx, cancel := context.WithTimeout(ctx, time.Hour)
+	defer cancel()
 
 	in := &autoscaler.Instance{
 		Provider: server.Provider,

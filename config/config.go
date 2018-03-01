@@ -56,7 +56,8 @@ type (
 		}
 
 		Database struct {
-			Path string `default:"snapshot.db"`
+			Driver     string `default:"sqlite3"`
+			Datasource string `default:"database.sqlite?cache=shared&mode=rwc&_busy_timeout=9999999"`
 		}
 
 		Amazon struct {

@@ -34,8 +34,11 @@ func TestDefaults(t *testing.T) {
 	if got, want := conf.HTTP.Port, ":8080"; got != want {
 		t.Errorf("Want default DRONE_HTTP_PORT of %s, got %s", want, got)
 	}
-	if got, want := conf.Database.Path, "snapshot.db"; got != want {
-		t.Errorf("Want default DRONE_DATABASE_PATH of %s, got %s", want, got)
+	if got, want := conf.Database.Driver, "sqlite3"; got != want {
+		t.Errorf("Want default DRONE_DATABASE_DRIVER of %s, got %s", want, got)
+	}
+	if got, want := conf.Database.Datasource, "database.sqlite?cache=shared&mode=rwc&_busy_timeout=9999999"; got != want {
+		t.Errorf("Want default DRONE_DATABASE_DATASOURCE of %s, got %s", want, got)
 	}
 	//
 	// Digital Ocean
@@ -89,7 +92,8 @@ func TestLoad(t *testing.T) {
 		"DRONE_TLS_CERT":              "/path/to/cert.crt",
 		"DRONE_TLS_KEY":               "/path/to/cert.key",
 		"DRONE_PROMETHEUS_TOKEN":      "b359e05e8",
-		"DRONE_DATABASE_PATH":         "/path/to/database.db",
+		"DRONE_DATABASE_DRIVER":       "mysql",
+		"DRONE_DATABASE_DATASOURCE":   "user:password@/dbname",
 		"DRONE_DIGITALOCEAN_TOKEN":    "2573633eb",
 		"DRONE_DIGITALOCEAN_IMAGE":    "docker-16-04",
 		"DRONE_DIGITALOCEAN_REGION":   "ncy1",
@@ -177,7 +181,8 @@ var jsonConfig = []byte(`{
     "Token": "b359e05e8"
   },
   "Database": {
-    "Path": "/path/to/database.db"
+    "Driver": "mysql",
+    "Datasource": "user:password@/dbname"
   },
   "DigitalOcean": {
     "Token": "2573633eb",

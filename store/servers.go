@@ -6,77 +6,215 @@ package store
 
 import (
 	"context"
-	"encoding/json"
+	"database/sql"
+	"time"
 
-	"github.com/boltdb/bolt"
 	"github.com/drone/autoscaler"
+
+	"github.com/jmoiron/sqlx"
 )
 
 // NewServerStore returns a new server store.
-func NewServerStore(db *bolt.DB) autoscaler.ServerStore {
+func NewServerStore(db *sqlx.DB) autoscaler.ServerStore {
 	return &serverStore{db}
 }
 
 type serverStore struct {
-	*bolt.DB
+	*sqlx.DB
 }
 
 func (db *serverStore) Find(ctx context.Context, name string) (*autoscaler.Server, error) {
-	key := []byte(name)
-	val := new(autoscaler.Server)
-	err := db.DB.View(func(tx *bolt.Tx) error {
-		data := tx.Bucket(serverKey).Get(key)
-		if len(data) == 0 {
-			return autoscaler.ErrServerNotFound
-		}
-		return json.Unmarshal(data, val)
-	})
-	return val, err
+	dest := &autoscaler.Server{Name: name}
+	stmt, args, err := db.BindNamed(serverFindStmt, dest)
+	if err != nil {
+		return nil, err
+	}
+	err = db.GetContext(ctx, dest, stmt, args...)
+	return dest, err
 }
 
 func (db *serverStore) List(ctx context.Context) ([]*autoscaler.Server, error) {
-	items := []*autoscaler.Server{}
-	err := db.DB.View(func(tx *bolt.Tx) error {
-		c := tx.Bucket(serverKey).Cursor()
-		for k, v := c.First(); k != nil; k, v = c.Next() {
-			item := new(autoscaler.Server)
-			json.Unmarshal(v, item)
-			items = append(items, item)
-		}
-		return nil
-	})
-	return items, err
+	dest := []*autoscaler.Server{}
+	err := db.SelectContext(ctx, &dest, serverListStmt)
+	return dest, err
 }
 
 func (db *serverStore) ListState(ctx context.Context, state autoscaler.ServerState) ([]*autoscaler.Server, error) {
-	items := []*autoscaler.Server{}
-	all, err := db.List(ctx)
+	dest := []*autoscaler.Server{}
+	stmt, args, err := db.BindNamed(serverListStateStmt, map[string]interface{}{"server_state": state})
 	if err != nil {
-		return items, err
+		return nil, err
 	}
-	for _, item := range all {
-		if item.State == state {
-			items = append(items, item)
-		}
+	err = db.SelectContext(ctx, &dest, stmt, args...)
+	if err == sql.ErrNoRows {
+		return dest, nil
 	}
-	return items, err
+	return dest, err
 }
 
 func (db *serverStore) Create(ctx context.Context, server *autoscaler.Server) error {
-	return db.Update(ctx, server)
+	server.Created = time.Now().Unix()
+	server.Updated = time.Now().Unix()
+	stmt, args, err := db.BindNamed(serverInsertStmt, server)
+	if err != nil {
+		return err
+	}
+	_, err = db.ExecContext(ctx, stmt, args...)
+	return err
 }
 
 func (db *serverStore) Update(ctx context.Context, server *autoscaler.Server) error {
-	key := []byte(server.Name)
-	val, _ := json.Marshal(server)
-	return db.DB.Update(func(tx *bolt.Tx) error {
-		return tx.Bucket(serverKey).Put(key, val)
-	})
+	// before := server.Updated
+	server.Updated = time.Now().Unix()
+	stmt, args, err := db.BindNamed(serverUpdateStmt, server)
+	if err != nil {
+		return err
+	}
+	_, err = db.ExecContext(ctx, stmt, args...)
+	return err
 }
 
 func (db *serverStore) Delete(ctx context.Context, server *autoscaler.Server) error {
-	key := []byte(server.Name)
-	return db.DB.Update(func(tx *bolt.Tx) error {
-		return tx.Bucket(serverKey).Delete(key)
-	})
+	stmt, args, err := db.BindNamed(serverDeleteStmt, server)
+	if err != nil {
+		return err
+	}
+	_, err = db.ExecContext(ctx, stmt, args...)
+	return err
 }
+
+func (db *serverStore) Purge(ctx context.Context, before int64) error {
+	stmt, args, err := db.BindNamed(serverPurgeStmt, &autoscaler.Server{Stopped: before})
+	if err != nil {
+		return err
+	}
+	_, err = db.ExecContext(ctx, stmt, args...)
+	return err
+}
+
+const serverFindStmt = `
+SELECT 
+ server_name
+,server_id
+,server_provider
+,server_state
+,server_image
+,server_region
+,server_size
+,server_address
+,server_capacity
+,server_secret
+,server_error
+,server_created
+,server_updated
+,server_started
+,server_stopped
+FROM servers 
+WHERE server_name=:server_name
+`
+
+const serverListStmt = `
+SELECT 
+ server_name
+,server_id
+,server_provider
+,server_state
+,server_image
+,server_region
+,server_size
+,server_address
+,server_capacity
+,server_secret
+,server_error
+,server_created
+,server_updated
+,server_started
+,server_stopped
+FROM servers 
+ORDER BY server_created ASC
+`
+
+const serverListStateStmt = `
+SELECT 
+ server_name
+,server_id
+,server_provider
+,server_state
+,server_image
+,server_region
+,server_size
+,server_address
+,server_capacity
+,server_secret
+,server_error
+,server_created
+,server_updated
+,server_started
+,server_stopped
+FROM servers 
+WHERE server_state=:server_state
+ORDER BY server_created ASC
+`
+
+const serverInsertStmt = `
+INSERT INTO servers (
+ server_name
+,server_id
+,server_provider
+,server_state
+,server_image
+,server_region
+,server_size
+,server_address
+,server_capacity
+,server_secret
+,server_error
+,server_created
+,server_updated
+,server_started
+,server_stopped
+) VALUES (
+ :server_name
+,:server_id
+,:server_provider
+,:server_state
+,:server_image
+,:server_region
+,:server_size
+,:server_address
+,:server_capacity
+,:server_secret
+,:server_error
+,:server_created
+,:server_updated
+,:server_started
+,:server_stopped
+)
+`
+
+const serverUpdateStmt = `
+UPDATE servers SET 
+ server_id=:server_id
+,server_state=:server_state
+,server_image=:server_image
+,server_region=:server_region
+,server_size=:server_size
+,server_address=:server_address
+,server_capacity=:server_capacity
+,server_secret=:server_secret
+,server_error=:server_error
+,server_updated=:server_updated
+,server_started=:server_started
+,server_stopped=:server_stopped
+WHERE server_name=:server_name
+`
+
+const serverDeleteStmt = `
+DELETE FROM servers WHERE server_name=:server_name
+`
+
+const serverPurgeStmt = `
+DELETE FROM servers
+WHERE server_state = 'stopped'
+  AND server_stopped < :server_stopped
+`

@@ -30,7 +30,9 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/sync/errgroup"
 
+	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/joho/godotenv/autoload"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 var (
@@ -53,7 +55,12 @@ func main() {
 	provider = metrics.ServerCreate(provider)
 	provider = metrics.ServerDelete(provider)
 
-	db := store.Must(conf.Database.Path)
+	db, err := store.Connect(conf.Database.Driver, conf.Database.Datasource)
+	if err != nil {
+		log.Fatal().Err(err).
+			Msg("Cannot establish database connection")
+	}
+
 	servers := store.NewServerStore(db)
 	// instruments the provider with slack notifications
 	// instance creation and termination events.

@@ -66,10 +66,3 @@ type Server struct {
 	Updated  int64        `json:"updated"`
 	Logs     string       `json:"-"`
 }
-
-// ByCreated sorts the server list by created date.
-type ByCreated []*Server
-
-func (a ByCreated) Len() int           { return len(a) }
-func (a ByCreated) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a ByCreated) Less(i, j int) bool { return a[i].Created < a[j].Created }

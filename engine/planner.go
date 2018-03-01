@@ -137,7 +137,7 @@ func (p *planner) mark(ctx context.Context, n int) error {
 			Msg("cannot fetch server list")
 		return err
 	}
-	sort.Sort(sort.Reverse(autoscaler.ByCreated(servers)))
+	sort.Sort(sort.Reverse(byCreated(servers)))
 
 	busy, err := p.listBusy(ctx)
 	if err != nil {

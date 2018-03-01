@@ -466,6 +466,31 @@ func (mr *MockClientMockRecorder) Server(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Server", reflect.TypeOf((*MockClient)(nil).Server), arg0)
 }
 
+// ServerCreate mocks base method
+func (m *MockClient) ServerCreate() (*drone.Server, error) {
+	ret := m.ctrl.Call(m, "ServerCreate")
+	ret0, _ := ret[0].(*drone.Server)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ServerCreate indicates an expected call of ServerCreate
+func (mr *MockClientMockRecorder) ServerCreate() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ServerCreate", reflect.TypeOf((*MockClient)(nil).ServerCreate))
+}
+
+// ServerDelete mocks base method
+func (m *MockClient) ServerDelete(arg0 string) error {
+	ret := m.ctrl.Call(m, "ServerDelete", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ServerDelete indicates an expected call of ServerDelete
+func (mr *MockClientMockRecorder) ServerDelete(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ServerDelete", reflect.TypeOf((*MockClient)(nil).ServerDelete), arg0)
+}
+
 // ServerList mocks base method
 func (m *MockClient) ServerList() ([]*drone.Server, error) {
 	ret := m.ctrl.Call(m, "ServerList")

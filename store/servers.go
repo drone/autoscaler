@@ -195,6 +195,7 @@ INSERT INTO servers (
 const serverUpdateStmt = `
 UPDATE servers SET 
  server_id=:server_id
+,server_provider=:server_provider
 ,server_state=:server_state
 ,server_image=:server_image
 ,server_region=:server_region

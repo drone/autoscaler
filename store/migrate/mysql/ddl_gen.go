@@ -12,6 +12,14 @@ var migrations = []struct {
 		name: "create-table-servers",
 		stmt: createTableServers,
 	},
+	{
+		name: "create-index-server-id",
+		stmt: createIndexServerId,
+	},
+	{
+		name: "create-index-server-state",
+		stmt: createIndexServerState,
+	},
 }
 
 // Migrate performs the database migration. If the migration fails
@@ -103,12 +111,18 @@ CREATE TABLE IF NOT EXISTS servers (
 ,server_address   VARCHAR(250)
 ,server_capacity  INTEGER
 ,server_secret    VARCHAR(50)
-,server_error     MEDIUMTEXT
+,server_error     MEDIUMBLOB
 ,server_created   INTEGER
 ,server_updated   INTEGER
 ,server_started   INTEGER
 ,server_stopped   INTEGER
-,INDEX(server_id)
-,INDEX(server_state)
 );
+`
+
+var createIndexServerId = `
+CREATE INDEX IF NOT EXISTS ix_servers_id ON servers (server_id);
+`
+
+var createIndexServerState = `
+CREATE INDEX IF NOT EXISTS ix_servers_state ON servers (server_state);
 `

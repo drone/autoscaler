@@ -12,6 +12,8 @@ import (
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/config"
 	"github.com/drone/drone-go/drone"
+
+	"github.com/rs/zerolog/log"
 )
 
 // defines the interval at which terminated instances are
@@ -145,11 +147,16 @@ func (e *engine) plan(ctx context.Context) {
 func (e *engine) purge(ctx context.Context) {
 	const interval = time.Hour * 24
 	const retain = time.Hour * 24 * -1
+
+	logger := log.Ctx(ctx)
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		case <-time.After(interval):
+			logger.Debug().
+				Str("ttl", retain.String()).
+				Msg("clear stopped servers from database")
 			e.planner.servers.Purge(ctx, time.Now().Add(retain).Unix())
 		}
 	}

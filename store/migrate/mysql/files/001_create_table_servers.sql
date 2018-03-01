@@ -11,11 +11,17 @@ CREATE TABLE IF NOT EXISTS servers (
 ,server_address   VARCHAR(250)
 ,server_capacity  INTEGER
 ,server_secret    VARCHAR(50)
-,server_error     MEDIUMTEXT
+,server_error     MEDIUMBLOB
 ,server_created   INTEGER
 ,server_updated   INTEGER
 ,server_started   INTEGER
 ,server_stopped   INTEGER
-,INDEX(server_id)
-,INDEX(server_state)
 );
+
+-- name: create-index-server-id
+
+CREATE INDEX IF NOT EXISTS ix_servers_id ON servers (server_id);
+
+-- name: create-index-server-state
+
+CREATE INDEX IF NOT EXISTS ix_servers_state ON servers (server_state);

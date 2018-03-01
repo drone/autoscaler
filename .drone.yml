@@ -13,14 +13,7 @@ pipeline:
 
   build:
     image: golang
-    commands:
-      - |
-        GOOS=linux GOARCH=amd64 go build \
-          -ldflags '-extldflags "-static"' \
-          -ldflags "-X main.version=${DRONE_TAG}" \ 
-          -ldflags "-X main.commit=${DRONE_COMMIT_SHA}" \
-          -o release/linux/arm64/drone-autoscaler \
-          github.com/drone/autoscaler/cmd/drone-autoscaler
+    commands: sh .drone.sh
 
   publish:
     image: plugins/docker

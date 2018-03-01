@@ -81,16 +81,17 @@ func (a *allocator) allocate(ctx context.Context, server *autoscaler.Server) err
 		server.State = autoscaler.StateRunning
 	}
 	if lerr, ok := err.(*autoscaler.InstanceError); ok {
-		server.Logs = string(lerr.Logs)
+		server.Error = string(lerr.Logs)
 	}
 	if instance != nil {
+		server.ID = instance.ID
 		server.Address = instance.Address
-		server.UID = instance.ID
 		server.Image = instance.Image
 		server.Provider = instance.Provider
 		server.Region = instance.Region
 		server.Secret = instance.Secret
 		server.Size = instance.Size
+		server.Started = time.Now().Unix()
 	}
 	return a.servers.Update(ctx, server)
 }

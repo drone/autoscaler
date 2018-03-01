@@ -69,8 +69,8 @@ func (c *collector) collect(ctx context.Context, server *autoscaler.Server) erro
 	defer cancel()
 
 	in := &autoscaler.Instance{
+		ID:       server.ID,
 		Provider: server.Provider,
-		ID:       server.UID,
 		Name:     server.Name,
 		Address:  server.Address,
 		Region:   server.Region,
@@ -89,6 +89,7 @@ func (c *collector) collect(ctx context.Context, server *autoscaler.Server) erro
 			Str("server", server.Name).
 			Msg("destroyed server")
 
+		server.Stopped = time.Now().Unix()
 		server.State = autoscaler.StateStopped
 	}
 

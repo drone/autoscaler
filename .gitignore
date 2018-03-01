@@ -1,7 +1,8 @@
 NOTES.md
 release
 vendor
-.*.toml
+*.sqlite
+*.sqlite3
 *.bak
 *.out
 *.db

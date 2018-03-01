@@ -97,6 +97,18 @@ func (mr *MockServerStoreMockRecorder) ListState(arg0, arg1 interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListState", reflect.TypeOf((*MockServerStore)(nil).ListState), arg0, arg1)
 }
 
+// Purge mocks base method
+func (m *MockServerStore) Purge(arg0 context.Context, arg1 int64) error {
+	ret := m.ctrl.Call(m, "Purge", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Purge indicates an expected call of Purge
+func (mr *MockServerStoreMockRecorder) Purge(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Purge", reflect.TypeOf((*MockServerStore)(nil).Purge), arg0, arg1)
+}
+
 // Update mocks base method
 func (m *MockServerStore) Update(arg0 context.Context, arg1 *autoscaler.Server) error {
 	ret := m.ctrl.Call(m, "Update", arg0, arg1)

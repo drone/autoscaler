@@ -144,14 +144,13 @@ func (e *engine) plan(ctx context.Context) {
 // runs the purge process.
 func (e *engine) purge(ctx context.Context) {
 	const interval = time.Hour * 24
+	const retain = time.Hour * 24 * -1
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		case <-time.After(interval):
-			// DELETE FROM servers
-			// WHERE server_created < ?
-			// AND   server_state = ?
+			e.planner.servers.Purge(ctx, time.Now().Add(retain).Unix())
 		}
 	}
 }

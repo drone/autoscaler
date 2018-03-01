@@ -46,23 +46,26 @@ type ServerStore interface {
 
 	// Delete the server record from the store.
 	Delete(context.Context, *Server) error
+
+	// Purge old server records from the store.
+	Purge(context.Context, int64) error
 }
 
 // Server stores the server details.
 type Server struct {
-	Provider ProviderType `json:"provider"`
-	State    ServerState  `json:"state"`
-	UID      string       `json:"uid"`
-	Name     string       `json:"name"`
-	Image    string       `json:"image"`
-	Region   string       `json:"region"`
-	Size     string       `json:"size"`
-	Address  string       `json:"address"`
-	Secret   string       `json:"secret"`
-	Capacity int          `json:"capacity"`
-	Active   bool         `json:"active"`
-	Healthy  bool         `json:"healthy"`
-	Created  int64        `json:"created"`
-	Updated  int64        `json:"updated"`
-	Logs     string       `json:"-"`
+	ID       string       `db:"server_id"       json:"id"`
+	Provider ProviderType `db:"server_provider" json:"provider"`
+	State    ServerState  `db:"server_state"    json:"state"`
+	Name     string       `db:"server_name"     json:"name"`
+	Image    string       `db:"server_image"    json:"image"`
+	Region   string       `db:"server_region"   json:"region"`
+	Size     string       `db:"server_size"     json:"size"`
+	Address  string       `db:"server_address"  json:"address"`
+	Capacity int          `db:"server_capacity" json:"capacity"`
+	Secret   string       `db:"server_secret"   json:"secret"`
+	Error    string       `db:"server_error"    json:"Error"`
+	Created  int64        `db:"server_created"  json:"created"`
+	Updated  int64        `db:"server_updated"  json:"updated"`
+	Started  int64        `db:"server_started"  json:"started"`
+	Stopped  int64        `db:"server_stopped"  json:"stopped"`
 }

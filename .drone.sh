@@ -1,12 +1,12 @@
 #!/bin/sh
 
-set -e
-set -x
-
 TAG=${DRONE_TAG=latest}
-SHA=${DRONE_COMMIT_SHA:0:7}
+SHA=${DRONE_COMMIT_SHA}
 
 LDFLAGS="-extldflags '-static' -X main.version=${TAG} -X main.commit=${SHA}"
+
+set -e
+set -x
 
 go build -ldflags ${LDFLAGS} \
 	-o release/linux/arm64/drone-autoscaler \

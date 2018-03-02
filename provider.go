@@ -15,11 +15,11 @@ const (
 	ProviderAzure        = ProviderType("azure")
 	ProviderDigitalOcean = ProviderType("digitalocean")
 	ProviderGoogle       = ProviderType("google")
+	ProviderHetznerCloud = ProviderType("hetznercloud")
 	ProviderLinode       = ProviderType("linode")
 	ProviderOpenStack    = ProviderType("openstack")
 	ProviderScaleway     = ProviderType("scaleway")
 	ProviderVultr        = ProviderType("vultr")
-	ProviderHetznerCloud = ProviderType("hetznercloud")
 )
 
 // A Provider represents a hosting provider, such as

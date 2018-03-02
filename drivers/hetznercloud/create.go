@@ -6,10 +6,10 @@ package hetznercloud
 
 import (
 	"context"
+	"io/ioutil"
+	"os"
 	"strconv"
-	"time"
 
-	"github.com/dchest/uniuri"
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/drivers/internal/scripts"
 
@@ -19,8 +19,48 @@ import (
 
 // Create creates the HetznerCloud instance.
 func (p *Provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpts) (*autoscaler.Instance, error) {
+	logger := log.Ctx(ctx).With().
+		Str("type", p.config.HetznerCloud.ServerType).
+		Str("image", p.config.HetznerCloud.Image).
+		Str("datacenter", p.config.HetznerCloud.Datacenter).
+		Str("name", opts.Name).
+		Logger()
+
+	cloudinitTemplate := DefaultCloudConfig
+
+	if p.config.CloudInit.Path != "" {
+		if _, err := os.Stat(p.config.CloudInit.Path); os.IsNotExist(err) {
+			logger.Error().
+				Err(err).
+				Msg("cloud-init doesn't exist")
+
+			return nil, err
+		}
+
+		cloudinitRead, err := ioutil.ReadFile(p.config.CloudInit.Path)
+
+		if err != nil {
+			logger.Error().
+				Err(err).
+				Msg("cloud-init reading failed")
+
+			return nil, err
+		}
+
+		cloudinitTemplate = string(cloudinitRead)
+	}
+
+	cloudinitGenerated, err := scripts.GenerateCloudInit(cloudinitTemplate, p.setupCloudInit(opts.Name))
+
+	if err != nil {
+		logger.Error().
+			Err(err).
+			Msg("cloud-init generate failed")
+
+		return nil, err
+	}
+
 	req := hcloud.ServerCreateOpts{
-		Name: opts.Name,
 		ServerType: &hcloud.ServerType{
 			Name: p.config.HetznerCloud.ServerType,
 		},
@@ -30,106 +70,70 @@ func (p *Provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		Datacenter: &hcloud.Datacenter{
 			Name: p.config.HetznerCloud.Datacenter,
 		},
-		SSHKeys: []*hcloud.SSHKey{
-			&hcloud.SSHKey{
-				ID: p.config.HetznerCloud.SSHKeyID,
-			},
-		},
+		Name:     opts.Name,
+		UserData: cloudinitGenerated,
 	}
-	if req.ServerType.Name == "" {
-		req.ServerType.Name = "cx11"
-	}
-	if req.Image.Name == "" {
-		req.Image.Name = "ubuntu-16.04"
-	}
-	if req.Datacenter.Name == "" {
-		req.Datacenter.Name = "nbg1-dc3"
-	}
-
-	logger := log.Ctx(ctx).With().
-		Str("datacenter", req.Datacenter.Name).
-		Str("image", req.Image.Name).
-		Str("serverType", req.ServerType.Name).
-		Str("name", req.Name).
-		Logger()
 
 	logger.Debug().
-		Msg("instance create")
+		Msg("server create")
 
-	client := newClient(ctx, p.config.HetznerCloud.Token)
-	resp, _, err := client.Server.Create(ctx, req)
+	srv, _, err := p.client().Server.Create(ctx, req)
+
 	if err != nil {
 		logger.Error().
 			Err(err).
-			Msg("instance create failed")
+			Msg("server create failed")
+
 		return nil, err
 	}
 
 	instance := &autoscaler.Instance{
 		Provider: autoscaler.ProviderHetznerCloud,
-		ID:       strconv.Itoa(resp.Server.ID),
-		Name:     resp.Server.Name,
-		Address:  resp.Server.PublicNet.IPv4.IP.String(),
+		ID:       strconv.Itoa(srv.Server.ID),
+		Name:     srv.Server.Name,
+		Address:  srv.Server.PublicNet.IPv4.IP.String(),
 		Size:     req.ServerType.Name,
 		Region:   req.Datacenter.Name,
 		Image:    req.Image.Name,
-		Secret:   uniuri.New(),
+		Secret:   p.secret,
 	}
 
 	logger.Info().
 		Str("name", instance.Name).
 		Msg("instance create success")
 
-	// ping the server in a loop until we can successfully
-	// authenticate.
-	interval := time.Duration(0)
-pinger:
-	for {
-		select {
-		case <-ctx.Done():
-			logger.Debug().
-				Str("name", instance.Name).
-				Str("ip", instance.Address).
-				Str("port", "22").
-				Str("user", "root").
-				Msg("ping deadline exceeded")
+	// TODO: talk to the remote docker connection?
 
-			return instance, ctx.Err()
-		case <-time.After(interval):
-			interval = time.Minute
-			logger.Debug().
-				Str("name", instance.Name).
-				Str("ip", instance.Address).
-				Str("port", "22").
-				Str("user", "root").
-				Msg("ping server")
+	// 	interval := time.Duration(0)
 
-			err = p.Provider.Ping(ctx, instance)
-			if err == nil {
-				break pinger
-			}
-		}
-	}
+	// pinger:
+	// 	for {
+	// 		select {
+	// 		case <-ctx.Done():
+	// 			logger.Debug().
+	// 				Str("name", instance.Name).
+	// 				Str("ip", instance.Address).
+	// 				Str("port", "22").
+	// 				Str("user", "root").
+	// 				Msg("ping deadline exceeded")
 
-	logger.Debug().
-		Str("name", instance.Name).
-		Str("ip", instance.Address).
-		Msg("install agent")
+	// 			return instance, ctx.Err()
+	// 		case <-time.After(interval):
+	// 			interval = time.Minute
+	// 			logger.Debug().
+	// 				Str("name", instance.Name).
+	// 				Str("ip", instance.Address).
+	// 				Str("port", "22").
+	// 				Str("user", "root").
+	// 				Msg("pinging server")
 
-	script, err := scripts.GenerateSetup(p.setupScriptOpts(instance))
-	if err != nil {
-		return instance, err
-	}
+	// 			err = p.Provider.Ping(ctx, instance)
 
-	logs, err := p.Provider.Execute(ctx, instance, script)
-	if err != nil {
-		logger.Error().
-			Err(err).
-			Str("name", instance.Name).
-			Str("ip", instance.Address).
-			Msg("install failed")
-		return instance, &autoscaler.InstanceError{Err: err, Logs: logs}
-	}
+	// 			if err == nil {
+	// 				break pinger
+	// 			}
+	// 		}
+	// 	}
 
 	logger.Debug().
 		Str("name", instance.Name).

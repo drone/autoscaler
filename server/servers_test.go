@@ -34,9 +34,7 @@ func TestHandleServerList(t *testing.T) {
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
 
-	router := chi.NewRouter()
-	router.Get("/api/servers", HandleServerList(store))
-	router.ServeHTTP(w, r)
+	HandleServerList(store).ServeHTTP(w, r)
 
 	if got, want := w.Code, 200; want != got {
 		t.Errorf("Want response code %d, got %d", want, got)
@@ -61,9 +59,7 @@ func TestHandleServerListErr(t *testing.T) {
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().List(gomock.Any()).Return(nil, err)
 
-	router := chi.NewRouter()
-	router.Get("/api/servers", HandleServerList(store))
-	router.ServeHTTP(w, r)
+	HandleServerList(store).ServeHTTP(w, r)
 
 	if got, want := w.Code, 500; want != got {
 		t.Errorf("Want response code %d, got %d", want, got)
@@ -136,32 +132,13 @@ func TestHandleServerCreate(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("POST", "/api/servers", nil)
 
-	server := &autoscaler.Server{
-		Name:   "i-5203422c",
-		Image:  "docker-16-04",
-		Region: "nyc1",
-		Size:   "s-1vcpu-1gb",
-	}
-
-	provider := mocks.NewMockProvider(controller)
-	provider.EXPECT().Create(gomock.Any(), gomock.Any()).Return(server, nil)
-
 	store := mocks.NewMockServerStore(controller)
-	store.EXPECT().Create(gomock.Any(), server).Return(nil)
+	store.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil)
 
-	router := chi.NewRouter()
-	router.Post("/api/servers", HandleServerCreate(store, provider, config.Config{}))
-	router.ServeHTTP(w, r)
+	HandleServerCreate(store, config.Config{}).ServeHTTP(w, r)
 
 	if got, want := w.Code, 200; want != got {
 		t.Errorf("Want response code %d, got %d", want, got)
-	}
-
-	got, want := &autoscaler.Server{}, server
-	json.NewDecoder(w.Body).Decode(got)
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("response body does match expected result")
-		pretty.Ldiff(t, got, want)
 	}
 }
 
@@ -173,14 +150,11 @@ func TestHandleServerCreateFailure(t *testing.T) {
 	r := httptest.NewRequest("POST", "/api/servers", nil)
 
 	err := errors.New("oops")
-	provider := mocks.NewMockProvider(controller)
-	provider.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil, err)
-
 	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().Create(gomock.Any(), gomock.Any()).Return(err)
 
-	router := chi.NewRouter()
-	router.Post("/api/servers", HandleServerCreate(store, provider, config.Config{}))
-	router.ServeHTTP(w, r)
+	h := HandleServerCreate(store, config.Config{})
+	h.ServeHTTP(w, r)
 
 	if got, want := w.Code, 500; want != got {
 		t.Errorf("Want response code %d, got %d", want, got)
@@ -207,19 +181,19 @@ func TestHandleServerDelete(t *testing.T) {
 		Size:   "s-1vcpu-1gb",
 	}
 
-	provider := mocks.NewMockProvider(controller)
-	provider.EXPECT().Destroy(gomock.Any(), server).Return(nil)
-
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().Find(gomock.Any(), server.Name).Return(server, nil)
-	store.EXPECT().Delete(gomock.Any(), server).Return(nil)
+	store.EXPECT().Update(gomock.Any(), server).Return(nil)
 
 	router := chi.NewRouter()
-	router.Delete("/api/servers/{name}", HandleServerDelete(store, provider))
+	router.Delete("/api/servers/{name}", HandleServerDelete(store))
 	router.ServeHTTP(w, r)
 
-	if got, want := w.Code, 204; want != got {
+	if got, want := w.Code, 200; want != got {
 		t.Errorf("Want response code %d, got %d", want, got)
+	}
+	if got, want := server.State, autoscaler.StateShutdown; got != want {
+		t.Errorf("Want server state Shutdown, got %d", got)
 	}
 }
 
@@ -231,13 +205,12 @@ func TestHandleServerDeleteNotFound(t *testing.T) {
 	r := httptest.NewRequest("DELETE", "/api/servers/i-5203422c", nil)
 
 	err := errors.New("not found")
-	provider := mocks.NewMockProvider(controller)
 
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().Find(gomock.Any(), "i-5203422c").Return(nil, err)
 
 	router := chi.NewRouter()
-	router.Delete("/api/servers/{name}", HandleServerDelete(store, provider))
+	router.Delete("/api/servers/{name}", HandleServerDelete(store))
 	router.ServeHTTP(w, r)
 
 	if got, want := w.Code, 404; want != got {
@@ -266,14 +239,13 @@ func TestHandleServerDeleteFailure(t *testing.T) {
 	}
 
 	err := errors.New("bad request")
-	provider := mocks.NewMockProvider(controller)
-	provider.EXPECT().Destroy(gomock.Any(), server).Return(err)
 
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().Find(gomock.Any(), server.Name).Return(server, nil)
+	store.EXPECT().Update(gomock.Any(), server).Return(err)
 
 	router := chi.NewRouter()
-	router.Delete("/api/servers/{name}", HandleServerDelete(store, provider))
+	router.Delete("/api/servers/{name}", HandleServerDelete(store))
 	router.ServeHTTP(w, r)
 
 	if got, want := w.Code, 500; want != got {

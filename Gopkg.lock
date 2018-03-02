@@ -47,12 +47,6 @@
   revision = "307046097ee9f07094bb547c5d96d86d759054a6"
 
 [[projects]]
-  name = "github.com/boltdb/bolt"
-  packages = ["."]
-  revision = "2f1ce7a837dcb8da3ec595b1dac9d0632f0f99e8"
-  version = "v1.3.1"
-
-[[projects]]
   branch = "master"
   name = "github.com/dchest/uniuri"
   packages = ["."]
@@ -70,8 +64,7 @@
 [[projects]]
   name = "github.com/drone/drone-go"
   packages = ["drone"]
-  revision = "3a20536622c5e513dea26c58f1e997cb4ab4dbc5"
-  version = "v0.8.4"
+  revision = "5b15e044e3275274bc54fc711d88ebf73e2061eb"
 
 [[projects]]
   branch = "master"
@@ -98,6 +91,12 @@
   version = "v1.32.0"
 
 [[projects]]
+  name = "github.com/go-sql-driver/mysql"
+  packages = ["."]
+  revision = "a0583e0143b1624142adab07e0e97fe106d99561"
+  version = "v1.3"
+
+[[projects]]
   name = "github.com/golang/mock"
   packages = ["gomock"]
   revision = "13f360950a79f5864a972c786a10a50e44b69541"
@@ -122,9 +121,27 @@
   version = "v1.0.7"
 
 [[projects]]
+  name = "github.com/hetznercloud/hcloud-go"
+  packages = [
+    "hcloud",
+    "hcloud/schema"
+  ]
+  revision = "b37849e439d7a02b07d495f65e7b797bec30eeae"
+  version = "v1.4.0"
+
+[[projects]]
   name = "github.com/jmespath/go-jmespath"
   packages = ["."]
   revision = "0b12d6b5"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/jmoiron/sqlx"
+  packages = [
+    ".",
+    "reflectx"
+  ]
+  revision = "cf35089a197953c69420c8d0cecda90809764b1d"
 
 [[projects]]
   name = "github.com/joho/godotenv"
@@ -152,6 +169,12 @@
   name = "github.com/kr/text"
   packages = ["."]
   revision = "7cafcd837844e784b526369c9bce262804aebc60"
+
+[[projects]]
+  name = "github.com/mattn/go-sqlite3"
+  packages = ["."]
+  revision = "6c771bb9887719704b210e87e934f08be014bdb1"
+  version = "v1.6.0"
 
 [[projects]]
   name = "github.com/matttproud/golang_protobuf_extensions"
@@ -270,12 +293,6 @@
   revision = "fd80eb99c8f653c847d294a001bdf2a3a6f768f5"
 
 [[projects]]
-  branch = "master"
-  name = "golang.org/x/sys"
-  packages = ["unix"]
-  revision = "37707fdb30a5b38865cfb95e5aab41707daec7fd"
-
-[[projects]]
   name = "google.golang.org/appengine"
   packages = [
     "internal",
@@ -292,6 +309,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "db092cb676d53dc31994a55efa21471b715ea5bc9c8840073e7b4b8c9db0d919"
+  inputs-digest = "bab8207df652da10439a983a41c736b30690ebb9f973084a01e35c755438d9a8"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -7,6 +7,7 @@ package server
 import (
 	"net/http"
 
+	"github.com/dchest/uniuri"
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/config"
 
@@ -56,7 +57,6 @@ func HandleServerFind(servers autoscaler.ServerStore) http.HandlerFunc {
 // and then deletes the named server.
 func HandleServerDelete(
 	servers autoscaler.ServerStore,
-	provider autoscaler.Provider,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -71,27 +71,18 @@ func HandleServerDelete(
 			writeNotFound(w, err)
 			return
 		}
-		err = provider.Destroy(ctx, server)
+		server.State = autoscaler.StateShutdown
+		err = servers.Update(ctx, server)
 		if err != nil {
 			hlog.FromRequest(r).
 				Error().
 				Err(err).
 				Str("server", name).
-				Msg("cannot kill server")
+				Msg("cannot update server")
 			writeError(w, err)
 			return
 		}
-		err = servers.Delete(ctx, server)
-		if err != nil {
-			hlog.FromRequest(r).
-				Error().
-				Err(err).
-				Str("server", name).
-				Msg("cannot purge server from datastore")
-			writeError(w, err)
-			return
-		}
-		w.WriteHeader(204)
+		writeJSON(w, server, 200)
 	}
 }
 
@@ -99,22 +90,16 @@ func HandleServerDelete(
 // and a new server.
 func HandleServerCreate(
 	servers autoscaler.ServerStore,
-	provider autoscaler.Provider,
 	config config.Config,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		opt := autoscaler.NewServerOpts("agent", config.Agent.Concurrency)
-		server, err := provider.Create(ctx, opt)
-		if err != nil {
-			hlog.FromRequest(r).
-				Error().
-				Err(err).
-				Msg("cannot create server")
-			writeError(w, err)
-			return
+		server := &autoscaler.Server{
+			Name:     "agent-" + uniuri.NewLen(8),
+			State:    autoscaler.StatePending,
+			Capacity: config.Agent.Concurrency,
 		}
-		err = servers.Create(ctx, server)
+		err := servers.Create(ctx, server)
 		if err != nil {
 			hlog.FromRequest(r).
 				Error().

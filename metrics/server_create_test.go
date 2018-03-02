@@ -8,8 +8,6 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/kr/pretty"
-
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/mocks"
 	"github.com/golang/mock/gomock"
@@ -31,22 +29,21 @@ func TestServerCreate(t *testing.T) {
 	registry := prometheus.NewRegistry()
 	prometheus.DefaultRegisterer = registry
 
-	opts := &autoscaler.ServerOpts{}
-	server := &autoscaler.Server{Name: "server1", Capacity: 1}
+	opts := autoscaler.InstanceCreateOpts{Name: "server1"}
+	instance := &autoscaler.Instance{}
 
 	provider := mocks.NewMockProvider(controller)
-	provider.EXPECT().Create(gomock.Any(), opts).Times(3).Return(server, nil)
+	provider.EXPECT().Create(gomock.Any(), opts).Times(3).Return(instance, nil)
 	provider.EXPECT().Create(gomock.Any(), opts).Return(nil, errors.New("error"))
 
 	providerInst := ServerCreate(provider)
 	for i := 0; i < 3; i++ {
-		result, err := providerInst.Create(noContext, opts)
+		res, err := providerInst.Create(noContext, opts)
 		if err != nil {
 			t.Error(err)
 		}
-		if got, want := result, server; got != want {
-			t.Errorf("Expect server returned from provider, CALL %d", i)
-			pretty.Ldiff(t, got, want)
+		if res != instance {
+			t.Errorf("Expect instance returned")
 		}
 	}
 	_, err := providerInst.Create(noContext, opts)

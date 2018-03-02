@@ -16,7 +16,7 @@ func ServerCount(store autoscaler.ServerStore) autoscaler.ServerStore {
 			Name: "drone_server_count",
 			Help: "Total number of active servers.",
 		}, func() float64 {
-			servers, _ := store.List(noContext)
+			servers, _ := store.ListState(noContext, autoscaler.StateRunning)
 			return float64(len(servers))
 		}),
 	)

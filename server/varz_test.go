@@ -27,11 +27,11 @@ func TestHandleVarz(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("POST", "/varz", nil)
 
-	scaler := mocks.NewMockScaler(controller)
-	scaler.EXPECT().Paused().Return(true)
+	engine := mocks.NewMockEngine(controller)
+	engine.EXPECT().Paused().Return(true)
 
 	router := chi.NewRouter()
-	router.Post("/varz", HandleVarz(scaler))
+	router.Post("/varz", HandleVarz(engine))
 	router.ServeHTTP(w, r)
 
 	if got, want := w.Code, 200; want != got {

@@ -37,12 +37,12 @@ type providerWrapCreate struct {
 	errors  prometheus.Counter
 }
 
-func (p *providerWrapCreate) Create(ctx context.Context, opts *autoscaler.ServerOpts) (*autoscaler.Server, error) {
-	server, err := p.Provider.Create(ctx, opts)
+func (p *providerWrapCreate) Create(ctx context.Context, opts autoscaler.InstanceCreateOpts) (*autoscaler.Instance, error) {
+	instance, err := p.Provider.Create(ctx, opts)
 	if err == nil {
 		p.created.Add(1)
 	} else {
 		p.errors.Add(1)
 	}
-	return server, err
+	return instance, err
 }

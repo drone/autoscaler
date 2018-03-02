@@ -17,7 +17,7 @@ func ServerCapacity(store autoscaler.ServerStore) autoscaler.ServerStore {
 			Help: "Total capacity of active servers.",
 		}, func() float64 {
 			var capacity int
-			servers, _ := store.List(noContext)
+			servers, _ := store.ListState(noContext, autoscaler.StateRunning)
 			for _, server := range servers {
 				capacity += server.Capacity
 			}

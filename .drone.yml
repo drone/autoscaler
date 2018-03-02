@@ -13,12 +13,7 @@ pipeline:
 
   build:
     image: golang
-    commands:
-      - |
-        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
-          -ldflags "-X main.version=${DRONE_TAG} -X main.commit=${DRONE_COMMIT_SHA}" \
-          -o release/linux/arm64/drone-autoscaler \
-          github.com/drone/autoscaler/cmd/drone-autoscaler
+    commands: sh .drone.sh
 
   publish:
     image: plugins/docker
@@ -26,4 +21,5 @@ pipeline:
     auto_tag: true
     secrets: [ docker_username, docker_password ]
     when:
+      branch: master
       event: [ push, tag ]

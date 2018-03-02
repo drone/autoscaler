@@ -10,7 +10,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-chi/chi"
 	"github.com/golang/mock/gomock"
 	"github.com/kr/pretty"
 )
@@ -28,9 +27,8 @@ func TestHandleVersion(t *testing.T) {
 		Commit:  "ad2aec",
 	}
 
-	router := chi.NewRouter()
-	router.Get("/version", HandleVersion(mockVersion.Source, mockVersion.Version, mockVersion.Commit))
-	router.ServeHTTP(w, r)
+	h := HandleVersion(mockVersion.Source, mockVersion.Version, mockVersion.Commit)
+	h.ServeHTTP(w, r)
 
 	if got, want := w.Code, 200; want != got {
 		t.Errorf("Want response code %d, got %d", want, got)

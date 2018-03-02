@@ -36,7 +36,7 @@ func TestServerCount(t *testing.T) {
 	}
 
 	store := mocks.NewMockServerStore(controller)
-	store.EXPECT().List(gomock.Any()).Return(servers, nil)
+	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
 	ServerCount(store)
 
 	metrics, err := registry.Gather()

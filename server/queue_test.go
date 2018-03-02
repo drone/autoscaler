@@ -13,7 +13,6 @@ import (
 
 	"github.com/drone/autoscaler/mocks"
 	"github.com/drone/drone-go/drone"
-	"github.com/go-chi/chi"
 	"github.com/golang/mock/gomock"
 	"github.com/kr/pretty"
 )
@@ -40,9 +39,7 @@ func TestHandleQueueList(t *testing.T) {
 	client := mocks.NewMockClient(controller)
 	client.EXPECT().BuildQueue().Return(mockBuilds, nil)
 
-	router := chi.NewRouter()
-	router.Get("/api/queue", HandleQueueList(client))
-	router.ServeHTTP(w, r)
+	HandleQueueList(client).ServeHTTP(w, r)
 
 	if got, want := w.Code, 200; want != got {
 		t.Errorf("Want response code %d, got %d", want, got)
@@ -67,9 +64,7 @@ func TestHandleQueueListErr(t *testing.T) {
 	client := mocks.NewMockClient(controller)
 	client.EXPECT().BuildQueue().Return(nil, err)
 
-	router := chi.NewRouter()
-	router.Get("/api/queue", HandleQueueList(client))
-	router.ServeHTTP(w, r)
+	HandleQueueList(client).ServeHTTP(w, r)
 
 	if got, want := w.Code, 500; want != got {
 		t.Errorf("Want response code %d, got %d", want, got)

@@ -14,8 +14,9 @@ import (
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/config"
 	"github.com/drone/autoscaler/drivers/digitalocean"
+	"github.com/drone/autoscaler/drivers/hetznercloud"
+	"github.com/drone/autoscaler/engine"
 	"github.com/drone/autoscaler/metrics"
-	"github.com/drone/autoscaler/scaler"
 	"github.com/drone/autoscaler/server"
 	"github.com/drone/autoscaler/slack"
 	"github.com/drone/autoscaler/store"
@@ -30,7 +31,9 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/sync/errgroup"
 
+	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/joho/godotenv/autoload"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 var (
@@ -41,8 +44,6 @@ var (
 
 func main() {
 	conf := config.MustLoad()
-	metrics.MinPool(conf)
-	metrics.MaxPool(conf)
 	setupLogging(conf)
 
 	provider, err := setupProvider(conf)
@@ -55,27 +56,30 @@ func main() {
 	provider = metrics.ServerCreate(provider)
 	provider = metrics.ServerDelete(provider)
 
+	db, err := store.Connect(conf.Database.Driver, conf.Database.Datasource)
+	if err != nil {
+		log.Fatal().Err(err).
+			Msg("Cannot establish database connection")
+	}
+
+	servers := store.NewServerStore(db)
 	// instruments the provider with slack notifications
 	// instance creation and termination events.
 	if conf.Slack.Webhook != "" {
-		provider = slack.New(conf, provider)
+		servers = slack.New(conf, servers)
 	}
-
-	db := store.Must(conf.Database.Path)
-	servers := store.NewServerStore(db)
-
 	// instruments the store with prometheus metrics.
 	servers = metrics.ServerCount(servers)
 	defer db.Close()
 
 	client := setupClient(conf)
 
-	ascaler := &scaler.Scaler{
-		Client:   client,
-		Config:   conf,
-		Servers:  servers,
-		Provider: provider,
-	}
+	enginex := engine.New(
+		client,
+		conf,
+		servers,
+		provider,
+	)
 
 	r := chi.NewRouter()
 	r.Use(hlog.NewHandler(log.Logger))
@@ -87,17 +91,17 @@ func main() {
 	r.Get("/metrics", server.HandleMetrics(conf.Prometheus.Token))
 	r.Get("/version", server.HandleVersion(source, version, commit))
 	r.Get("/healthz", server.HandleHealthz())
-	r.Get("/varz", server.HandleVarz(ascaler))
+	r.Get("/varz", server.HandleVarz(enginex))
 	r.Route("/api", func(r chi.Router) {
 		r.Use(server.CheckDrone(conf))
 
-		r.Post("/pause", server.HandleScalerPause(ascaler))
-		r.Post("/resume", server.HandleScalerResume(ascaler))
+		r.Post("/pause", server.HandleEnginePause(enginex))
+		r.Post("/resume", server.HandleEngineResume(enginex))
 		r.Get("/queue", server.HandleQueueList(client))
 		r.Get("/servers", server.HandleServerList(servers))
-		r.Post("/servers", server.HandleServerCreate(servers, provider, conf))
+		r.Post("/servers", server.HandleServerCreate(servers, conf))
 		r.Get("/servers/{name}", server.HandleServerFind(servers))
-		r.Delete("/servers/{name}", server.HandleServerDelete(servers, provider))
+		r.Delete("/servers/{name}", server.HandleServerDelete(servers))
 	})
 
 	//
@@ -134,7 +138,8 @@ func main() {
 	//
 
 	g.Go(func() error {
-		return scaler.Start(ctx, ascaler, conf.Interval)
+		enginex.Start(ctx)
+		return nil
 	})
 
 	if err := g.Wait(); err != nil {
@@ -185,6 +190,8 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 	switch {
 	case c.DigitalOcean.Token != "":
 		return digitalocean.FromConfig(c)
+	case c.HetznerCloud.Token != "":
+		return hetznercloud.FromConfig(c)
 	default:
 		return nil, errors.New("missing provider configuration")
 	}

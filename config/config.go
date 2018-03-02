@@ -94,5 +94,15 @@ type (
 			Project      string
 			Tags         []string
 		}
+
+		HetznerCloud struct {
+			Token      string
+			Image      string `default:"ubuntu-16.04"`
+			Datacenter string `default:"nbg1-dc3"`
+			SSHKey     string `default:"/root/.ssh/id_rsa"`
+			SSHKeyID   int `envconfig:"DRONE_HETZNERCLOUD_SSHKEY_ID"`
+			ServerType string `default:"cx11" envconfig:"DRONE_HETZNERCLOUD_TYPE"`
+			CloudConfig string
+		}
 	}
 )

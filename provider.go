@@ -19,6 +19,7 @@ const (
 	ProviderOpenStack    = ProviderType("openstack")
 	ProviderScaleway     = ProviderType("scaleway")
 	ProviderVultr        = ProviderType("vultr")
+	ProviderHetznerCloud = ProviderType("hetznercloud")
 )
 
 // A Provider represents a hosting provider, such as

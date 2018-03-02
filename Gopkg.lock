@@ -121,6 +121,15 @@
   version = "v1.0.7"
 
 [[projects]]
+  name = "github.com/hetznercloud/hcloud-go"
+  packages = [
+    "hcloud",
+    "hcloud/schema"
+  ]
+  revision = "b37849e439d7a02b07d495f65e7b797bec30eeae"
+  version = "v1.4.0"
+
+[[projects]]
   name = "github.com/jmespath/go-jmespath"
   packages = ["."]
   revision = "0b12d6b5"
@@ -300,6 +309,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "71251d2e9463a673ee703ad7ea31299f1687853313de3642cd57482ef4253cf5"
+  inputs-digest = "bab8207df652da10439a983a41c736b30690ebb9f973084a01e35c755438d9a8"
   solver-name = "gps-cdcl"
   solver-version = 1

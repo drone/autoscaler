@@ -55,9 +55,17 @@ type (
 			Token string
 		}
 
+		Cadvisor struct {
+			Disable bool
+		}
+
 		Database struct {
 			Driver     string `default:"sqlite3"`
 			Datasource string `default:"database.sqlite?cache=shared&mode=rwc&_busy_timeout=9999999"`
+		}
+
+		CloudInit struct {
+			Path string
 		}
 
 		Amazon struct {
@@ -100,9 +108,8 @@ type (
 			Image      string `default:"ubuntu-16.04"`
 			Datacenter string `default:"nbg1-dc3"`
 			SSHKey     string `default:"/root/.ssh/id_rsa"`
-			SSHKeyID   int `envconfig:"DRONE_HETZNERCLOUD_SSHKEY_ID"`
+			SSHKeyID   int    `envconfig:"DRONE_HETZNERCLOUD_SSHKEY_ID"`
 			ServerType string `default:"cx11" envconfig:"DRONE_HETZNERCLOUD_TYPE"`
-			CloudConfig string
 		}
 	}
 )

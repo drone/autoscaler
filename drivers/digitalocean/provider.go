@@ -47,7 +47,7 @@ func (p *Provider) setupScriptOpts(instance *autoscaler.Instance) scripts.SetupO
 	opts.Agent.Capacity = p.config.Agent.Concurrency
 	opts.Instance.Addr = instance.Address
 	opts.Instance.Name = instance.Name
-	opts.Cadvisor.Disable = false
+	opts.Cadvisor.Disable = p.config.Cadvisor.Disable
 	opts.Cadvisor.Secret = instance.Secret
 	return opts
 }

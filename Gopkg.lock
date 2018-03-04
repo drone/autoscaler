@@ -26,28 +26,10 @@
   version = "v1.0.0"
 
 [[projects]]
-  name = "github.com/Masterminds/semver"
-  packages = ["."]
-  revision = "15d8430ab86497c5c0da827b748823945e1cf1e1"
-  version = "v1.4.0"
-
-[[projects]]
-  name = "github.com/Masterminds/sprig"
-  packages = ["."]
-  revision = "b217b9c388de2cacde4354c536e520c52c055563"
-  version = "v2.14.1"
-
-[[projects]]
   name = "github.com/Microsoft/go-winio"
   packages = ["."]
   revision = "7da180ee92d8bd8bb8c37fc560e673e6557c392f"
   version = "v0.4.7"
-
-[[projects]]
-  name = "github.com/aokoli/goutils"
-  packages = ["."]
-  revision = "3391d3790d23d03408670993e957e8f408993c34"
-  version = "v1.0.1"
 
 [[projects]]
   name = "github.com/aws/aws-sdk-go"
@@ -208,18 +190,6 @@
   version = "v1.4.0"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/huandu/xstrings"
-  packages = ["."]
-  revision = "2bf18b218c51864a87384c06996e40ff9dcff8e1"
-
-[[projects]]
-  name = "github.com/imdario/mergo"
-  packages = ["."]
-  revision = "163f41321a19dd09362d4c63cc2489db2015f1f4"
-  version = "0.3.2"
-
-[[projects]]
   name = "github.com/jmespath/go-jmespath"
   packages = ["."]
   revision = "0b12d6b5"
@@ -353,12 +323,6 @@
   version = "v1.5.0"
 
 [[projects]]
-  name = "github.com/satori/go.uuid"
-  packages = ["."]
-  revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
-  version = "v1.2.0"
-
-[[projects]]
   branch = "master"
   name = "github.com/tent/http-link-go"
   packages = ["."]
@@ -380,9 +344,7 @@
     "ed25519",
     "ed25519/internal/edwards25519",
     "internal/chacha20",
-    "pbkdf2",
     "poly1305",
-    "scrypt",
     "ssh"
   ]
   revision = "650f4a345ab4e5b245a3034b110ebc7299e68186"
@@ -435,6 +397,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "df3d71dbb87612230b16fae4c1d054eeb0a94411320b96d19e3c020d94d210d1"
+  inputs-digest = "ecda23b9f23489c579eb736677d0aa63d7ea9e46f05b00596e7ed25005616481"
   solver-name = "gps-cdcl"
   solver-version = 1

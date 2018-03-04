@@ -225,8 +225,10 @@ func (p *planner) capacity(ctx context.Context) (capacity, count int, err error)
 		// ignores stopped, stopping or errored servers.
 		switch server.State {
 		case autoscaler.StatePending,
-			autoscaler.StateRunning,
-			autoscaler.StateStaging:
+			autoscaler.StateCreated,
+			autoscaler.StateCreating,
+			autoscaler.StateStaging,
+			autoscaler.StateRunning:
 			count++
 			capacity += server.Capacity
 		}

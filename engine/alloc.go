@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/drone/autoscaler"
+	"github.com/drone/autoscaler/engine/certs"
 
 	"github.com/rs/zerolog/log"
 )
@@ -30,13 +31,13 @@ func (a *allocator) Allocate(ctx context.Context) error {
 	}
 
 	for _, server := range servers {
-		server.State = autoscaler.StateStaging
+		server.State = autoscaler.StateCreating
 		err = a.servers.Update(ctx, server)
 		if err != nil {
 			logger.Error().
 				Err(err).
 				Str("server", server.Name).
-				Str("state", "staging").
+				Str("state", "creating").
 				Msg("failed to update server state")
 			return err
 		}
@@ -61,11 +62,28 @@ func (a *allocator) allocate(ctx context.Context, server *autoscaler.Server) err
 		}
 	}()
 
+	ca, err := certs.GenerateCA()
+	if err != nil {
+		return err
+	}
+
+	cert, err := certs.GenerateCert(server.Name, ca)
+	if err != nil {
+		return err
+	}
+
 	ctx, cancel := context.WithTimeout(ctx, time.Hour)
 	defer cancel()
 
-	opt := autoscaler.InstanceCreateOpts{Name: server.Name}
-	instance, err := a.provider.Create(ctx, opt)
+	opts := autoscaler.InstanceCreateOpts{
+		Name:    server.Name,
+		CAKey:   ca.Key,
+		CACert:  ca.Cert,
+		TLSKey:  cert.Key,
+		TLSCert: cert.Cert,
+	}
+
+	instance, err := a.provider.Create(ctx, opts)
 	if err != nil {
 		log.Ctx(ctx).Error().
 			Err(err).
@@ -78,10 +96,7 @@ func (a *allocator) allocate(ctx context.Context, server *autoscaler.Server) err
 			Str("server", server.Name).
 			Msg("provisioned server")
 
-		server.State = autoscaler.StateRunning
-	}
-	if lerr, ok := err.(*autoscaler.InstanceError); ok {
-		server.Error = string(lerr.Logs)
+		server.State = autoscaler.StateCreated
 	}
 	if instance != nil {
 		server.ID = instance.ID
@@ -89,8 +104,11 @@ func (a *allocator) allocate(ctx context.Context, server *autoscaler.Server) err
 		server.Image = instance.Image
 		server.Provider = instance.Provider
 		server.Region = instance.Region
-		server.Secret = instance.Secret
 		server.Size = instance.Size
+		server.CACert = opts.CACert
+		server.CAKey = opts.CAKey
+		server.TLSCert = opts.TLSCert
+		server.TLSKey = opts.TLSKey
 		server.Started = time.Now().Unix()
 	}
 	return a.servers.Update(ctx, server)

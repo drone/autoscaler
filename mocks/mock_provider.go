@@ -58,28 +58,3 @@ func (m *MockProvider) Destroy(arg0 context.Context, arg1 *autoscaler.Instance) 
 func (mr *MockProviderMockRecorder) Destroy(arg0, arg1 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Destroy", reflect.TypeOf((*MockProvider)(nil).Destroy), arg0, arg1)
 }
-
-// Execute mocks base method
-func (m *MockProvider) Execute(arg0 context.Context, arg1 *autoscaler.Instance, arg2 string) ([]byte, error) {
-	ret := m.ctrl.Call(m, "Execute", arg0, arg1, arg2)
-	ret0, _ := ret[0].([]byte)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Execute indicates an expected call of Execute
-func (mr *MockProviderMockRecorder) Execute(arg0, arg1, arg2 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Execute", reflect.TypeOf((*MockProvider)(nil).Execute), arg0, arg1, arg2)
-}
-
-// Ping mocks base method
-func (m *MockProvider) Ping(arg0 context.Context, arg1 *autoscaler.Instance) error {
-	ret := m.ctrl.Call(m, "Ping", arg0, arg1)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Ping indicates an expected call of Ping
-func (mr *MockProviderMockRecorder) Ping(arg0, arg1 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Ping", reflect.TypeOf((*MockProvider)(nil).Ping), arg0, arg1)
-}

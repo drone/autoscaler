@@ -5,13 +5,14 @@
 package digitalocean
 
 import (
+	"bytes"
 	"context"
+	"encoding/base64"
 	"strconv"
+	"text/template"
 	"time"
 
-	"github.com/dchest/uniuri"
 	"github.com/drone/autoscaler"
-	"github.com/drone/autoscaler/drivers/internal/scripts"
 	"github.com/drone/autoscaler/drivers/internal/sshutil"
 
 	"github.com/digitalocean/godo"
@@ -20,12 +21,20 @@ import (
 
 // Create creates the DigitalOcean instance.
 func (p *Provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpts) (*autoscaler.Instance, error) {
+
+	buf := new(bytes.Buffer)
+	err := cloudInitT.Execute(buf, &opts)
+	if err != nil {
+		return nil, err
+	}
+
 	req := &godo.DropletCreateRequest{
-		Name:   opts.Name,
-		Region: p.config.DigitalOcean.Region,
-		Size:   p.config.DigitalOcean.Size,
-		IPv6:   p.config.DigitalOcean.IPv6,
-		Tags:   p.config.DigitalOcean.Tags,
+		Name:     opts.Name,
+		Region:   p.config.DigitalOcean.Region,
+		Size:     p.config.DigitalOcean.Size,
+		IPv6:     p.config.DigitalOcean.IPv6,
+		Tags:     p.config.DigitalOcean.Tags,
+		UserData: buf.String(),
 		SSHKeys: []godo.DropletCreateSSHKey{
 			{Fingerprint: sshutil.Fingerprint(p.signer)},
 		},
@@ -51,14 +60,14 @@ func (p *Provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		Logger()
 
 	logger.Debug().
-		Msg("droplet create")
+		Msg("instance create")
 
 	client := newClient(ctx, p.config.DigitalOcean.Token)
 	droplet, _, err := client.Droplets.Create(ctx, req)
 	if err != nil {
 		logger.Error().
 			Err(err).
-			Msg("droplet create failed")
+			Msg("cannot create instance")
 		return nil, err
 	}
 
@@ -69,12 +78,11 @@ func (p *Provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		Size:     req.Size,
 		Region:   req.Region,
 		Image:    req.Image.Slug,
-		Secret:   uniuri.New(),
 	}
 
 	logger.Info().
 		Str("name", instance.Name).
-		Msg("droplet create success")
+		Msg("instance created")
 
 	// poll the digitalocean endpoint for server updates
 	// and exit when a network address is allocated.
@@ -85,7 +93,7 @@ poller:
 		case <-ctx.Done():
 			logger.Debug().
 				Str("name", instance.Name).
-				Msg("droplet network deadline exceeded")
+				Msg("cannot ascertain network")
 
 			return instance, ctx.Err()
 		case <-time.After(interval):
@@ -93,13 +101,13 @@ poller:
 
 			logger.Debug().
 				Str("name", instance.Name).
-				Msg("check droplet network")
+				Msg("find instance network")
 
 			droplet, _, err = client.Droplets.Get(ctx, droplet.ID)
 			if err != nil {
 				logger.Error().
 					Err(err).
-					Msg("droplet details unavailable")
+					Msg("cannot find instance")
 				return instance, err
 			}
 
@@ -118,63 +126,49 @@ poller:
 	logger.Debug().
 		Str("name", instance.Name).
 		Str("ip", instance.Address).
-		Msg("droplet network ready")
-
-	// ping the server in a loop until we can successfully
-	// authenticate.
-	interval = time.Duration(0)
-pinger:
-	for {
-		select {
-		case <-ctx.Done():
-			logger.Debug().
-				Str("name", instance.Name).
-				Str("ip", instance.Address).
-				Str("port", "22").
-				Str("user", "root").
-				Msg("ping deadline exceeded")
-
-			return instance, ctx.Err()
-		case <-time.After(interval):
-			interval = time.Minute
-			logger.Debug().
-				Str("name", instance.Name).
-				Str("ip", instance.Address).
-				Str("port", "22").
-				Str("user", "root").
-				Msg("ping server")
-
-			err = p.Provider.Ping(ctx, instance)
-			if err == nil {
-				break pinger
-			}
-		}
-	}
-
-	logger.Debug().
-		Str("name", instance.Name).
-		Str("ip", instance.Address).
-		Msg("install agent")
-
-	script, err := scripts.GenerateSetup(p.setupScriptOpts(instance))
-	if err != nil {
-		return instance, err
-	}
-
-	logs, err := p.Provider.Execute(ctx, instance, script)
-	if err != nil {
-		logger.Error().
-			Err(err).
-			Str("name", instance.Name).
-			Str("ip", instance.Address).
-			Msg("install failed")
-		return instance, &autoscaler.InstanceError{Err: err, Logs: logs}
-	}
-
-	logger.Debug().
-		Str("name", instance.Name).
-		Str("ip", instance.Address).
-		Msg("install complete")
+		Msg("instance network ready")
 
 	return instance, nil
+}
+
+var cloudInitT = template.Must(template.New("_").Funcs(funcmap).Parse(`#cloud-config
+write_files:
+  - path: /etc/systemd/system/docker.service.d/override.conf
+    content: |
+      [Service]
+      ExecStart=
+      ExecStart=/usr/bin/dockerd
+  - path: /etc/default/docker
+    content: |
+      DOCKER_OPTS=""
+  - path: /etc/docker/daemon.json
+    content: |
+      {
+        "dns": [ "8.8.8.8", "8.8.4.4" ],
+        "hosts": [ "0.0.0.0:2376", "unix:///var/run/docker.sock" ],
+        "tls": true,
+        "tlsverify": true,
+        "tlscacert": "/etc/docker/ca.pem",
+        "tlscert": "/etc/docker/server-cert.pem",
+        "tlskey": "/etc/docker/server-key.pem"
+      }
+  - path: /etc/docker/ca.pem
+    encoding: b64
+    content: {{ .CACert | base64 }}
+  - path: /etc/docker/server-cert.pem
+    encoding: b64
+    content: {{ .TLSCert | base64 }}
+  - path: /etc/docker/server-key.pem
+    encoding: b64
+    content: {{ .TLSKey | base64 }}
+
+runcmd:
+  - [ systemctl, daemon-reload ]
+  - [ systemctl, restart, docker ]
+`))
+
+var funcmap = map[string]interface{}{
+	"base64": func(src []byte) string {
+		return base64.StdEncoding.EncodeToString(src)
+	},
 }

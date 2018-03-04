@@ -29,20 +29,6 @@ func (p *Provider) Destroy(ctx context.Context, instance *autoscaler.Instance) e
 	}
 
 	logger.Debug().
-		Msg("teardown droplet")
-
-	_, err = p.Provider.Execute(ctx, instance, teardownScript)
-	if err != nil {
-		// if we cannot gracefully shutdown the agent we should
-		// still continue and destroy the droplet. I think.
-		logger.Error().
-			Err(err).
-			Msg("teardown failed")
-
-		// TODO(bradrydzewski) we should snapshot the error logs
-	}
-
-	logger.Debug().
 		Msg("deleting droplet")
 
 	_, err = client.Droplets.Delete(ctx, id)

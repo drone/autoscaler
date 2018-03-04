@@ -5,9 +5,7 @@
 package amazon
 
 import (
-	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/config"
-	"github.com/drone/autoscaler/drivers/internal/scripts"
 	"golang.org/x/crypto/ssh"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -26,8 +24,6 @@ const (
 
 // Provider defines the Amazon provider.
 type Provider struct {
-	autoscaler.Provider
-
 	config config.Config
 	signer ssh.Signer
 }
@@ -41,17 +37,4 @@ func buildClient(conf config.Config) *ec2.EC2 {
 	config = config.WithRegion(conf.Amazon.Region)
 	config = config.WithMaxRetries(maxRetries)
 	return ec2.New(session.New(config))
-}
-
-func (p *Provider) setupScriptOpts(instance *autoscaler.Instance) scripts.SetupOpts {
-	opts := scripts.SetupOpts{}
-	opts.Server.Host = p.config.Agent.Host
-	opts.Server.Secret = p.config.Agent.Token
-	opts.Agent.Image = p.config.Agent.Image
-	opts.Agent.Capacity = p.config.Agent.Concurrency
-	opts.Instance.Addr = instance.Address
-	opts.Instance.Name = instance.Name
-	opts.Cadvisor.Disable = false
-	opts.Cadvisor.Secret = instance.Secret
-	return opts
 }

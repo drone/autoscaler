@@ -15,11 +15,11 @@ const (
 	ProviderAzure        = ProviderType("azure")
 	ProviderDigitalOcean = ProviderType("digitalocean")
 	ProviderGoogle       = ProviderType("google")
+	ProviderHetznerCloud = ProviderType("hetznercloud")
 	ProviderLinode       = ProviderType("linode")
 	ProviderOpenStack    = ProviderType("openstack")
 	ProviderScaleway     = ProviderType("scaleway")
 	ProviderVultr        = ProviderType("vultr")
-	ProviderHetznerCloud = ProviderType("hetznercloud")
 )
 
 // A Provider represents a hosting provider, such as
@@ -29,11 +29,6 @@ type Provider interface {
 	Create(context.Context, InstanceCreateOpts) (*Instance, error)
 	// Destroy destroys an existing server.
 	Destroy(context.Context, *Instance) error
-	// Execute executes a command on the remote server and
-	// returns the combined terminal output.
-	Execute(context.Context, *Instance, string) ([]byte, error)
-	// Ping pings the remote server.
-	Ping(context.Context, *Instance) error
 }
 
 // An Instance represents a server instance
@@ -46,13 +41,16 @@ type Instance struct {
 	Region   string
 	Image    string
 	Size     string
-	Secret   string
 }
 
 // InstanceCreateOpts define soptional instructions for
 // creating server instances.
 type InstanceCreateOpts struct {
-	Name string
+	Name    string
+	CAKey   []byte
+	CACert  []byte
+	TLSKey  []byte
+	TLSCert []byte
 }
 
 // InstanceError snapshots an error creating an instance

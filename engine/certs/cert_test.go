@@ -14,7 +14,7 @@ func TestGenerate(t *testing.T) {
 		t.Error(err)
 	}
 
-	_, err = GenerateCert("159.65.43.12", ca)
+	_, err = GenerateCert("company.com", ca)
 	if err != nil {
 		t.Error(err)
 	}

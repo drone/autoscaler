@@ -25,6 +25,7 @@ type engine struct {
 
 	allocator *allocator
 	collector *collector
+	installer *installer
 	planner   *planner
 
 	interval time.Duration
@@ -48,6 +49,12 @@ func New(
 		collector: &collector{
 			servers:  servers,
 			provider: provider,
+		},
+		installer: &installer{
+			servers: servers,
+			image:   config.Agent.Image,
+			secret:  config.Agent.Token,
+			server:  config.Agent.Host,
 		},
 		planner: &planner{
 			client:  client,
@@ -83,9 +90,13 @@ func (e *engine) Resume() {
 
 func (e *engine) Start(ctx context.Context) {
 	var wg sync.WaitGroup
-	wg.Add(4)
+	wg.Add(5)
 	go func() {
 		e.allocate(ctx)
+		wg.Done()
+	}()
+	go func() {
+		e.install(ctx)
 		wg.Done()
 	}()
 	go func() {
@@ -112,6 +123,19 @@ func (e *engine) allocate(ctx context.Context) {
 			return
 		case <-time.After(interval):
 			e.allocator.Allocate(ctx)
+		}
+	}
+}
+
+// runs the installation process.
+func (e *engine) install(ctx context.Context) {
+	const interval = time.Second * 10
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-time.After(interval):
+			e.installer.Install(ctx)
 		}
 	}
 }

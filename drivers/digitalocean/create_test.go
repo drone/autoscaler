@@ -5,16 +5,13 @@
 package digitalocean
 
 import (
-	"bytes"
 	"context"
-	"errors"
 	"testing"
 	"time"
 
 	"github.com/digitalocean/godo"
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/config"
-	"github.com/drone/autoscaler/mocks"
 	"github.com/golang/mock/gomock"
 
 	"github.com/h2non/gock"
@@ -40,15 +37,9 @@ func TestCreate(t *testing.T) {
 	mockSigner, _ := ssh.ParsePrivateKey(testkey)
 	mockConfig := config.Config{}
 
-	// base provider to mock SSH calls.
-	mockProvider := mocks.NewMockProvider(controller)
-	mockProvider.EXPECT().Ping(gomock.Any(), gomock.Any()).Return(nil)
-	mockProvider.EXPECT().Execute(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
-
 	p := Provider{
-		Provider: mockProvider,
-		config:   mockConfig,
-		signer:   mockSigner,
+		config: mockConfig,
+		signer: mockSigner,
 	}
 
 	instance, err := p.Create(context.TODO(), autoscaler.InstanceCreateOpts{Name: "agent1"})
@@ -70,9 +61,8 @@ func TestCreate_CreateError(t *testing.T) {
 	mockConfig := config.Config{}
 
 	p := Provider{
-		Provider: nil,
-		config:   mockConfig,
-		signer:   mockSigner,
+		config: mockConfig,
+		signer: mockSigner,
 	}
 
 	_, err := p.Create(context.TODO(), autoscaler.InstanceCreateOpts{Name: "agent1"})
@@ -99,9 +89,8 @@ func TestCreate_DescribeError(t *testing.T) {
 	mockConfig := config.Config{}
 
 	p := Provider{
-		Provider: nil,
-		config:   mockConfig,
-		signer:   mockSigner,
+		config: mockConfig,
+		signer: mockSigner,
 	}
 
 	instance, err := p.Create(context.TODO(), autoscaler.InstanceCreateOpts{Name: "agent1"})
@@ -131,9 +120,8 @@ func TestCreate_DescribeTimeout(t *testing.T) {
 	mockConfig := config.Config{}
 
 	p := Provider{
-		Provider: nil,
-		config:   mockConfig,
-		signer:   mockSigner,
+		config: mockConfig,
+		signer: mockSigner,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -147,99 +135,6 @@ func TestCreate_DescribeTimeout(t *testing.T) {
 	}
 
 	t.Run("Attributes", testInstance(instance))
-}
-
-func TestCreate_PingTimeout(t *testing.T) {
-	controller := gomock.NewController(t)
-	defer controller.Finish()
-
-	defer gock.Off()
-
-	gock.New("https://api.digitalocean.com").
-		Post("/v2/droplets").
-		Reply(200).
-		BodyString(respDropletCreate)
-
-	gock.New("https://api.digitalocean.com").
-		Get("/v2/droplets/3164494").
-		ReplyFunc(func(res *gock.Response) {
-			res.Status(200)
-			res.BodyString(respDropletDesc)
-		})
-
-	mockError := errors.New("oh no")
-	mockSigner, _ := ssh.ParsePrivateKey(testkey)
-	mockConfig := config.Config{}
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-
-	// base provider to mock SSH calls.
-	mockProvider := mocks.NewMockProvider(controller)
-	mockProvider.EXPECT().Ping(ctx, gomock.Any()).Return(mockError)
-
-	p := Provider{
-		Provider: mockProvider,
-		config:   mockConfig,
-		signer:   mockSigner,
-	}
-
-	instance, err := p.Create(ctx, autoscaler.InstanceCreateOpts{Name: "agent1"})
-	if err == nil {
-		t.Errorf("Expected context deadline exceeded, got nil")
-	} else if err.Error() != "context deadline exceeded" {
-		t.Errorf("Expected context deadline exceeded, got %s", err)
-	}
-
-	t.Run("Attributes", testInstance(instance))
-	t.Run("Address", testInstanceAddress(instance))
-}
-
-func TestCreate_ExecError(t *testing.T) {
-	controller := gomock.NewController(t)
-	defer controller.Finish()
-
-	defer gock.Off()
-
-	gock.New("https://api.digitalocean.com").
-		Post("/v2/droplets").
-		Reply(200).
-		BodyString(respDropletCreate)
-
-	gock.New("https://api.digitalocean.com").
-		Get("/v2/droplets/3164494").
-		Reply(200).
-		BodyString(respDropletDesc)
-
-	mockContext := context.Background()
-	mockLogs := []byte("-bash: curl: command not found")
-	mockError := errors.New("uh oh")
-	mockSigner, _ := ssh.ParsePrivateKey(testkey)
-	mockConfig := config.Config{}
-
-	// base provider to mock SSH calls.
-	mockProvider := mocks.NewMockProvider(controller)
-	mockProvider.EXPECT().Ping(mockContext, gomock.Any()).Return(nil)
-	mockProvider.EXPECT().Execute(mockContext, gomock.Any(), gomock.Any()).Return(mockLogs, mockError)
-
-	p := Provider{
-		Provider: mockProvider,
-		config:   mockConfig,
-		signer:   mockSigner,
-	}
-
-	instance, err := p.Create(context.TODO(), autoscaler.InstanceCreateOpts{Name: "agent1"})
-	if lerr, ok := err.(*autoscaler.InstanceError); !ok {
-		t.Errorf("Want InstanceError")
-	} else if err == nil {
-		t.Errorf("Want InstanceError got nil")
-	} else if lerr.Err != mockError {
-		t.Errorf("Want InstanceError to wrap the ssh error")
-	} else if !bytes.Equal(lerr.Logs, mockLogs) {
-		t.Errorf("Want InstanceError to include the logs")
-	}
-
-	t.Run("Attributes", testInstance(instance))
-	t.Run("Address", testInstanceAddress(instance))
 }
 
 func testInstance(instance *autoscaler.Instance) func(t *testing.T) {
@@ -261,9 +156,6 @@ func testInstance(instance *autoscaler.Instance) func(t *testing.T) {
 		}
 		if got, want := instance.Provider, autoscaler.ProviderDigitalOcean; got != want {
 			t.Errorf("Want droplet Provider %v, got %v", want, got)
-		}
-		if instance.Secret == "" {
-			t.Errorf("Want instance secret populated, got empty")
 		}
 	}
 }

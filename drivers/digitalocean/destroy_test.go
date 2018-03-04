@@ -6,14 +6,12 @@ package digitalocean
 
 import (
 	"context"
-	"errors"
 	"strconv"
 	"testing"
 
 	"github.com/digitalocean/godo"
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/config"
-	"github.com/drone/autoscaler/mocks"
 
 	"github.com/golang/mock/gomock"
 	"github.com/h2non/gock"
@@ -37,48 +35,9 @@ func TestDestroy(t *testing.T) {
 		ID: "3164494",
 	}
 
-	// base provider to mock SSH calls.
-	mockProvider := mocks.NewMockProvider(controller)
-	mockProvider.EXPECT().Execute(mockContext, mockInstance, gomock.Any()).Return(nil, nil)
-
 	p := Provider{
-		Provider: mockProvider,
-		config:   mockConfig,
-		signer:   mockSigner,
-	}
-
-	err := p.Destroy(mockContext, mockInstance)
-	if err != nil {
-		t.Error(err)
-	}
-}
-
-func TestDestroyShutdownError(t *testing.T) {
-	controller := gomock.NewController(t)
-	defer controller.Finish()
-
-	defer gock.Off()
-
-	gock.New("https://api.digitalocean.com").
-		Delete("/v2/droplets/3164494").
-		Reply(204)
-
-	mockError := errors.New("oh no")
-	mockContext := context.TODO()
-	mockSigner, _ := ssh.ParsePrivateKey(testkey)
-	mockConfig := config.Config{}
-	mockInstance := &autoscaler.Instance{
-		ID: "3164494",
-	}
-
-	// base provider to mock SSH calls.
-	mockProvider := mocks.NewMockProvider(controller)
-	mockProvider.EXPECT().Execute(mockContext, mockInstance, gomock.Any()).Return(nil, mockError)
-
-	p := Provider{
-		Provider: mockProvider,
-		config:   mockConfig,
-		signer:   mockSigner,
+		config: mockConfig,
+		signer: mockSigner,
 	}
 
 	err := p.Destroy(mockContext, mockInstance)
@@ -104,14 +63,9 @@ func TestDestroyDeleteError(t *testing.T) {
 		ID: "3164494",
 	}
 
-	// base provider to mock SSH calls.
-	mockProvider := mocks.NewMockProvider(controller)
-	mockProvider.EXPECT().Execute(mockContext, mockInstance, gomock.Any()).Return(nil, nil)
-
 	p := Provider{
-		Provider: mockProvider,
-		config:   mockConfig,
-		signer:   mockSigner,
+		config: mockConfig,
+		signer: mockSigner,
 	}
 
 	err := p.Destroy(mockContext, mockInstance)

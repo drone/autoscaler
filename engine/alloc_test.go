@@ -40,8 +40,8 @@ func TestAllocate(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if got, want := mockServers[0].State, autoscaler.StateRunning; got != want {
-		t.Errorf("Want server state Running, got %v", got)
+	if got, want := mockServers[0].State, autoscaler.StateCreated; got != want {
+		t.Errorf("Want server state Created, got %v", got)
 	}
 }
 
@@ -106,7 +106,7 @@ func TestAllocate_ServerUpdateError(t *testing.T) {
 	if got, want := a.Allocate(mockctx), mockerr; got != want {
 		t.Errorf("Want error updating server")
 	}
-	if got, want := mockServers[0].State, autoscaler.StateStaging; got != want {
+	if got, want := mockServers[0].State, autoscaler.StateCreating; got != want {
 		t.Errorf("Want server state Staging, got %v", got)
 	}
 }

@@ -11,6 +11,7 @@ import (
 
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/mocks"
+	"github.com/h2non/gock"
 
 	"github.com/golang/mock/gomock"
 )
@@ -51,7 +52,7 @@ func TestCollect_ServerDestroyError(t *testing.T) {
 	mockctx := context.Background()
 	mockerr := errors.New("mock error")
 	mockServers := []*autoscaler.Server{
-		{State: autoscaler.StateShutdown},
+		{State: autoscaler.StateShutdown, Address: "1.2.3.4"},
 	}
 
 	store := mocks.NewMockServerStore(controller)
@@ -61,6 +62,12 @@ func TestCollect_ServerDestroyError(t *testing.T) {
 
 	provider := mocks.NewMockProvider(controller)
 	provider.EXPECT().Destroy(gomock.Any(), gomock.Any()).Return(mockerr)
+
+	defer gock.Off()
+
+	gock.New("https://1.2.3.4:2376/containers/agent/stop").
+		Delete("/v2/droplets/3164494").
+		Reply(204)
 
 	c := collector{servers: store, provider: provider}
 	c.Collect(mockctx)

@@ -24,20 +24,6 @@ func (p *Provider) Destroy(ctx context.Context, instance *autoscaler.Instance) e
 		Logger()
 
 	logger.Debug().
-		Msg("shutdown agent")
-
-	_, err := p.Provider.Execute(ctx, instance, teardownScript)
-	if err != nil {
-		// if we cannot gracefully shutdown the agent we should
-		// still continue and destroy the instance. I think.
-		logger.Error().
-			Err(err).
-			Msg("cannot shutdown agent")
-
-		// TODO(bradrydzewski) we should snapshot the error logs
-	}
-
-	logger.Debug().
 		Msg("terminate instsance")
 
 	input := &ec2.TerminateInstancesInput{
@@ -45,7 +31,7 @@ func (p *Provider) Destroy(ctx context.Context, instance *autoscaler.Instance) e
 			aws.String(instance.ID),
 		},
 	}
-	_, err = p.getClient().TerminateInstances(input)
+	_, err := p.getClient().TerminateInstances(input)
 	if err != nil {
 		logger.Error().
 			Err(err).

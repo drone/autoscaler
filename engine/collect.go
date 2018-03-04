@@ -77,7 +77,21 @@ func (c *collector) collect(ctx context.Context, server *autoscaler.Server) erro
 		Image:    server.Image,
 		Size:     server.Size,
 	}
-	err := c.provider.Destroy(ctx, in)
+
+	client, err := newDockerClient(server)
+	if err != nil {
+		return err
+	}
+
+	timeout := time.Hour * 60
+	err = client.ContainerStop(ctx, "agent", &timeout)
+	if err != nil {
+		logger.Warn().Err(err).
+			Str("server", server.Name).
+			Msg("cannot stop the agent")
+	}
+
+	err = c.provider.Destroy(ctx, in)
 	if err != nil {
 		logger.Error().
 			Str("server", server.Name).

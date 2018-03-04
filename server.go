@@ -15,6 +15,8 @@ type ServerState string
 // ServerState type enumeration.
 const (
 	StatePending  = ServerState("pending")
+	StateCreating = ServerState("creating")
+	StateCreated  = ServerState("created")
 	StateStaging  = ServerState("staging")
 	StateRunning  = ServerState("running")
 	StateShutdown = ServerState("shutdown")
@@ -63,7 +65,11 @@ type Server struct {
 	Address  string       `db:"server_address"  json:"address"`
 	Capacity int          `db:"server_capacity" json:"capacity"`
 	Secret   string       `db:"server_secret"   json:"secret"`
-	Error    string       `db:"server_error"    json:"Error"`
+	Error    string       `db:"server_error"    json:"error"`
+	CAKey    []byte       `db:"server_ca_key"   json:"ca_key"`
+	CACert   []byte       `db:"server_ca_cert"  json:"ca_cert"`
+	TLSKey   []byte       `db:"server_tls_key"  json:"tls_key"`
+	TLSCert  []byte       `db:"server_tls_cert" json:"tls_cert"`
 	Created  int64        `db:"server_created"  json:"created"`
 	Updated  int64        `db:"server_updated"  json:"updated"`
 	Started  int64        `db:"server_started"  json:"started"`

@@ -12,6 +12,10 @@ CREATE TABLE IF NOT EXISTS servers (
 ,server_capacity  INTEGER
 ,server_secret    TEXT
 ,server_error     TEXT
+,server_ca_key    TEXT
+,server_ca_cert   TEXT
+,server_tls_key   TEXT
+,server_tls_cert  TEXT
 ,server_created   INTEGER
 ,server_updated   INTEGER
 ,server_started   INTEGER

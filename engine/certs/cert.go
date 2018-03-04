@@ -12,7 +12,6 @@ import (
 	"crypto/x509/pkix"
 	"encoding/pem"
 	"math/big"
-	"net"
 	"time"
 )
 
@@ -36,12 +35,7 @@ func GenerateCert(host string, ca *Certificate) (*Certificate, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	if ip := net.ParseIP(host); ip != nil {
-		template.IPAddresses = append(template.IPAddresses, ip)
-	} else {
-		template.DNSNames = append(template.DNSNames, host)
-	}
+	template.DNSNames = append(template.DNSNames, host)
 
 	tlsCert, err := tls.X509KeyPair(ca.Cert, ca.Key)
 	if err != nil {

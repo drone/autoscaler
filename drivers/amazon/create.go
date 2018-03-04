@@ -10,9 +10,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
-	"github.com/dchest/uniuri"
 	"github.com/drone/autoscaler"
-	"github.com/drone/autoscaler/drivers/internal/scripts"
 	"github.com/rs/zerolog/log"
 )
 
@@ -20,7 +18,6 @@ import (
 func (p *Provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpts) (*autoscaler.Instance, error) {
 	client := p.getClient()
 
-	// BEGIN:_PROVIDER_SPECIFIC_CODE
 	in := &ec2.RunInstancesInput{
 		KeyName:      aws.String(p.config.Amazon.SSHKeyName),
 		ImageId:      aws.String(defaultImage),
@@ -36,7 +33,6 @@ func (p *Provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 			},
 		},
 	}
-	// END:_PROVIDER_SPECIFIC_CODE
 
 	logger := log.Ctx(ctx).With().
 		Str("region", p.config.Amazon.Region).
@@ -48,7 +44,6 @@ func (p *Provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	logger.Debug().
 		Msg("instance create")
 
-	// BEGIN:_PROVIDER_SPECIFIC_CODE
 	results, err := client.RunInstances(in)
 	if err != nil {
 		logger.Error().
@@ -66,9 +61,7 @@ func (p *Provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		Size:     *amazonInstance.InstanceType,
 		Region:   *amazonInstance.Placement.AvailabilityZone,
 		Image:    *amazonInstance.ImageId,
-		Secret:   uniuri.New(),
 	}
-	// END:_PROVIDER_SPECIFIC_CODE
 
 	logger.Info().
 		Str("name", instance.Name).
@@ -93,10 +86,13 @@ poller:
 				Str("name", instance.Name).
 				Msg("check instance network")
 
-			// BEGIN:_PROVIDER_SPECIFIC_CODE
-			desc, err := client.DescribeInstances(&ec2.DescribeInstancesInput{
-				InstanceIds: []*string{amazonInstance.InstanceId},
-			})
+			desc, err := client.DescribeInstances(
+				&ec2.DescribeInstancesInput{
+					InstanceIds: []*string{
+						amazonInstance.InstanceId,
+					},
+				},
+			)
 			if err != nil {
 				logger.Error().
 					Err(err).
@@ -109,7 +105,6 @@ poller:
 				instance.Address = *amazonInstance.PublicIpAddress
 				break poller
 			}
-			// END:_PROVIDER_SPECIFIC_CODE
 		}
 	}
 
@@ -117,62 +112,6 @@ poller:
 		Str("name", instance.Name).
 		Str("ip", instance.Address).
 		Msg("instance network ready")
-
-	// ping the server in a loop until we can successfully
-	// authenticate.
-	interval = time.Duration(0)
-pinger:
-	for {
-		select {
-		case <-ctx.Done():
-			logger.Debug().
-				Str("name", instance.Name).
-				Str("ip", instance.Address).
-				Str("port", "22").
-				Str("user", "root").
-				Msg("ping deadline exceeded")
-
-			return instance, ctx.Err()
-		case <-time.After(interval):
-			interval = time.Minute
-			logger.Debug().
-				Str("name", instance.Name).
-				Str("ip", instance.Address).
-				Str("port", "22").
-				Str("user", "root").
-				Msg("ping server")
-
-			err = p.Provider.Ping(ctx, instance)
-			if err == nil {
-				break pinger
-			}
-		}
-	}
-
-	logger.Debug().
-		Str("name", instance.Name).
-		Str("ip", instance.Address).
-		Msg("install agent")
-
-	script, err := scripts.GenerateSetup(p.setupScriptOpts(instance))
-	if err != nil {
-		return instance, err
-	}
-
-	logs, err := p.Provider.Execute(ctx, instance, script)
-	if err != nil {
-		logger.Error().
-			Err(err).
-			Str("name", instance.Name).
-			Str("ip", instance.Address).
-			Msg("install failed")
-		return instance, &autoscaler.InstanceError{Err: err, Logs: logs}
-	}
-
-	logger.Debug().
-		Str("name", instance.Name).
-		Str("ip", instance.Address).
-		Msg("install complete")
 
 	return instance, nil
 }

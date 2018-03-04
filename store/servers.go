@@ -105,6 +105,10 @@ SELECT
 ,server_capacity
 ,server_secret
 ,server_error
+,server_ca_key
+,server_ca_cert
+,server_tls_key
+,server_tls_cert
 ,server_created
 ,server_updated
 ,server_started
@@ -126,6 +130,10 @@ SELECT
 ,server_capacity
 ,server_secret
 ,server_error
+,server_ca_key
+,server_ca_cert
+,server_tls_key
+,server_tls_cert
 ,server_created
 ,server_updated
 ,server_started
@@ -147,6 +155,10 @@ SELECT
 ,server_capacity
 ,server_secret
 ,server_error
+,server_ca_key
+,server_ca_cert
+,server_tls_key
+,server_tls_cert
 ,server_created
 ,server_updated
 ,server_started
@@ -169,6 +181,10 @@ INSERT INTO servers (
 ,server_capacity
 ,server_secret
 ,server_error
+,server_ca_key
+,server_ca_cert
+,server_tls_key
+,server_tls_cert
 ,server_created
 ,server_updated
 ,server_started
@@ -185,6 +201,10 @@ INSERT INTO servers (
 ,:server_capacity
 ,:server_secret
 ,:server_error
+,:server_ca_key
+,:server_ca_cert
+,:server_tls_key
+,:server_tls_cert
 ,:server_created
 ,:server_updated
 ,:server_started
@@ -204,6 +224,10 @@ UPDATE servers SET
 ,server_capacity=:server_capacity
 ,server_secret=:server_secret
 ,server_error=:server_error
+,server_ca_key=:server_ca_key
+,server_ca_cert=:server_ca_cert
+,server_tls_key=:server_tls_key
+,server_tls_cert=:server_tls_cert
 ,server_updated=:server_updated
 ,server_started=:server_started
 ,server_stopped=:server_stopped

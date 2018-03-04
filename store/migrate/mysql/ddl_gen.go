@@ -111,7 +111,11 @@ CREATE TABLE IF NOT EXISTS servers (
 ,server_address   VARCHAR(250)
 ,server_capacity  INTEGER
 ,server_secret    VARCHAR(50)
-,server_error     MEDIUMBLOB
+,server_error     BLOB
+,server_ca_key    BLOB
+,server_ca_cert   BLOB
+,server_tls_key   BLOB
+,server_tls_cert  BLOB
 ,server_created   INTEGER
 ,server_updated   INTEGER
 ,server_started   INTEGER

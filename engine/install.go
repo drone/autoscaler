@@ -32,6 +32,8 @@ type installer struct {
 	server string
 
 	servers autoscaler.ServerStore
+
+	client func(*autoscaler.Server) (docker.APIClient, error)
 }
 
 func (i *installer) Install(ctx context.Context) error {
@@ -69,7 +71,7 @@ func (i *installer) install(ctx context.Context, instance *autoscaler.Server) er
 		Str("name", instance.Name).
 		Logger()
 
-	client, err := newDockerClient(instance)
+	client, err := i.client(instance)
 	if err != nil {
 		logger.Error().Err(err).
 			Msg("cannot create docker client")

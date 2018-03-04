@@ -49,12 +49,14 @@ func New(
 		collector: &collector{
 			servers:  servers,
 			provider: provider,
+			client:   newDockerClient,
 		},
 		installer: &installer{
 			servers: servers,
 			image:   config.Agent.Image,
 			secret:  config.Agent.Token,
 			server:  config.Agent.Host,
+			client:  newDockerClient,
 		},
 		planner: &planner{
 			client:  client,

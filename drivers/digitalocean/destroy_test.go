@@ -11,11 +11,9 @@ import (
 
 	"github.com/digitalocean/godo"
 	"github.com/drone/autoscaler"
-	"github.com/drone/autoscaler/config"
 
 	"github.com/golang/mock/gomock"
 	"github.com/h2non/gock"
-	"golang.org/x/crypto/ssh"
 )
 
 func TestDestroy(t *testing.T) {
@@ -29,16 +27,14 @@ func TestDestroy(t *testing.T) {
 		Reply(204)
 
 	mockContext := context.TODO()
-	mockSigner, _ := ssh.ParsePrivateKey(testkey)
-	mockConfig := config.Config{}
 	mockInstance := &autoscaler.Instance{
 		ID: "3164494",
 	}
 
-	p := Provider{
-		config: mockConfig,
-		signer: mockSigner,
-	}
+	p := New(
+		WithFingerprint("58:8e:30:66:fc:e2:ff:ad:4f:6f:02:4b:af:28:0d:c7"),
+		WithToken("77e027c7447f468068a7d4fea41e7149a75a94088082c66fcf555de3977f69d3"),
+	)
 
 	err := p.Destroy(mockContext, mockInstance)
 	if err != nil {
@@ -57,16 +53,14 @@ func TestDestroyDeleteError(t *testing.T) {
 		Reply(500)
 
 	mockContext := context.TODO()
-	mockSigner, _ := ssh.ParsePrivateKey(testkey)
-	mockConfig := config.Config{}
 	mockInstance := &autoscaler.Instance{
 		ID: "3164494",
 	}
 
-	p := Provider{
-		config: mockConfig,
-		signer: mockSigner,
-	}
+	p := New(
+		WithFingerprint("58:8e:30:66:fc:e2:ff:ad:4f:6f:02:4b:af:28:0d:c7"),
+		WithToken("77e027c7447f468068a7d4fea41e7149a75a94088082c66fcf555de3977f69d3"),
+	)
 
 	err := p.Destroy(mockContext, mockInstance)
 	if err == nil {
@@ -78,7 +72,7 @@ func TestDestroyDeleteError(t *testing.T) {
 
 func TestDestroyInvalidInput(t *testing.T) {
 	i := &autoscaler.Instance{}
-	p := Provider{}
+	p := provider{}
 	err := p.Destroy(context.TODO(), i)
 	if _, ok := err.(*strconv.NumError); !ok {
 		t.Errorf("Expected invalid or missing ID error")

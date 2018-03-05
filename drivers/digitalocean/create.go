@@ -13,15 +13,12 @@ import (
 	"time"
 
 	"github.com/drone/autoscaler"
-	"github.com/drone/autoscaler/drivers/internal/sshutil"
 
 	"github.com/digitalocean/godo"
 	"github.com/rs/zerolog/log"
 )
 
-// Create creates the DigitalOcean instance.
-func (p *Provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpts) (*autoscaler.Instance, error) {
-
+func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpts) (*autoscaler.Instance, error) {
 	buf := new(bytes.Buffer)
 	err := cloudInitT.Execute(buf, &opts)
 	if err != nil {
@@ -30,26 +27,17 @@ func (p *Provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 
 	req := &godo.DropletCreateRequest{
 		Name:     opts.Name,
-		Region:   p.config.DigitalOcean.Region,
-		Size:     p.config.DigitalOcean.Size,
-		IPv6:     p.config.DigitalOcean.IPv6,
-		Tags:     p.config.DigitalOcean.Tags,
+		Region:   p.region,
+		Size:     p.size,
+		Tags:     p.tags,
+		IPv6:     false,
 		UserData: buf.String(),
 		SSHKeys: []godo.DropletCreateSSHKey{
-			{Fingerprint: sshutil.Fingerprint(p.signer)},
+			{Fingerprint: p.key},
 		},
 		Image: godo.DropletCreateImage{
-			Slug: p.config.DigitalOcean.Image,
+			Slug: p.image,
 		},
-	}
-	if req.Image.Slug == "" {
-		req.Image.Slug = "docker-16-04"
-	}
-	if req.Size == "" {
-		req.Size = "s-1vcpu-1gb"
-	}
-	if req.Region == "" {
-		req.Region = "sfo1"
 	}
 
 	logger := log.Ctx(ctx).With().
@@ -62,7 +50,7 @@ func (p *Provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	logger.Debug().
 		Msg("instance create")
 
-	client := newClient(ctx, p.config.DigitalOcean.Token)
+	client := newClient(ctx, p.token)
 	droplet, _, err := client.Droplets.Create(ctx, req)
 	if err != nil {
 		logger.Error().

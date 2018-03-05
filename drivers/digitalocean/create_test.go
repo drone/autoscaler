@@ -11,11 +11,9 @@ import (
 
 	"github.com/digitalocean/godo"
 	"github.com/drone/autoscaler"
-	"github.com/drone/autoscaler/config"
 	"github.com/golang/mock/gomock"
 
 	"github.com/h2non/gock"
-	"golang.org/x/crypto/ssh"
 )
 
 func TestCreate(t *testing.T) {
@@ -34,13 +32,10 @@ func TestCreate(t *testing.T) {
 		Reply(200).
 		BodyString(respDropletDesc)
 
-	mockSigner, _ := ssh.ParsePrivateKey(testkey)
-	mockConfig := config.Config{}
-
-	p := Provider{
-		config: mockConfig,
-		signer: mockSigner,
-	}
+	p := New(
+		WithFingerprint("58:8e:30:66:fc:e2:ff:ad:4f:6f:02:4b:af:28:0d:c7"),
+		WithToken("77e027c7447f468068a7d4fea41e7149a75a94088082c66fcf555de3977f69d3"),
+	)
 
 	instance, err := p.Create(context.TODO(), autoscaler.InstanceCreateOpts{Name: "agent1"})
 	if err != nil {
@@ -57,13 +52,10 @@ func TestCreate_CreateError(t *testing.T) {
 		Post("/v2/droplets").
 		Reply(500)
 
-	mockSigner, _ := ssh.ParsePrivateKey(testkey)
-	mockConfig := config.Config{}
-
-	p := Provider{
-		config: mockConfig,
-		signer: mockSigner,
-	}
+	p := New(
+		WithFingerprint("58:8e:30:66:fc:e2:ff:ad:4f:6f:02:4b:af:28:0d:c7"),
+		WithToken("77e027c7447f468068a7d4fea41e7149a75a94088082c66fcf555de3977f69d3"),
+	)
 
 	_, err := p.Create(context.TODO(), autoscaler.InstanceCreateOpts{Name: "agent1"})
 	if err == nil {
@@ -85,13 +77,10 @@ func TestCreate_DescribeError(t *testing.T) {
 		Get("/v2/droplets/3164494").
 		Reply(500)
 
-	mockSigner, _ := ssh.ParsePrivateKey(testkey)
-	mockConfig := config.Config{}
-
-	p := Provider{
-		config: mockConfig,
-		signer: mockSigner,
-	}
+	p := New(
+		WithFingerprint("58:8e:30:66:fc:e2:ff:ad:4f:6f:02:4b:af:28:0d:c7"),
+		WithToken("77e027c7447f468068a7d4fea41e7149a75a94088082c66fcf555de3977f69d3"),
+	)
 
 	instance, err := p.Create(context.TODO(), autoscaler.InstanceCreateOpts{Name: "agent1"})
 	if err == nil {
@@ -116,13 +105,10 @@ func TestCreate_DescribeTimeout(t *testing.T) {
 		Reply(200).
 		BodyString(respDropletCreate) // no network data
 
-	mockSigner, _ := ssh.ParsePrivateKey(testkey)
-	mockConfig := config.Config{}
-
-	p := Provider{
-		config: mockConfig,
-		signer: mockSigner,
-	}
+	p := New(
+		WithFingerprint("58:8e:30:66:fc:e2:ff:ad:4f:6f:02:4b:af:28:0d:c7"),
+		WithToken("77e027c7447f468068a7d4fea41e7149a75a94088082c66fcf555de3977f69d3"),
+	)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()

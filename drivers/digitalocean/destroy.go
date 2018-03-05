@@ -43,10 +43,3 @@ func (p *provider) Destroy(ctx context.Context, instance *autoscaler.Instance) e
 
 	return nil
 }
-
-var teardownScript = `
-set -x;
-
-docker stop -t 3600 agent
-docker ps -a
-`

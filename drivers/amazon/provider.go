@@ -27,7 +27,7 @@ type provider struct {
 	size    string
 	subnet  string
 	groups  []string
-	tags    []string
+	tags    map[string]string
 }
 
 func (p *provider) getClient() *ec2.EC2 {
@@ -41,12 +41,18 @@ func (p *provider) getClient() *ec2.EC2 {
 func New(opts ...Option) autoscaler.Provider {
 	p := &provider{
 		retries: 25,
-		region:  "us-east-1",
-		size:    "t2.medium",
-		image:   "ami-66506c1c",
 	}
 	for _, opt := range opts {
 		opt(p)
+	}
+	if p.region == "" {
+		p.region = "us-east-1"
+	}
+	if p.size == "" {
+		p.size = "t2.medium"
+	}
+	if p.image == "" {
+		p.image = "ami-66506c1c"
 	}
 	return p
 }

@@ -19,6 +19,10 @@ import (
 )
 
 func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpts) (*autoscaler.Instance, error) {
+	p.init.Do(func() {
+		p.setup(ctx)
+	})
+
 	buf := new(bytes.Buffer)
 	err := cloudInitT.Execute(buf, &opts)
 	if err != nil {

@@ -61,10 +61,9 @@ type (
 		}
 
 		Amazon struct {
-			Instance      string   `default:"t2.medium"`
-			Region        string   `default:"us-east-1"`
-			SSHKey        string   `default:"/root/.ssh/id_rsa"`
-			SSHKeyName    string   `envconfig:"DRONE_AMAZON_SSHKEY_NAME"`
+			Instance      string
+			Region        string
+			SSHKey        string
 			SubnetID      string   `split_words:"true"`
 			SecurityGroup []string `split_words:"true"`
 			Tags          map[string]string
@@ -72,11 +71,10 @@ type (
 
 		DigitalOcean struct {
 			Token  string
-			Image  string `default:"docker-16-04"`
-			Region string `default:"nyc3"`
-			SSHKey string `default:"/root/.ssh/id_rsa"`
-			Size   string `default:"s-1vcpu-3gb"`
-			IPv6   bool
+			Image  string
+			Region string
+			SSHKey string
+			Size   string
 			Tags   []string
 		}
 
@@ -96,12 +94,12 @@ type (
 		}
 
 		HetznerCloud struct {
-			Token      string
-			Image      string `default:"ubuntu-16.04"`
-			Datacenter string `default:"nbg1-dc3"`
-			SSHKey     string `default:"/root/.ssh/id_rsa"`
-			SSHKeyID   int `envconfig:"DRONE_HETZNERCLOUD_SSHKEY_ID"`
-			ServerType string `default:"cx11" envconfig:"DRONE_HETZNERCLOUD_TYPE"`
+			Token       string
+			Image       string `default:"ubuntu-16.04"`
+			Datacenter  string `default:"nbg1-dc3"`
+			SSHKey      string `default:"/root/.ssh/id_rsa"`
+			SSHKeyID    int    `envconfig:"DRONE_HETZNERCLOUD_SSHKEY_ID"`
+			ServerType  string `default:"cx11" envconfig:"DRONE_HETZNERCLOUD_TYPE"`
 			CloudConfig string
 		}
 	}

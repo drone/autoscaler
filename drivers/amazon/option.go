@@ -4,8 +4,6 @@
 
 package amazon
 
-import "strings"
-
 // Option configures a Digital Ocean provider option.
 type Option func(*provider)
 
@@ -24,9 +22,9 @@ func WithRegion(region string) Option {
 }
 
 // WithSecurityGroup returns an option to set the instance size.
-func WithSecurityGroup(id string) Option {
+func WithSecurityGroup(group ...string) Option {
 	return func(p *provider) {
-		p.groups = []string{id}
+		p.groups = group
 	}
 }
 
@@ -52,14 +50,8 @@ func WithSubnet(id string) Option {
 }
 
 // WithTags returns an option to set the image.
-func WithTags(tags ...string) Option {
+func WithTags(tags map[string]string) Option {
 	return func(p *provider) {
 		p.tags = tags
-	}
-}
-
-func withTags(tags string) Option {
-	return func(p *provider) {
-		p.tags = strings.Split(tags, ",")
 	}
 }

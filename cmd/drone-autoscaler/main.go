@@ -13,6 +13,7 @@ import (
 
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/config"
+	"github.com/drone/autoscaler/drivers/amazon"
 	"github.com/drone/autoscaler/drivers/digitalocean"
 	"github.com/drone/autoscaler/engine"
 	"github.com/drone/autoscaler/metrics"
@@ -197,6 +198,16 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 		), nil
 	// case c.HetznerCloud.Token != "":
 	// 	return hetznercloud.FromConfig(c)
+
+	case os.Getenv("AWS_ACCESS_KEY_ID") != "" || os.Getenv("AWS_IAM") != "":
+		return amazon.New(
+			amazon.WithRegion(c.Amazon.Region),
+			amazon.WithSSHKey(c.Amazon.SSHKey),
+			amazon.WithSecurityGroup(c.Amazon.SecurityGroup...),
+			amazon.WithSize(c.Amazon.Instance),
+			amazon.WithSubnet(c.Amazon.SubnetID),
+			amazon.WithTags(c.Amazon.Tags),
+		), nil
 	default:
 		return nil, errors.New("missing provider configuration")
 	}

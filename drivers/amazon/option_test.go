@@ -14,7 +14,7 @@ func TestOptions(t *testing.T) {
 		WithSize("t2.2xlarge"),
 		WithSSHKey("id_rsa"),
 		WithSubnet("subnet-0b32177f"),
-		WithTags("drone", "agent"),
+		WithTags(map[string]string{"foo": "bar", "baz": "qux"}),
 	).(*provider)
 
 	if got, want := p.image, "ami-66506c1c"; got != want {

@@ -157,6 +157,11 @@ func (e *engine) collect(ctx context.Context) {
 
 // runs the planning process.
 func (e *engine) plan(ctx context.Context) {
+	// if e.planner.min+e.planner.max == 0 {
+	// 	log.Ctx(ctx).Warn().
+	// 		Msg("autoscaling disabled: pool min and max are zero")
+	// 	return
+	// }
 	for {
 		select {
 		case <-ctx.Done():

@@ -33,7 +33,7 @@ func TestCreate(t *testing.T) {
 		BodyString(respDropletDesc)
 
 	p := New(
-		WithFingerprint("58:8e:30:66:fc:e2:ff:ad:4f:6f:02:4b:af:28:0d:c7"),
+		WithSSHKey("58:8e:30:66:fc:e2:ff:ad:4f:6f:02:4b:af:28:0d:c7"),
 		WithToken("77e027c7447f468068a7d4fea41e7149a75a94088082c66fcf555de3977f69d3"),
 	)
 
@@ -53,7 +53,7 @@ func TestCreate_CreateError(t *testing.T) {
 		Reply(500)
 
 	p := New(
-		WithFingerprint("58:8e:30:66:fc:e2:ff:ad:4f:6f:02:4b:af:28:0d:c7"),
+		WithSSHKey("58:8e:30:66:fc:e2:ff:ad:4f:6f:02:4b:af:28:0d:c7"),
 		WithToken("77e027c7447f468068a7d4fea41e7149a75a94088082c66fcf555de3977f69d3"),
 	)
 
@@ -78,7 +78,7 @@ func TestCreate_DescribeError(t *testing.T) {
 		Reply(500)
 
 	p := New(
-		WithFingerprint("58:8e:30:66:fc:e2:ff:ad:4f:6f:02:4b:af:28:0d:c7"),
+		WithSSHKey("58:8e:30:66:fc:e2:ff:ad:4f:6f:02:4b:af:28:0d:c7"),
 		WithToken("77e027c7447f468068a7d4fea41e7149a75a94088082c66fcf555de3977f69d3"),
 	)
 
@@ -106,7 +106,7 @@ func TestCreate_DescribeTimeout(t *testing.T) {
 		BodyString(respDropletCreate) // no network data
 
 	p := New(
-		WithFingerprint("58:8e:30:66:fc:e2:ff:ad:4f:6f:02:4b:af:28:0d:c7"),
+		WithSSHKey("58:8e:30:66:fc:e2:ff:ad:4f:6f:02:4b:af:28:0d:c7"),
 		WithToken("77e027c7447f468068a7d4fea41e7149a75a94088082c66fcf555de3977f69d3"),
 	)
 

@@ -101,6 +101,7 @@ SELECT
 ,server_image
 ,server_region
 ,server_size
+,server_platform
 ,server_address
 ,server_capacity
 ,server_secret
@@ -126,6 +127,7 @@ SELECT
 ,server_image
 ,server_region
 ,server_size
+,server_platform
 ,server_address
 ,server_capacity
 ,server_secret
@@ -151,6 +153,7 @@ SELECT
 ,server_image
 ,server_region
 ,server_size
+,server_platform
 ,server_address
 ,server_capacity
 ,server_secret
@@ -177,6 +180,7 @@ INSERT INTO servers (
 ,server_image
 ,server_region
 ,server_size
+,server_platform
 ,server_address
 ,server_capacity
 ,server_secret
@@ -197,6 +201,7 @@ INSERT INTO servers (
 ,:server_image
 ,:server_region
 ,:server_size
+,:server_platform
 ,:server_address
 ,:server_capacity
 ,:server_secret
@@ -220,6 +225,7 @@ UPDATE servers SET
 ,server_image=:server_image
 ,server_region=:server_region
 ,server_size=:server_size
+,server_platform=:server_platform
 ,server_address=:server_address
 ,server_capacity=:server_capacity
 ,server_secret=:server_secret

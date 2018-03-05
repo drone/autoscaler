@@ -62,6 +62,7 @@ type Server struct {
 	Image    string       `db:"server_image"    json:"image"`
 	Region   string       `db:"server_region"   json:"region"`
 	Size     string       `db:"server_size"     json:"size"`
+	Platform string       `db:"server_platform" json:"platform"`
 	Address  string       `db:"server_address"  json:"address"`
 	Capacity int          `db:"server_capacity" json:"capacity"`
 	Secret   string       `db:"server_secret"   json:"secret"`

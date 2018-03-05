@@ -6,11 +6,11 @@ package digitalocean
 
 import (
 	"context"
+	"os"
 	"sync"
 
-	"github.com/drone/autoscaler"
-
 	"github.com/digitalocean/godo"
+	"github.com/drone/autoscaler"
 	"golang.org/x/oauth2"
 )
 
@@ -39,6 +39,25 @@ func New(opts ...Option) autoscaler.Provider {
 	return p
 }
 
+// NewEnv returns a new Digital Ocean provider
+// from the environment.
+func NewEnv() autoscaler.Provider {
+	return New(
+		WithSSHKey(os.Getenv("DIGITALOCEAN_SSHKEY")),
+		WithRegion(os.Getenv("DIGITALOCEAN_REGION")),
+		WithSize(os.Getenv("DIGITALOCEAN_SIZE")),
+		WithToken(os.Getenv("DIGITALOCEAN_TOKEN")),
+		withTags(os.Getenv("DIGITALOCEAN_TOKEN")),
+	)
+}
+
+// Env returns true if the Digital Ocean provider
+// environment variables are set.
+func Env() bool {
+	return os.Getenv("DIGITALOCEAN_TOKEN") != ""
+}
+
+// helper function returns a new digitalocean client.
 func newClient(ctx context.Context, token string) *godo.Client {
 	return godo.NewClient(
 		oauth2.NewClient(ctx, oauth2.StaticTokenSource(

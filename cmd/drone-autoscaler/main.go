@@ -14,7 +14,6 @@ import (
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/config"
 	"github.com/drone/autoscaler/drivers/digitalocean"
-	"github.com/drone/autoscaler/drivers/hetznercloud"
 	"github.com/drone/autoscaler/engine"
 	"github.com/drone/autoscaler/metrics"
 	"github.com/drone/autoscaler/server"
@@ -188,10 +187,10 @@ func setupClient(c config.Config) drone.Client {
 // helper function configures the hosting provider.
 func setupProvider(c config.Config) (autoscaler.Provider, error) {
 	switch {
-	case c.DigitalOcean.Token != "":
-		return digitalocean.FromConfig(c)
-	case c.HetznerCloud.Token != "":
-		return hetznercloud.FromConfig(c)
+	case digitalocean.Env():
+		return digitalocean.NewEnv()
+	// case c.HetznerCloud.Token != "":
+	// 	return hetznercloud.FromConfig(c)
 	default:
 		return nil, errors.New("missing provider configuration")
 	}

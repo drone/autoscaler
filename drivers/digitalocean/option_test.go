@@ -8,12 +8,12 @@ import "testing"
 
 func TestOptions(t *testing.T) {
 	p := New(
-		WithToken("77e027c7447f468068a7d4fea41e7149a75a94088082c66fcf555de3977f69d3"),
-		WithFingerprint("58:8e:30:66:fc:e2:ff:ad:4f:6f:02:4b:af:28:0d:c7"),
+		WithImage("ubuntu-16-04-x64"),
 		WithRegion("nyc3"),
 		WithSize("s-8vcpu-32gb"),
-		WithImage("ubuntu-16-04-x64"),
+		WithSSHKey("58:8e:30:66:fc:e2:ff:ad:4f:6f:02:4b:af:28:0d:c7"),
 		WithTags("drone", "agent"),
+		WithToken("77e027c7447f468068a7d4fea41e7149a75a94088082c66fcf555de3977f69d3"),
 	).(*provider)
 
 	if got, want := p.image, "ubuntu-16-04-x64"; got != want {

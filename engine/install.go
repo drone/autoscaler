@@ -6,20 +6,15 @@ package engine
 
 import (
 	"context"
-	"crypto/tls"
-	"crypto/x509"
 	"fmt"
 	"io"
 	"io/ioutil"
-	"net/http"
 	"sync"
 	"time"
 
 	"github.com/drone/autoscaler"
 	"github.com/rs/zerolog/log"
 
-	"docker.io/go-docker"
-	"docker.io/go-docker/api"
 	"docker.io/go-docker/api/types"
 	"docker.io/go-docker/api/types/container"
 )
@@ -32,8 +27,7 @@ type installer struct {
 	server string
 
 	servers autoscaler.ServerStore
-
-	client func(*autoscaler.Server) (docker.APIClient, error)
+	client  clientFunc
 }
 
 func (i *installer) Install(ctx context.Context) error {
@@ -143,6 +137,15 @@ poller:
 			Volumes: map[string]struct{}{
 				"/var/run/docker.sock": struct{}{},
 			},
+			Labels: map[string]string{
+				"com.centurylinklabs.watchtower.enable":      "true",
+				"com.centurylinklabs.watchtower.stop-signal": "SIGHUP",
+				"io.drone.agent.name":                        instance.Name,
+				"io.drone.agent.zone":                        instance.Region,
+				"io.drone.agent.size":                        instance.Size,
+				"io.drone.agent.instance":                    instance.ID,
+				"io.drone.agent.capacity":                    fmt.Sprint(instance.Capacity),
+			},
 		},
 		&container.HostConfig{
 			Binds: []string{
@@ -186,28 +189,4 @@ func (i *installer) errorUpdate(ctx context.Context, server *autoscaler.Server, 
 		i.servers.Update(ctx, server)
 	}
 	return err
-}
-
-// helper function returns a new docker client.
-func newDockerClient(server *autoscaler.Server) (docker.APIClient, error) {
-	tlsCert, err := tls.X509KeyPair(server.TLSCert, server.TLSKey)
-	if err != nil {
-		return nil, err
-	}
-	tlsConfig := &tls.Config{Certificates: []tls.Certificate{tlsCert}}
-
-	// https://github.com/moby/moby/issues/8943
-	// https://github.com/prometheus/prometheus/pull/1658
-	tlsConfig.ServerName = server.Name
-	// tlsConfig.InsecureSkipVerify = true
-
-	tlsConfig.RootCAs = x509.NewCertPool()
-	tlsConfig.RootCAs.AppendCertsFromPEM(server.CACert)
-
-	client := &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: tlsConfig,
-		},
-	}
-	return docker.NewClient("https://"+server.Address+":2376", api.DefaultVersion, client, nil)
 }

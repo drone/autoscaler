@@ -9,7 +9,6 @@ import (
 	"sync"
 	"time"
 
-	docker "docker.io/go-docker"
 	"github.com/drone/autoscaler"
 
 	"github.com/rs/zerolog/log"
@@ -20,8 +19,7 @@ type collector struct {
 
 	servers  autoscaler.ServerStore
 	provider autoscaler.Provider
-
-	client func(*autoscaler.Server) (docker.APIClient, error)
+	client   clientFunc
 }
 
 func (c *collector) Collect(ctx context.Context) error {

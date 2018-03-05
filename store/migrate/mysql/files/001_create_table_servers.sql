@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS servers (
 ,server_image     VARCHAR(250)
 ,server_region    VARCHAR(50)
 ,server_size      VARCHAR(50)
+,server_platform  VARCHAR(50)
 ,server_address   VARCHAR(250)
 ,server_capacity  INTEGER
 ,server_secret    VARCHAR(50)

@@ -14,8 +14,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// Destroy destroyes the DigitalOcean instance.
-func (p *Provider) Destroy(ctx context.Context, instance *autoscaler.Instance) error {
+func (p *provider) Destroy(ctx context.Context, instance *autoscaler.Instance) error {
 	logger := log.Ctx(ctx).With().
 		Str("id", instance.ID).
 		Str("ip", instance.Address).
@@ -44,10 +43,3 @@ func (p *Provider) Destroy(ctx context.Context, instance *autoscaler.Instance) e
 
 	return nil
 }
-
-var teardownScript = `
-set -x;
-
-sudo docker stop -t 3600 agent
-sudo docker ps -a
-`

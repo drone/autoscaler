@@ -8,36 +8,36 @@ import (
 	"context"
 	"time"
 
+	"github.com/drone/autoscaler"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
-	"github.com/drone/autoscaler"
 	"github.com/rs/zerolog/log"
 )
 
-// Create creates the DigitalOcean instance.
-func (p *Provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpts) (*autoscaler.Instance, error) {
+func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpts) (*autoscaler.Instance, error) {
 	client := p.getClient()
 
 	in := &ec2.RunInstancesInput{
-		KeyName:      aws.String(p.config.Amazon.SSHKeyName),
-		ImageId:      aws.String(defaultImage),
-		InstanceType: aws.String(p.config.Amazon.Instance),
+		KeyName:      aws.String(p.key),
+		ImageId:      aws.String(p.image),
+		InstanceType: aws.String(p.size),
 		MinCount:     aws.Int64(1),
 		MaxCount:     aws.Int64(1),
 		NetworkInterfaces: []*ec2.InstanceNetworkInterfaceSpecification{
 			{
 				AssociatePublicIpAddress: aws.Bool(true),
 				DeviceIndex:              aws.Int64(0),
-				SubnetId:                 aws.String(p.config.Amazon.SubnetID),
-				Groups:                   aws.StringSlice(p.config.Amazon.SecurityGroup),
+				SubnetId:                 aws.String(p.subnet),
+				Groups:                   aws.StringSlice(p.groups),
 			},
 		},
 	}
 
 	logger := log.Ctx(ctx).With().
-		Str("region", p.config.Amazon.Region).
-		Str("image", defaultImage).
-		Str("size", p.config.Amazon.Instance).
+		Str("region", p.region).
+		Str("image", p.image).
+		Str("size", p.size).
 		Str("name", opts.Name).
 		Logger()
 

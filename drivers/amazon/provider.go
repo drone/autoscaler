@@ -14,8 +14,6 @@ import (
 )
 
 const (
-	maxRetries = 50
-
 	defaultDeviceName = "/dev/sda1"
 	defaultImage      = "ami-66506c1c"
 	defaultRootSize   = 16
@@ -23,28 +21,30 @@ const (
 )
 
 type provider struct {
-	key    string
-	region string
-	image  string
-	size   string
-	subnet string
-	groups []string
-	tags   []string
+	retries int
+	key     string
+	region  string
+	image   string
+	size    string
+	subnet  string
+	groups  []string
+	tags    []string
 }
 
 func (p *provider) getClient() *ec2.EC2 {
 	config := aws.NewConfig()
 	config = config.WithRegion(p.region)
-	config = config.WithMaxRetries(maxRetries)
+	config = config.WithMaxRetries(p.retries)
 	return ec2.New(session.New(config))
 }
 
 // New returns a new Digital Ocean provider.
 func New(opts ...Option) autoscaler.Provider {
 	p := &provider{
-		region: "us-east-1",
-		size:   "t2.medium",
-		image:  "ami-66506c1c",
+		retries: 25,
+		region:  "us-east-1",
+		size:    "t2.medium",
+		image:   "ami-66506c1c",
 	}
 	for _, opt := range opts {
 		opt(p)

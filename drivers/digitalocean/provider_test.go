@@ -11,7 +11,7 @@ func TestDefaults(t *testing.T) {
 	if got, want := p.image, "docker-16-04"; got != want {
 		t.Errorf("Want image %q, got %q", want, got)
 	}
-	if got, want := p.region, "sfo1"; got != want {
+	if got, want := p.region, "nyc1"; got != want {
 		t.Errorf("Want region %q, got %q", want, got)
 	}
 	if got, want := p.size, "s-1vcpu-1gb"; got != want {

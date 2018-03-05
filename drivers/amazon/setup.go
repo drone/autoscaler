@@ -2,13 +2,13 @@
 // Use of this software is governed by the Business Source License
 // that can be found in the LICENSE file.
 
-package digitalocean
+package amazon
 
 import (
 	"context"
 	"errors"
 
-	"github.com/digitalocean/godo"
+	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
 )
@@ -20,6 +20,12 @@ func (p *provider) setup(ctx context.Context) error {
 			return p.setupKeypair(ctx)
 		})
 	}
+	if p.subnet == "" {
+		// TODO: find or create subnet
+	}
+	if len(p.groups) == 0 {
+		// TODO: find or create security groups
+	}
 	return g.Wait()
 }
 
@@ -29,15 +35,15 @@ func (p *provider) setupKeypair(ctx context.Context) error {
 	logger.Debug().
 		Msg("finding default ssh key")
 
-	client := newClient(ctx, p.token)
-	keys, _, err := client.Keys.List(ctx, &godo.ListOptions{})
+	opts := new(ec2.DescribeKeyPairsInput)
+	keys, err := p.getClient().DescribeKeyPairs(opts)
 	if err != nil {
 		return err
 	}
 
 	index := map[string]string{}
-	for _, key := range keys {
-		index[key.Name] = key.Fingerprint
+	for _, key := range keys.KeyPairs {
+		index[*key.KeyName] = *key.KeyFingerprint
 	}
 
 	// if the account has multiple keys configured we will
@@ -47,7 +53,7 @@ func (p *provider) setupKeypair(ctx context.Context) error {
 		if !ok {
 			continue
 		}
-		p.key = fingerprint
+		p.key = name
 
 		logger.Debug().
 			Str("name", name).
@@ -59,13 +65,13 @@ func (p *provider) setupKeypair(ctx context.Context) error {
 	// if there were no matches but the account has at least
 	// one keypair already created we will select the first
 	// in the list.
-	if len(keys) > 0 {
-		key := keys[0]
-		p.key = key.Fingerprint
+	if len(keys.KeyPairs) > 0 {
+		key := keys.KeyPairs[0]
+		p.key = *key.KeyName
 
 		logger.Debug().
-			Str("name", key.Name).
-			Str("fingerprint", key.Fingerprint).
+			Str("name", *key.KeyName).
+			Str("fingerprint", *key.KeyFingerprint).
 			Msg("using default ssh key")
 		return nil
 	}

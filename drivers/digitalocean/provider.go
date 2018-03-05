@@ -32,7 +32,7 @@ func New(opts ...Option) autoscaler.Provider {
 		opt(p)
 	}
 	if p.region == "" {
-		p.region = "sfo1"
+		p.region = "nyc1"
 	}
 	if p.size == "" {
 		p.size = "s-1vcpu-1gb"

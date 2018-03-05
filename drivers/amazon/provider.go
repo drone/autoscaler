@@ -5,6 +5,8 @@
 package amazon
 
 import (
+	"sync"
+
 	"github.com/drone/autoscaler"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -20,6 +22,8 @@ const (
 )
 
 type provider struct {
+	init sync.Once
+
 	retries int
 	key     string
 	region  string

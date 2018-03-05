@@ -71,6 +71,25 @@ func HandleServerDelete(
 			writeNotFound(w, err)
 			return
 		}
+
+		// in some cases the server fails to create and is stuck
+		// in an error state. In this case we force-delete from
+		// the database.
+		if server.State == autoscaler.StateError && server.ID == "" {
+			err = servers.Delete(ctx, server)
+			if err != nil {
+				hlog.FromRequest(r).
+					Error().
+					Err(err).
+					Str("server", name).
+					Msg("cannot delete server")
+				writeError(w, err)
+				return
+			}
+			w.WriteHeader(204)
+			return
+		}
+
 		server.State = autoscaler.StateShutdown
 		err = servers.Update(ctx, server)
 		if err != nil {

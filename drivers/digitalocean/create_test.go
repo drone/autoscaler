@@ -141,7 +141,7 @@ func testInstance(instance *autoscaler.Instance) func(t *testing.T) {
 		if got, want := instance.Name, "example.com"; got != want {
 			t.Errorf("Want droplet Name %v, got %v", want, got)
 		}
-		if got, want := instance.Region, "sfo1"; got != want {
+		if got, want := instance.Region, "nyc1"; got != want {
 			t.Errorf("Want droplet Region %v, got %v", want, got)
 		}
 		if got, want := instance.Provider, autoscaler.ProviderDigitalOcean; got != want {

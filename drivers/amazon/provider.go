@@ -5,12 +5,11 @@
 package amazon
 
 import (
-	"os"
+	"github.com/drone/autoscaler"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
-	"github.com/drone/autoscaler"
 )
 
 const (
@@ -50,11 +49,4 @@ func New(opts ...Option) autoscaler.Provider {
 		opt(p)
 	}
 	return p
-}
-
-// Env returns true if the Digital Ocean provider
-// environment variables are set.
-func Env() bool {
-	return os.Getenv("AWS_ACCESS_KEY_ID") != "" &&
-		os.Getenv("AWS_SECRET_ACCESS_KEY") != ""
 }

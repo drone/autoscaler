@@ -187,8 +187,14 @@ func setupClient(c config.Config) drone.Client {
 // helper function configures the hosting provider.
 func setupProvider(c config.Config) (autoscaler.Provider, error) {
 	switch {
-	case digitalocean.Env():
-		return digitalocean.NewEnv()
+	case c.DigitalOcean.Token != "":
+		return digitalocean.New(
+			digitalocean.WithSSHKey(c.DigitalOcean.SSHKey),
+			digitalocean.WithRegion(c.DigitalOcean.Region),
+			digitalocean.WithSize(c.DigitalOcean.Size),
+			digitalocean.WithToken(c.DigitalOcean.Token),
+			digitalocean.WithTags(c.DigitalOcean.Tags...),
+		), nil
 	// case c.HetznerCloud.Token != "":
 	// 	return hetznercloud.FromConfig(c)
 	default:

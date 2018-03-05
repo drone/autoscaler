@@ -37,7 +37,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		InstanceType: aws.String(p.size),
 		MinCount:     aws.Int64(1),
 		MaxCount:     aws.Int64(1),
-		UserData:     aws.String(buf.String()),
+		UserData:     aws.String(base64.StdEncoding.EncodeToString(buf.Bytes())),
 		NetworkInterfaces: []*ec2.InstanceNetworkInterfaceSpecification{
 			{
 				AssociatePublicIpAddress: aws.Bool(true),

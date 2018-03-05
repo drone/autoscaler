@@ -10,28 +10,29 @@ import (
 
 	"github.com/digitalocean/godo"
 	"github.com/rs/zerolog/log"
+	"golang.org/x/sync/errgroup"
 )
 
 func (p *provider) setup(ctx context.Context) error {
+	var g errgroup.Group
+	if p.key == "" {
+		g.Go(func() error {
+			return p.setupKeypair(ctx)
+		})
+	}
+	return g.Wait()
+}
+
+func (p *provider) setupKeypair(ctx context.Context) error {
 	logger := log.Ctx(ctx)
+
+	logger.Debug().
+		Msg("finding default ssh key")
 
 	client := newClient(ctx, p.token)
 	keys, _, err := client.Keys.List(ctx, &godo.ListOptions{})
 	if err != nil {
 		return err
-	}
-
-	// if the account has a single keypair created we
-	// will use this as the default.
-	if len(keys) == 1 {
-		key := keys[0]
-		p.key = key.Fingerprint
-
-		logger.Debug().
-			Str("name", key.Name).
-			Str("fingerprint", key.Fingerprint).
-			Msg("using default ssh key")
-		return nil
 	}
 
 	index := map[string]string{}
@@ -46,12 +47,27 @@ func (p *provider) setup(ctx context.Context) error {
 		if !ok {
 			continue
 		}
-
 		p.key = fingerprint
+
 		logger.Debug().
 			Str("name", name).
 			Str("fingerprint", fingerprint).
 			Msg("using default ssh key")
+		return nil
+	}
+
+	// if there were no matches but the account has at least
+	// one keypair already created we will select the first
+	// in the list.
+	if len(keys) > 0 {
+		key := keys[0]
+		p.key = key.Fingerprint
+
+		logger.Debug().
+			Str("name", key.Name).
+			Str("fingerprint", key.Fingerprint).
+			Msg("using default ssh key")
+		return nil
 	}
 
 	return errors.New("No matching keys")

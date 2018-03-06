@@ -3,3 +3,41 @@
 // that can be found in the LICENSE file.
 
 package google
+
+// Option configures a Digital Ocean provider option.
+type Option func(*provider)
+
+// WithImage returns an option to set the image.
+func WithImage(image string) Option {
+	return func(p *provider) {
+		p.image = image
+	}
+}
+
+// WithSize returns an option to set the instance size.
+func WithSize(size string) Option {
+	return func(p *provider) {
+		p.size = size
+	}
+}
+
+// WithSSHKey returns an option to set the ssh key.
+func WithSSHKey(key string) Option {
+	return func(p *provider) {
+		p.key = key
+	}
+}
+
+// WithTags returns an option to set the image.
+func WithTags(tags ...string) Option {
+	return func(p *provider) {
+		p.tags = tags
+	}
+}
+
+// WithZone returns an option to set the target zone.
+func WithZone(zone string) Option {
+	return func(p *provider) {
+		p.zone = zone
+	}
+}

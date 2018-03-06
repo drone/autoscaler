@@ -3,3 +3,13 @@
 // that can be found in the LICENSE file.
 
 package google
+
+import (
+	"context"
+
+	"github.com/drone/autoscaler"
+)
+
+func (p *provider) Destroy(ctx context.Context, instance *autoscaler.Instance) error {
+	return nil // TODO
+}

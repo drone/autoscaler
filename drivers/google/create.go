@@ -3,3 +3,17 @@
 // that can be found in the LICENSE file.
 
 package google
+
+import (
+	"context"
+
+	"github.com/drone/autoscaler"
+)
+
+func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpts) (*autoscaler.Instance, error) {
+	p.init.Do(func() {
+		p.setup(ctx)
+	})
+
+	return nil, nil // TODO
+}

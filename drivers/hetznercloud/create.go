@@ -8,11 +8,11 @@ import (
 	"bytes"
 	"context"
 	"strconv"
+	"text/template"
 
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/drivers/internal/scripts"
 
-	"github.com/alecthomas/template"
 	"github.com/hetznercloud/hcloud-go/hcloud"
 	"github.com/rs/zerolog/log"
 )

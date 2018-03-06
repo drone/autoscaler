@@ -6,10 +6,10 @@ package amazon
 
 import (
 	"sync"
+	"text/template"
 
 	"github.com/drone/autoscaler"
 
-	"github.com/alecthomas/template"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"

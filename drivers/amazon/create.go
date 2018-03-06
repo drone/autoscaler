@@ -8,12 +8,12 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
+	"text/template"
 	"time"
 
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/drivers/internal/scripts"
 
-	"github.com/alecthomas/template"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/rs/zerolog/log"

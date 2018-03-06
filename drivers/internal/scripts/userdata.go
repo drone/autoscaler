@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/alecthomas/template"
+	"text/template"
 )
 
 var (

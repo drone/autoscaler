@@ -8,12 +8,12 @@ import (
 	"bytes"
 	"context"
 	"strconv"
+	"text/template"
 	"time"
 
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/drivers/internal/scripts"
 
-	"github.com/alecthomas/template"
 	"github.com/digitalocean/godo"
 	"github.com/rs/zerolog/log"
 )

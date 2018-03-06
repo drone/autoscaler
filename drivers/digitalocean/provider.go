@@ -7,10 +7,10 @@ package digitalocean
 import (
 	"context"
 	"sync"
+	"text/template"
 
 	"github.com/drone/autoscaler"
 
-	"github.com/alecthomas/template"
 	"github.com/digitalocean/godo"
 	"golang.org/x/oauth2"
 )

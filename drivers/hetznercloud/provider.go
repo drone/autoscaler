@@ -6,10 +6,10 @@ package hetznercloud
 
 import (
 	"sync"
+	"text/template"
 
 	"github.com/drone/autoscaler"
 
-	"github.com/alecthomas/template"
 	"github.com/hetznercloud/hcloud-go/hcloud"
 )
 

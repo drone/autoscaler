@@ -62,6 +62,7 @@ type (
 
 		Amazon struct {
 			Instance      string
+			UserData      string `split_words:"true"`
 			Region        string
 			SSHKey        string
 			SubnetID      string   `split_words:"true"`
@@ -70,18 +71,20 @@ type (
 		}
 
 		DigitalOcean struct {
-			Token  string
-			Image  string
-			Region string
-			SSHKey string
-			Size   string
-			Tags   []string
+			Token    string
+			Image    string
+			UserData string `split_words:"true"`
+			Region   string
+			SSHKey   string
+			Size     string
+			Tags     []string
 		}
 
 		Google struct {
 			Zone         string `default:"us-central1-a"`
 			MachineType  string `split_words:"true" default:"n1-standard-1"`
 			MachineImage string `split_words:"true" default:"ubuntu-1510-wily-v20151114"`
+			UserData     string `split_words:"true"`
 			DiskType     string `split_words:"true" default:"pd-standard"`
 			Address      string
 			Network      string `default:"default"`
@@ -96,6 +99,7 @@ type (
 		HetznerCloud struct {
 			Datacenter string
 			Image      string
+			UserData   string `split_words:"true"`
 			SSHKey     int
 			Token      string
 			Type       string

@@ -194,6 +194,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			digitalocean.WithSSHKey(c.DigitalOcean.SSHKey),
 			digitalocean.WithRegion(c.DigitalOcean.Region),
 			digitalocean.WithSize(c.DigitalOcean.Size),
+			digitalocean.WithUserData(c.DigitalOcean.UserData),
 			digitalocean.WithToken(c.DigitalOcean.Token),
 			digitalocean.WithTags(c.DigitalOcean.Tags...),
 		), nil
@@ -201,6 +202,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 		return hetznercloud.New(
 			hetznercloud.WithDatacenter(c.HetznerCloud.Datacenter),
 			hetznercloud.WithImage(c.HetznerCloud.Image),
+			hetznercloud.WithUserData(c.HetznerCloud.UserData),
 			hetznercloud.WithServerType(c.HetznerCloud.Type),
 			hetznercloud.WithSSHKey(c.HetznerCloud.SSHKey),
 			hetznercloud.WithToken(c.HetznerCloud.Token),
@@ -212,6 +214,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			amazon.WithSSHKey(c.Amazon.SSHKey),
 			amazon.WithSecurityGroup(c.Amazon.SecurityGroup...),
 			amazon.WithSize(c.Amazon.Instance),
+			amazon.WithUserData(c.Amazon.UserData),
 			amazon.WithSubnet(c.Amazon.SubnetID),
 			amazon.WithTags(c.Amazon.Tags),
 		), nil

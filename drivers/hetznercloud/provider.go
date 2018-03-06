@@ -8,6 +8,8 @@ import (
 	"sync"
 
 	"github.com/drone/autoscaler"
+
+	"github.com/alecthomas/template"
 	"github.com/hetznercloud/hcloud-go/hcloud"
 )
 
@@ -19,6 +21,7 @@ type provider struct {
 	datacenter string
 	serverType string
 	image      string
+	userdata   *template.Template
 	key        int
 
 	client *hcloud.Client
@@ -38,6 +41,9 @@ func New(opts ...Option) autoscaler.Provider {
 	}
 	if p.image == "" {
 		p.image = "ubuntu-16.04"
+	}
+	if p.userdata == nil {
+		p.userdata = cloudInitT
 	}
 	return p
 }

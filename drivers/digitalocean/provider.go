@@ -8,8 +8,10 @@ import (
 	"context"
 	"sync"
 
-	"github.com/digitalocean/godo"
 	"github.com/drone/autoscaler"
+
+	"github.com/alecthomas/template"
+	"github.com/digitalocean/godo"
 	"golang.org/x/oauth2"
 )
 
@@ -17,12 +19,13 @@ import (
 type provider struct {
 	init sync.Once
 
-	key    string
-	region string
-	token  string
-	size   string
-	image  string
-	tags   []string
+	key      string
+	region   string
+	token    string
+	size     string
+	image    string
+	userdata *template.Template
+	tags     []string
 }
 
 // New returns a new Digital Ocean provider.
@@ -39,6 +42,9 @@ func New(opts ...Option) autoscaler.Provider {
 	}
 	if p.image == "" {
 		p.image = "docker-16-04"
+	}
+	if p.userdata == nil {
+		p.userdata = cloudInitT
 	}
 	return p
 }

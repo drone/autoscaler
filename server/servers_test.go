@@ -193,7 +193,7 @@ func TestHandleServerDelete(t *testing.T) {
 		t.Errorf("Want response code %d, got %d", want, got)
 	}
 	if got, want := server.State, autoscaler.StateShutdown; got != want {
-		t.Errorf("Want server state Shutdown, got %d", got)
+		t.Errorf("Want server state Shutdown, got %s", got)
 	}
 }
 

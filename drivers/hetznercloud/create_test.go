@@ -5,25 +5,15 @@
 package hetznercloud
 
 import (
-	"bytes"
 	"context"
-	"errors"
 	"testing"
-	"time"
 
 	"github.com/drone/autoscaler"
-	"github.com/drone/autoscaler/config"
-	"github.com/drone/autoscaler/mocks"
 
-	"github.com/golang/mock/gomock"
 	"github.com/h2non/gock"
-	"golang.org/x/crypto/ssh"
 )
 
 func TestCreate(t *testing.T) {
-	controller := gomock.NewController(t)
-	defer controller.Finish()
-
 	defer gock.Off()
 
 	gock.New("https://api.hetzner.cloud").
@@ -31,19 +21,10 @@ func TestCreate(t *testing.T) {
 		Reply(200).
 		BodyString(respInstanceCreate)
 
-	mockSigner, _ := ssh.ParsePrivateKey(testkey)
-	mockConfig := config.Config{}
-
-	// base provider to mock SSH calls.
-	mockProvider := mocks.NewMockProvider(controller)
-	mockProvider.EXPECT().Ping(gomock.Any(), gomock.Any()).Return(nil)
-	mockProvider.EXPECT().Execute(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
-
-	p := Provider{
-		Provider: mockProvider,
-		config:   mockConfig,
-		signer:   mockSigner,
-	}
+	p := New(
+		WithToken("LRK9DAWQ1ZAEFSrCNEEzLCUwhYX1U3g7wMg4dTlkkDC96fyDuyJ39nVbVjCKSDfj"),
+	).(*provider)
+	p.init.Do(func() {}) // pre-initialize
 
 	instance, err := p.Create(context.TODO(), autoscaler.InstanceCreateOpts{Name: "agent1"})
 	if err != nil {
@@ -60,100 +41,15 @@ func TestCreate_CreateError(t *testing.T) {
 		Post("/v1/servers").
 		Reply(500)
 
-	mockSigner, _ := ssh.ParsePrivateKey(testkey)
-	mockConfig := config.Config{}
-
-	p := Provider{
-		Provider: nil,
-		config:   mockConfig,
-		signer:   mockSigner,
-	}
+	p := New(
+		WithToken("LRK9DAWQ1ZAEFSrCNEEzLCUwhYX1U3g7wMg4dTlkkDC96fyDuyJ39nVbVjCKSDfj"),
+	).(*provider)
+	p.init.Do(func() {}) // pre-initialize
 
 	_, err := p.Create(context.TODO(), autoscaler.InstanceCreateOpts{Name: "agent1"})
 	if err == nil {
 		t.Errorf("Expect error returned from hetzner cloud")
 	}
-}
-
-func TestCreate_PingTimeout(t *testing.T) {
-	controller := gomock.NewController(t)
-	defer controller.Finish()
-
-	defer gock.Off()
-
-	gock.New("https://api.hetzner.cloud").
-		Post("/v1/servers").
-		Reply(200).
-		BodyString(respInstanceCreate)
-
-	mockError := errors.New("oh no")
-	mockSigner, _ := ssh.ParsePrivateKey(testkey)
-	mockConfig := config.Config{}
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-
-	// base provider to mock SSH calls.
-	mockProvider := mocks.NewMockProvider(controller)
-	mockProvider.EXPECT().Ping(ctx, gomock.Any()).Return(mockError)
-
-	p := Provider{
-		Provider: mockProvider,
-		config:   mockConfig,
-		signer:   mockSigner,
-	}
-
-	instance, err := p.Create(ctx, autoscaler.InstanceCreateOpts{Name: "agent1"})
-	if err == nil {
-		t.Errorf("Expected context deadline exceeded, got nil")
-	} else if err.Error() != "context deadline exceeded" {
-		t.Errorf("Expected context deadline exceeded, got %s", err)
-	}
-
-	t.Run("Attributes", testInstance(instance))
-	t.Run("Address", testInstanceAddress(instance))
-}
-
-func TestCreate_ExecError(t *testing.T) {
-	controller := gomock.NewController(t)
-	defer controller.Finish()
-
-	defer gock.Off()
-
-	gock.New("https://api.hetzner.cloud").
-		Post("/v1/servers").
-		Reply(200).
-		BodyString(respInstanceCreate)
-
-	mockContext := context.Background()
-	mockLogs := []byte("-bash: curl: command not found")
-	mockError := errors.New("uh oh")
-	mockSigner, _ := ssh.ParsePrivateKey(testkey)
-	mockConfig := config.Config{}
-
-	// base provider to mock SSH calls.
-	mockProvider := mocks.NewMockProvider(controller)
-	mockProvider.EXPECT().Ping(mockContext, gomock.Any()).Return(nil)
-	mockProvider.EXPECT().Execute(mockContext, gomock.Any(), gomock.Any()).Return(mockLogs, mockError)
-
-	p := Provider{
-		Provider: mockProvider,
-		config:   mockConfig,
-		signer:   mockSigner,
-	}
-
-	instance, err := p.Create(context.TODO(), autoscaler.InstanceCreateOpts{Name: "agent1"})
-	if lerr, ok := err.(*autoscaler.InstanceError); !ok {
-		t.Errorf("Want InstanceError")
-	} else if err == nil {
-		t.Errorf("Want InstanceError got nil")
-	} else if lerr.Err != mockError {
-		t.Errorf("Want InstanceError to wrap the ssh error")
-	} else if !bytes.Equal(lerr.Logs, mockLogs) {
-		t.Errorf("Want InstanceError to include the logs")
-	}
-
-	t.Run("Attributes", testInstance(instance))
-	t.Run("Address", testInstanceAddress(instance))
 }
 
 func testInstance(instance *autoscaler.Instance) func(t *testing.T) {
@@ -175,9 +71,6 @@ func testInstance(instance *autoscaler.Instance) func(t *testing.T) {
 		}
 		if got, want := instance.Provider, autoscaler.ProviderHetznerCloud; got != want {
 			t.Errorf("Want instance Provider %v, got %v", want, got)
-		}
-		if instance.Secret == "" {
-			t.Errorf("Want instance secret populated, got empty")
 		}
 	}
 }

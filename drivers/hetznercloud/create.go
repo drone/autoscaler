@@ -5,45 +5,46 @@
 package hetznercloud
 
 import (
+	"bytes"
 	"context"
+	"encoding/base64"
 	"strconv"
-	"time"
 
-	"github.com/dchest/uniuri"
+	"github.com/alecthomas/template"
 	"github.com/drone/autoscaler"
-	"github.com/drone/autoscaler/drivers/internal/scripts"
 
 	"github.com/hetznercloud/hcloud-go/hcloud"
 	"github.com/rs/zerolog/log"
 )
 
-// Create creates the HetznerCloud instance.
-func (p *Provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpts) (*autoscaler.Instance, error) {
+func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpts) (*autoscaler.Instance, error) {
+	p.init.Do(func() {
+		p.setup(ctx)
+	})
+
+	buf := new(bytes.Buffer)
+	err := cloudInitT.Execute(buf, &opts)
+	if err != nil {
+		return nil, err
+	}
+
 	req := hcloud.ServerCreateOpts{
-		Name: opts.Name,
+		Name:     opts.Name,
+		UserData: buf.String(),
 		ServerType: &hcloud.ServerType{
-			Name: p.config.HetznerCloud.ServerType,
+			Name: p.serverType,
 		},
 		Image: &hcloud.Image{
-			Name: p.config.HetznerCloud.Image,
+			Name: p.image,
 		},
 		Datacenter: &hcloud.Datacenter{
-			Name: p.config.HetznerCloud.Datacenter,
+			Name: p.datacenter,
 		},
 		SSHKeys: []*hcloud.SSHKey{
 			&hcloud.SSHKey{
-				ID: p.config.HetznerCloud.SSHKeyID,
+				ID: p.key,
 			},
 		},
-	}
-	if req.ServerType.Name == "" {
-		req.ServerType.Name = "cx11"
-	}
-	if req.Image.Name == "" {
-		req.Image.Name = "ubuntu-16.04"
-	}
-	if req.Datacenter.Name == "" {
-		req.Datacenter.Name = "nbg1-dc3"
 	}
 
 	logger := log.Ctx(ctx).With().
@@ -56,16 +57,19 @@ func (p *Provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	logger.Debug().
 		Msg("instance create")
 
-	client := newClient(ctx, p.config.HetznerCloud.Token)
-	resp, _, err := client.Server.Create(ctx, req)
+	resp, _, err := p.client.Server.Create(ctx, req)
 	if err != nil {
 		logger.Error().
 			Err(err).
-			Msg("instance create failed")
+			Msg("cannot create instance")
 		return nil, err
 	}
 
-	instance := &autoscaler.Instance{
+	logger.Info().
+		Str("name", req.Name).
+		Msg("instance created")
+
+	return &autoscaler.Instance{
 		Provider: autoscaler.ProviderHetznerCloud,
 		ID:       strconv.Itoa(resp.Server.ID),
 		Name:     resp.Server.Name,
@@ -73,68 +77,61 @@ func (p *Provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		Size:     req.ServerType.Name,
 		Region:   req.Datacenter.Name,
 		Image:    req.Image.Name,
-		Secret:   uniuri.New(),
-	}
+	}, nil
+}
 
-	logger.Info().
-		Str("name", instance.Name).
-		Msg("instance create success")
+var cloudInitT = template.Must(template.New("_").Funcs(funcmap).Parse(`#cloud-config
 
-	// ping the server in a loop until we can successfully
-	// authenticate.
-	interval := time.Duration(0)
-pinger:
-	for {
-		select {
-		case <-ctx.Done():
-			logger.Debug().
-				Str("name", instance.Name).
-				Str("ip", instance.Address).
-				Str("port", "22").
-				Str("user", "root").
-				Msg("ping deadline exceeded")
+apt_reboot_if_required: false
+package_update: false
+package_upgrade: false
 
-			return instance, ctx.Err()
-		case <-time.After(interval):
-			interval = time.Minute
-			logger.Debug().
-				Str("name", instance.Name).
-				Str("ip", instance.Address).
-				Str("port", "22").
-				Str("user", "root").
-				Msg("ping server")
+apt:
+  sources:
+    docker.list:
+      source: deb [arch=amd64] https://download.docker.com/linux/ubuntu $RELEASE stable
+      keyid: 0EBFCD88
 
-			err = p.Provider.Ping(ctx, instance)
-			if err == nil {
-				break pinger
-			}
-		}
-	}
+packages:
+  - docker-ce
 
-	logger.Debug().
-		Str("name", instance.Name).
-		Str("ip", instance.Address).
-		Msg("install agent")
+write_files:
+  - path: /etc/systemd/system/docker.service.d/override.conf
+    content: |
+      [Service]
+      ExecStart=
+      ExecStart=/usr/bin/dockerd
+  - path: /etc/default/docker
+    content: |
+      DOCKER_OPTS=""
+  - path: /etc/docker/daemon.json
+    content: |
+      {
+        "dns": [ "8.8.8.8", "8.8.4.4" ],
+        "hosts": [ "0.0.0.0:2376", "unix:///var/run/docker.sock" ],
+        "tls": true,
+        "tlsverify": true,
+        "tlscacert": "/etc/docker/ca.pem",
+        "tlscert": "/etc/docker/server-cert.pem",
+        "tlskey": "/etc/docker/server-key.pem"
+      }
+  - path: /etc/docker/ca.pem
+    encoding: b64
+    content: {{ .CACert | base64 }}
+  - path: /etc/docker/server-cert.pem
+    encoding: b64
+    content: {{ .TLSCert | base64 }}
+  - path: /etc/docker/server-key.pem
+    encoding: b64
+    content: {{ .TLSKey | base64 }}
 
-	script, err := scripts.GenerateSetup(p.setupScriptOpts(instance))
-	if err != nil {
-		return instance, err
-	}
+runcmd:
+  - [ systemctl, daemon-reload ]
+  - [ systemctl, restart, docker ]
+`))
 
-	logs, err := p.Provider.Execute(ctx, instance, script)
-	if err != nil {
-		logger.Error().
-			Err(err).
-			Str("name", instance.Name).
-			Str("ip", instance.Address).
-			Msg("install failed")
-		return instance, &autoscaler.InstanceError{Err: err, Logs: logs}
-	}
-
-	logger.Debug().
-		Str("name", instance.Name).
-		Str("ip", instance.Address).
-		Msg("install complete")
-
-	return instance, nil
+var funcmap = map[string]interface{}{
+	"base64": func(src []byte) string {
+		return base64.StdEncoding.EncodeToString(src)
+	},
 }

@@ -15,6 +15,7 @@ import (
 	"github.com/drone/autoscaler/config"
 	"github.com/drone/autoscaler/drivers/amazon"
 	"github.com/drone/autoscaler/drivers/digitalocean"
+	"github.com/drone/autoscaler/drivers/hetznercloud"
 	"github.com/drone/autoscaler/engine"
 	"github.com/drone/autoscaler/metrics"
 	"github.com/drone/autoscaler/server"
@@ -196,8 +197,14 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			digitalocean.WithToken(c.DigitalOcean.Token),
 			digitalocean.WithTags(c.DigitalOcean.Tags...),
 		), nil
-	// case c.HetznerCloud.Token != "":
-	// 	return hetznercloud.FromConfig(c)
+	case c.HetznerCloud.Token != "":
+		return hetznercloud.New(
+			hetznercloud.WithDatacenter(c.HetznerCloud.Datacenter),
+			hetznercloud.WithImage(c.HetznerCloud.Image),
+			hetznercloud.WithServerType(c.HetznerCloud.Type),
+			hetznercloud.WithSSHKey(c.HetznerCloud.SSHKey),
+			hetznercloud.WithToken(c.HetznerCloud.Token),
+		), nil
 
 	case os.Getenv("AWS_ACCESS_KEY_ID") != "" || os.Getenv("AWS_IAM") != "":
 		return amazon.New(

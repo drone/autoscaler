@@ -94,9 +94,8 @@ func TestLoad(t *testing.T) {
 		"DRONE_HETZNERCLOUD_TOKEN":      "12345678",
 		"DRONE_HETZNERCLOUD_IMAGE":      "ubuntu-16.04",
 		"DRONE_HETZNERCLOUD_DATACENTER": "nbg1-dc3",
-		"DRONE_HETZNERCLOUD_SSHKEY":     "/path/to/ssh/key",
+		"DRONE_HETZNERCLOUD_SSHKEY":     "12345",
 		"DRONE_HETZNERCLOUD_TYPE":       "cx11",
-		"DRONE_HETZNERCLOUD_SSHKEY_ID":  "12345",
 	}
 
 	defer func() {
@@ -113,7 +112,11 @@ func TestLoad(t *testing.T) {
 
 	a := MustLoad()
 	b := Config{}
-	json.Unmarshal(jsonConfig, &b)
+	err := json.Unmarshal(jsonConfig, &b)
+	if err != nil {
+		t.Error(err)
+		return
+	}
 
 	if !reflect.DeepEqual(a, b) {
 		t.Errorf("configuration mismatch")
@@ -206,8 +209,7 @@ var jsonConfig = []byte(`{
     "Token": "12345678",
     "Image": "ubuntu-16.04",
     "Datacenter": "nbg1-dc3",
-    "SSHKey": "/path/to/ssh/key",
-    "ServerType": "cx11",
-    "SSHKeyID": "12345"
+    "SSHKey": 12345,
+    "Type": "cx11"
   }
 }`)

@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/drone/autoscaler"
+	"github.com/drone/autoscaler/drivers/internal/scripts"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
@@ -24,7 +25,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	})
 
 	buf := new(bytes.Buffer)
-	err := cloudInitT.Execute(buf, &opts)
+	err := p.userdata.Execute(buf, &opts)
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +131,7 @@ poller:
 	return instance, nil
 }
 
-var cloudInitT = template.Must(template.New("_").Funcs(funcmap).Parse(`#cloud-config
+var cloudInitT = template.Must(template.New("_").Funcs(scripts.UserdataFuncmap).Parse(`#cloud-config
 
 apt_reboot_if_required: false
 package_update: false
@@ -179,9 +180,3 @@ runcmd:
   - [ systemctl, daemon-reload ]
   - [ systemctl, restart, docker ]
 `))
-
-var funcmap = map[string]interface{}{
-	"base64": func(src []byte) string {
-		return base64.StdEncoding.EncodeToString(src)
-	},
-}

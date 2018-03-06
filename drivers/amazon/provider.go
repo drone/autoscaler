@@ -6,6 +6,7 @@ package amazon
 
 import (
 	"sync"
+	"text/template"
 
 	"github.com/drone/autoscaler"
 
@@ -24,14 +25,15 @@ const (
 type provider struct {
 	init sync.Once
 
-	retries int
-	key     string
-	region  string
-	image   string
-	size    string
-	subnet  string
-	groups  []string
-	tags    map[string]string
+	retries  int
+	key      string
+	region   string
+	image    string
+	userdata *template.Template
+	size     string
+	subnet   string
+	groups   []string
+	tags     map[string]string
 }
 
 func (p *provider) getClient() *ec2.EC2 {
@@ -57,6 +59,9 @@ func New(opts ...Option) autoscaler.Provider {
 	}
 	if p.image == "" {
 		p.image = "ami-66506c1c"
+	}
+	if p.userdata == nil {
+		p.userdata = cloudInitT
 	}
 	return p
 }

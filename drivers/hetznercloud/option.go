@@ -4,7 +4,11 @@
 
 package hetznercloud
 
-import "github.com/hetznercloud/hcloud-go/hcloud"
+import (
+	"github.com/drone/autoscaler/drivers/internal/scripts"
+
+	"github.com/hetznercloud/hcloud-go/hcloud"
+)
 
 // Option configures a Digital Ocean provider option.
 type Option func(*provider)
@@ -27,6 +31,15 @@ func WithDatacenter(datacenter string) Option {
 func WithImage(image string) Option {
 	return func(p *provider) {
 		p.image = image
+	}
+}
+
+// WithUserData returns an option to customize the cloud-init.
+func WithUserData(userdata string) Option {
+	return func(p *provider) {
+		if userdata != "" {
+			p.userdata = scripts.UserdataPrepare(userdata)
+		}
 	}
 }
 

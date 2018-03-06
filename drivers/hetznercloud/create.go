@@ -7,11 +7,11 @@ package hetznercloud
 import (
 	"bytes"
 	"context"
-	"encoding/base64"
 	"strconv"
 	"text/template"
 
 	"github.com/drone/autoscaler"
+	"github.com/drone/autoscaler/drivers/internal/scripts"
 
 	"github.com/hetznercloud/hcloud-go/hcloud"
 	"github.com/rs/zerolog/log"
@@ -23,7 +23,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	})
 
 	buf := new(bytes.Buffer)
-	err := cloudInitT.Execute(buf, &opts)
+	err := p.userdata.Execute(buf, &opts)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	}, nil
 }
 
-var cloudInitT = template.Must(template.New("_").Funcs(funcmap).Parse(`#cloud-config
+var cloudInitT = template.Must(template.New("_").Funcs(scripts.UserdataFuncmap).Parse(`#cloud-config
 
 apt_reboot_if_required: false
 package_update: false
@@ -129,9 +129,3 @@ runcmd:
   - [ systemctl, daemon-reload ]
   - [ systemctl, restart, docker ]
 `))
-
-var funcmap = map[string]interface{}{
-	"base64": func(src []byte) string {
-		return base64.StdEncoding.EncodeToString(src)
-	},
-}

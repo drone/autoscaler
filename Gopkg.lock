@@ -32,6 +32,15 @@
   version = "v0.4.7"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/alecthomas/template"
+  packages = [
+    ".",
+    "parse"
+  ]
+  revision = "a0175ee3bccc567396460bf5acd36800cb10c49c"
+
+[[projects]]
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -397,6 +406,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ecda23b9f23489c579eb736677d0aa63d7ea9e46f05b00596e7ed25005616481"
+  inputs-digest = "fb3fa89bbc66d70ecb5cbc5c061ab21871ea71096c8c8c4038733a2a5bd18be2"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -89,20 +89,22 @@ func main() {
 	r.Use(hlog.MethodHandler("method"))
 	r.Use(hlog.RequestIDHandler("request_id", "Request-Id"))
 
-	r.Get("/metrics", server.HandleMetrics(conf.Prometheus.Token))
-	r.Get("/version", server.HandleVersion(source, version, commit))
-	r.Get("/healthz", server.HandleHealthz())
-	r.Get("/varz", server.HandleVarz(enginex))
-	r.Route("/api", func(r chi.Router) {
-		r.Use(server.CheckDrone(conf))
+	r.Route(conf.HTTP.Root, func(root chi.Router) {
+		root.Get("/metrics", server.HandleMetrics(conf.Prometheus.Token))
+		root.Get("/version", server.HandleVersion(source, version, commit))
+		root.Get("/healthz", server.HandleHealthz())
+		root.Get("/varz", server.HandleVarz(enginex))
+		root.Route("/api", func(api chi.Router) {
+			api.Use(server.CheckDrone(conf))
 
-		r.Post("/pause", server.HandleEnginePause(enginex))
-		r.Post("/resume", server.HandleEngineResume(enginex))
-		r.Get("/queue", server.HandleQueueList(client))
-		r.Get("/servers", server.HandleServerList(servers))
-		r.Post("/servers", server.HandleServerCreate(servers, conf))
-		r.Get("/servers/{name}", server.HandleServerFind(servers))
-		r.Delete("/servers/{name}", server.HandleServerDelete(servers))
+			api.Post("/pause", server.HandleEnginePause(enginex))
+			api.Post("/resume", server.HandleEngineResume(enginex))
+			api.Get("/queue", server.HandleQueueList(client))
+			api.Get("/servers", server.HandleServerList(servers))
+			api.Post("/servers", server.HandleServerCreate(servers, conf))
+			api.Get("/servers/{name}", server.HandleServerFind(servers))
+			api.Delete("/servers/{name}", server.HandleServerDelete(servers))
+		})
 	})
 
 	//

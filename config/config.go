@@ -43,6 +43,7 @@ type (
 		HTTP struct {
 			Host string
 			Port string `default:":8080"`
+			Root string `default:"/"`
 		}
 
 		TLS struct {

@@ -34,6 +34,9 @@ func TestDefaults(t *testing.T) {
 	if got, want := conf.HTTP.Port, ":8080"; got != want {
 		t.Errorf("Want default DRONE_HTTP_PORT of %s, got %s", want, got)
 	}
+	if got, want := conf.HTTP.Root, "/"; got != want {
+		t.Errorf("Want default DRONE_HTTP_ROOT of %s, got %s", want, got)
+	}
 	if got, want := conf.Database.Driver, "sqlite3"; got != want {
 		t.Errorf("Want default DRONE_DATABASE_DRIVER of %s, got %s", want, got)
 	}
@@ -57,6 +60,7 @@ func TestLoad(t *testing.T) {
 		"DRONE_SERVER_TOKEN":            "633eb230f5",
 		"DRONE_HTTP_HOST":               "autoscaler.drone.company.com",
 		"DRONE_HTTP_PORT":               "633eb230f5",
+		"DRONE_HTTP_ROOT":               "/autoscaler",
 		"DRONE_AGENT_HOST":              "drone.company.com:9000",
 		"DRONE_AGENT_TOKEN":             "f5064039f5",
 		"DRONE_AGENT_IMAGE":             "drone/agent:0.8",
@@ -152,7 +156,8 @@ var jsonConfig = []byte(`{
   },
   "HTTP": {
     "Host": "autoscaler.drone.company.com",
-    "Port": "633eb230f5"
+    "Port": "633eb230f5",
+    "Root": "/autoscaler"
   },
   "TLS": {
     "Autocert": true,

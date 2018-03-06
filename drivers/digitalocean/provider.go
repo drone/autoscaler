@@ -35,7 +35,7 @@ func New(opts ...Option) autoscaler.Provider {
 		p.region = "nyc1"
 	}
 	if p.size == "" {
-		p.size = "s-1vcpu-1gb"
+		p.size = "s-2vcpu-4gb"
 	}
 	if p.image == "" {
 		p.image = "docker-16-04"

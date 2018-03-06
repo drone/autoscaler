@@ -104,7 +104,3 @@
 [[constraint]]
   name = "docker.io/go-docker"
   version = "1.0.0"
-
-[[constraint]]
-  name = "github.com/Masterminds/sprig"
-  version = "2.14.1"

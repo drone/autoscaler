@@ -14,7 +14,7 @@ func TestDefaults(t *testing.T) {
 	if got, want := p.region, "nyc1"; got != want {
 		t.Errorf("Want region %q, got %q", want, got)
 	}
-	if got, want := p.size, "s-1vcpu-1gb"; got != want {
+	if got, want := p.size, "s-2vcpu-4gb"; got != want {
 		t.Errorf("Want size %q, got %q", want, got)
 	}
 	if got, want := p.key, ""; got != want {

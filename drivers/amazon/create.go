@@ -8,9 +8,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
+	"text/template"
 	"time"
 
-	"github.com/alecthomas/template"
 	"github.com/drone/autoscaler"
 
 	"github.com/aws/aws-sdk-go/aws"

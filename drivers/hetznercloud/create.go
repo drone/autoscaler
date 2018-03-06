@@ -9,8 +9,8 @@ import (
 	"context"
 	"encoding/base64"
 	"strconv"
+	"text/template"
 
-	"github.com/alecthomas/template"
 	"github.com/drone/autoscaler"
 
 	"github.com/hetznercloud/hcloud-go/hcloud"

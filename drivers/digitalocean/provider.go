@@ -44,7 +44,7 @@ func New(opts ...Option) autoscaler.Provider {
 		p.image = "docker-16-04"
 	}
 	if p.userdata == nil {
-		p.userdata = cloudInitT
+		p.userdata = userdataT
 	}
 	return p
 }

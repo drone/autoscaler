@@ -5,9 +5,10 @@
 package digitalocean
 
 import (
+	"io/ioutil"
 	"strings"
 
-	"github.com/drone/autoscaler/drivers/internal/scripts"
+	"github.com/drone/autoscaler/drivers/internal/userdata"
 )
 
 // Option configures a Digital Ocean provider option.
@@ -17,15 +18,6 @@ type Option func(*provider)
 func WithImage(image string) Option {
 	return func(p *provider) {
 		p.image = image
-	}
-}
-
-// WithUserData returns an option to customize the cloud-init.
-func WithUserData(userdata string) Option {
-	return func(p *provider) {
-		if userdata != "" {
-			p.userdata = scripts.UserdataPrepare(userdata)
-		}
 	}
 }
 
@@ -67,5 +59,29 @@ func WithToken(token string) Option {
 func withTags(tags string) Option {
 	return func(p *provider) {
 		p.tags = strings.Split(tags, ",")
+	}
+}
+
+// WithUserData returns an option to set the cloud-init
+// template from text.
+func WithUserData(text string) Option {
+	return func(p *provider) {
+		if text != "" {
+			p.userdata = userdata.Parse(text)
+		}
+	}
+}
+
+// WithUserDataFile returns an option to set the cloud-init
+// template from file.
+func WithUserDataFile(filepath string) Option {
+	return func(p *provider) {
+		if filepath != "" {
+			b, err := ioutil.ReadFile(filepath)
+			if err != nil {
+				panic(err)
+			}
+			p.userdata = userdata.Parse(string(b))
+		}
 	}
 }

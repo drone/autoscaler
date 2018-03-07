@@ -5,8 +5,9 @@
 package hetznercloud
 
 import (
-	"github.com/drone/autoscaler/drivers/internal/scripts"
+	"io/ioutil"
 
+	"github.com/drone/autoscaler/drivers/internal/userdata"
 	"github.com/hetznercloud/hcloud-go/hcloud"
 )
 
@@ -34,15 +35,6 @@ func WithImage(image string) Option {
 	}
 }
 
-// WithUserData returns an option to customize the cloud-init.
-func WithUserData(userdata string) Option {
-	return func(p *provider) {
-		if userdata != "" {
-			p.userdata = scripts.UserdataPrepare(userdata)
-		}
-	}
-}
-
 // WithServerType returns an option to set the server type.
 func WithServerType(serverType string) Option {
 	return func(p *provider) {
@@ -66,4 +58,28 @@ func WithToken(token string) Option {
 			),
 		),
 	)
+}
+
+// WithUserData returns an option to set the cloud-init
+// template from text.
+func WithUserData(text string) Option {
+	return func(p *provider) {
+		if text != "" {
+			p.userdata = userdata.Parse(text)
+		}
+	}
+}
+
+// WithUserDataFile returns an option to set the cloud-init
+// template from file.
+func WithUserDataFile(filepath string) Option {
+	return func(p *provider) {
+		if filepath != "" {
+			b, err := ioutil.ReadFile(filepath)
+			if err != nil {
+				panic(err)
+			}
+			p.userdata = userdata.Parse(string(b))
+		}
+	}
 }

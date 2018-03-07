@@ -9,6 +9,7 @@ import (
 	"text/template"
 
 	"github.com/drone/autoscaler"
+	"github.com/drone/autoscaler/drivers/internal/userdata"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -61,7 +62,7 @@ func New(opts ...Option) autoscaler.Provider {
 		p.image = "ami-66506c1c"
 	}
 	if p.userdata == nil {
-		p.userdata = cloudInitT
+		p.userdata = userdata.T
 	}
 	return p
 }

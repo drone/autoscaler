@@ -9,6 +9,7 @@ import (
 	"text/template"
 
 	"github.com/drone/autoscaler"
+	"github.com/drone/autoscaler/drivers/internal/userdata"
 
 	"github.com/hetznercloud/hcloud-go/hcloud"
 )
@@ -43,7 +44,7 @@ func New(opts ...Option) autoscaler.Provider {
 		p.image = "ubuntu-16.04"
 	}
 	if p.userdata == nil {
-		p.userdata = cloudInitT
+		p.userdata = userdata.T
 	}
 	return p
 }

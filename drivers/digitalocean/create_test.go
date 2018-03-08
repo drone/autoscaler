@@ -11,15 +11,11 @@ import (
 
 	"github.com/digitalocean/godo"
 	"github.com/drone/autoscaler"
-	"github.com/golang/mock/gomock"
 
 	"github.com/h2non/gock"
 )
 
 func TestCreate(t *testing.T) {
-	controller := gomock.NewController(t)
-	defer controller.Finish()
-
 	defer gock.Off()
 
 	gock.New("https://api.digitalocean.com").

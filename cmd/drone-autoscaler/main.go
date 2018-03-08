@@ -17,6 +17,7 @@ import (
 	"github.com/drone/autoscaler/drivers/digitalocean"
 	"github.com/drone/autoscaler/drivers/hetznercloud"
 	"github.com/drone/autoscaler/engine"
+	"github.com/drone/autoscaler/limiter"
 	"github.com/drone/autoscaler/metrics"
 	"github.com/drone/autoscaler/server"
 	"github.com/drone/autoscaler/slack"
@@ -69,7 +70,7 @@ func main() {
 	if conf.Slack.Webhook != "" {
 		servers = slack.New(conf, servers)
 	}
-	// instruments the store with prometheus metrics.
+	servers = limiter.Limit(servers, conf.License)
 	servers = metrics.ServerCount(servers)
 	defer db.Close()
 

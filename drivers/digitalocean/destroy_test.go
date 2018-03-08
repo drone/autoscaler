@@ -17,9 +17,6 @@ import (
 )
 
 func TestDestroy(t *testing.T) {
-	controller := gomock.NewController(t)
-	defer controller.Finish()
-
 	defer gock.Off()
 
 	gock.New("https://api.digitalocean.com").

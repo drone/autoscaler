@@ -16,6 +16,7 @@ import (
 
 func TestServerCount(t *testing.T) {
 	controller := gomock.NewController(t)
+	defer controller.Finish()
 
 	// restore the default prometheus registerer
 	// when the unit test is complete.

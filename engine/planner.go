@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/drone/autoscaler"
+	"github.com/drone/autoscaler/limiter"
 	"github.com/drone/drone-go/drone"
 
 	"github.com/dchest/uniuri"
@@ -111,6 +112,11 @@ func (p *planner) alloc(ctx context.Context, n int) error {
 		}
 
 		err := p.servers.Create(ctx, server)
+		if limiter.IsError(err) {
+			logger.Warn().Err(err).
+				Msg("cannot create server")
+			return err
+		}
 		if err != nil {
 			logger.Error().Err(err).
 				Msg("cannot create server")

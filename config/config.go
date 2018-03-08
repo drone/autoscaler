@@ -9,6 +9,7 @@ import "time"
 type (
 	// Config stores the configuration settings.
 	Config struct {
+		License  string
 		Interval time.Duration `default:"5m"`
 
 		Slack struct {

@@ -17,6 +17,12 @@ var funcs = map[string]interface{}{
 
 // Parse parses the userdata template.
 func Parse(text string) *template.Template {
+	if decoded, err := base64.StdEncoding.DecodeString(text); err == nil {
+		return template.Must(
+			template.New("_").Funcs(funcs).Parse(string(decoded)),
+		)
+	}
+
 	return template.Must(
 		template.New("_").Funcs(funcs).Parse(text),
 	)

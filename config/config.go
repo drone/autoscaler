@@ -77,20 +77,20 @@ type (
 		}
 
 		DigitalOcean struct {
-			Token    string
-			Image    string
-			UserData string
-			Region   string
-			SSHKey   string
-			Size     string
-			Tags     []string
+			Token        string
+			Image        string
+			Region       string
+			SSHKey       string
+			Size         string
+			Tags         []string
+			UserData     string `envconfig:"DRONE_DIGITALOCEAN_USERDATA"`
+			UserDataFile string `envconfig:"DRONE_DIGITALOCEAN_USERDATA_FILE"`
 		}
 
 		Google struct {
 			Zone         string `default:"us-central1-a"`
 			MachineType  string `split_words:"true" default:"n1-standard-1"`
 			MachineImage string `split_words:"true" default:"ubuntu-1510-wily-v20151114"`
-			UserData     string `split_words:"true"`
 			DiskType     string `split_words:"true" default:"pd-standard"`
 			Address      string
 			Network      string `default:"default"`
@@ -100,15 +100,18 @@ type (
 			DiskSize     int `split_words:"true"`
 			Project      string
 			Tags         []string
+			UserData     string `envconfig:"DRONE_GOOGLE_USERDATA"`
+			UserDataFile string `envconfig:"DRONE_GOOGLE_USERDATA_FILE"`
 		}
 
 		HetznerCloud struct {
-			Datacenter string
-			Image      string
-			UserData   string
-			SSHKey     int
-			Token      string
-			Type       string
+			Datacenter   string
+			Image        string
+			SSHKey       int
+			Token        string
+			Type         string
+			UserData     string `envconfig:"DRONE_HETZNERCLOUD_USERDATA"`
+			UserDataFile string `envconfig:"DRONE_HETZNERCLOUD_USERDATA_FILE"`
 		}
 	}
 )

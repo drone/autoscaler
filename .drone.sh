@@ -10,7 +10,3 @@ go build \
     -ldflags "-extldflags \"-static\" $COMMIT $VERSION"   \
 	-o release/linux/amd64/drone-autoscaler \
 	github.com/drone/autoscaler/cmd/drone-autoscaler
-
-
-	# -ldflags "-X main.version=${DRONE_TAG=latest}" \
-	# -ldflags "-X main.commit=${DRONE_COMMIT_SHA}" \

@@ -23,7 +23,7 @@ func TestLimit_EmptyToken(t *testing.T) {
 		t.Errorf("Want limiter type")
 	}
 
-	if got, want := l.license.Lim, 5; got != want {
+	if got, want := l.license.Lim, 10; got != want {
 		t.Errorf("Want limit %d, got %d", want, got)
 	}
 	if got, want := l.ServerStore, store; got != want {
@@ -43,7 +43,7 @@ func TestLimit(t *testing.T) {
 	if l == nil || l.license == nil {
 		t.Errorf("Want license parsed")
 	}
-	if l.license.Lim == 5 {
+	if l.license.Lim == 10 {
 		t.Errorf("Want license, got trial license")
 	}
 }

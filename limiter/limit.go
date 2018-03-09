@@ -27,7 +27,7 @@ func Limit(server autoscaler.ServerStore, token string) autoscaler.ServerStore {
 		// used without a license. We assume this is for
 		// trial purposes and grant limited trial access.
 		return &limiter{server, &License{
-			Lim: 5,
+			Lim: 10,
 		}}
 	}
 	block, _ := pem.Decode(publicKey)

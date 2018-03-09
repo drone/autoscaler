@@ -40,6 +40,8 @@ func (n *notifier) Update(ctx context.Context, server *autoscaler.Server) error 
 		n.notifyCreate(server)
 	case server.State == autoscaler.StateStopped:
 		n.notifyDestroy(server)
+	case server.State == autoscaler.StateError:
+		n.notifyError(server)
 	}
 	return err
 }
@@ -98,6 +100,30 @@ func (n *notifier) notifyDestroy(server *autoscaler.Server) error {
 					{
 						Title: "Uptime",
 						Value: humanizeTime(server.Created),
+						Short: false,
+					},
+				},
+			},
+		},
+	}
+	return n.client.PostMessage(opts)
+}
+
+func (n *notifier) notifyError(server *autoscaler.Server) error {
+	opts := &slack.WebHookPostPayload{
+		Text: fmt.Sprintf("Problem with server instance %s", server.Name),
+		Attachments: []*slack.Attachment{
+			{
+				Color: "danger",
+				Fields: []*slack.AttachmentField{
+					{
+						Title: "Name",
+						Value: server.Name,
+						Short: false,
+					},
+					{
+						Title: "Error",
+						Value: server.Error,
 						Short: false,
 					},
 				},

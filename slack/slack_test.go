@@ -93,6 +93,38 @@ func TestUpdateStopped(t *testing.T) {
 	}
 }
 
+func TestUpdateError(t *testing.T) {
+	defer gock.Off()
+
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	server := &autoscaler.Server{
+		Name:   "this-is-a-test-message",
+		Region: "nyc1",
+		Size:   "s-1vcpu-1gb",
+		State:  autoscaler.StateError,
+	}
+
+	// TODO: verify the contents of the Slack payload.
+
+	gock.New("https://hooks.slack.com").
+		Get("/services/XXX/YYY/ZZZ").
+		Reply(200)
+
+	conf := config.Config{}
+	conf.Slack.Webhook = "https://hooks.slack.com/services/XXX/YYY/ZZZ"
+
+	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().Update(gomock.Any(), server).Return(nil)
+
+	slack := New(conf, store)
+	err := slack.Update(noContext, server)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 // This is an integration test that will send a real
 // message to a Slack channel using a webhook defined
 // in the TEST_SLACK_WEBHOOK environment variable.

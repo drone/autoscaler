@@ -121,6 +121,15 @@ poller:
 		}
 	}
 
+	_, err = client.CreateTags(&ec2.CreateTagsInput{
+		Resources: []*string{amazonInstance.InstanceId},
+		Tags:      convertTags(p.tags),
+	})
+	if err != nil {
+		log.Warn().Err(err).
+			Msg("cannot tag your instance")
+	}
+
 	logger.Debug().
 		Str("name", instance.Name).
 		Str("ip", instance.Address).

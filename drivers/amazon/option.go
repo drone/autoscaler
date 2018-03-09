@@ -20,6 +20,13 @@ func WithImage(image string) Option {
 	}
 }
 
+// WithRetries returns an option to set the retry count.
+func WithRetries(retries int) Option {
+	return func(p *provider) {
+		p.retries = retries
+	}
+}
+
 // WithRegion returns an option to set the target region.
 func WithRegion(region string) Option {
 	return func(p *provider) {

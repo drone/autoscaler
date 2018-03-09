@@ -214,6 +214,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 	case os.Getenv("AWS_ACCESS_KEY_ID") != "" || os.Getenv("AWS_IAM") != "":
 		return amazon.New(
 			amazon.WithRegion(c.Amazon.Region),
+			amazon.WithRetries(c.Amazon.Retries),
 			amazon.WithSSHKey(c.Amazon.SSHKey),
 			amazon.WithSecurityGroup(c.Amazon.SecurityGroup...),
 			amazon.WithSize(c.Amazon.Instance),

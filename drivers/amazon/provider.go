@@ -46,11 +46,12 @@ func (p *provider) getClient() *ec2.EC2 {
 
 // New returns a new Digital Ocean provider.
 func New(opts ...Option) autoscaler.Provider {
-	p := &provider{
-		retries: 25,
-	}
+	p := new(provider)
 	for _, opt := range opts {
 		opt(p)
+	}
+	if p.retries == 0 {
+		p.retries = 10
 	}
 	if p.region == "" {
 		p.region = "us-east-1"

@@ -10,6 +10,7 @@ func TestOptions(t *testing.T) {
 	p := New(
 		WithImage("ami-66506c1c"),
 		WithRegion("us-west-2"),
+		WithRetries(10),
 		WithSecurityGroup("sg-770eabe1"),
 		WithSize("t2.2xlarge"),
 		WithSSHKey("id_rsa"),
@@ -34,6 +35,9 @@ func TestOptions(t *testing.T) {
 	}
 	if got, want := p.subnet, "subnet-0b32177f"; got != want {
 		t.Errorf("Want subnet %q, got %q", want, got)
+	}
+	if got, want := p.retries, 10; got != want {
+		t.Errorf("Want %d retries, got %d", want, got)
 	}
 	if got, want := len(p.tags), 2; got != want {
 		t.Errorf("Want %d tags, got %d", want, got)

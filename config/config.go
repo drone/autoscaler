@@ -66,6 +66,7 @@ type (
 			Instance      string
 			UserData      string `split_words:"true"`
 			Region        string
+			Retries       int
 			SSHKey        string
 			SubnetID      string   `split_words:"true"`
 			SecurityGroup []string `split_words:"true"`

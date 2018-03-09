@@ -28,7 +28,7 @@ func TestDefaults(t *testing.T) {
 	if got, want := conf.Pool.Min, 2; got != want {
 		t.Errorf("Want default DRONE_POOL_MAX of %d, got %d", want, got)
 	}
-	if got, want := conf.Pool.MinAge, time.Minute*60; got != want {
+	if got, want := conf.Pool.MinAge, time.Minute*55; got != want {
 		t.Errorf("Want default DRONE_POOL_MIN_AGE of %d, got %d", want, got)
 	}
 	if got, want := conf.HTTP.Port, ":8080"; got != want {

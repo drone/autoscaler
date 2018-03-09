@@ -25,7 +25,7 @@ type (
 		Pool struct {
 			Min    int           `default:"2"`
 			Max    int           `default:"4"`
-			MinAge time.Duration `default:"60m" split_words:"true"`
+			MinAge time.Duration `default:"55m" split_words:"true"`
 		}
 
 		Server struct {

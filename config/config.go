@@ -63,6 +63,7 @@ type (
 		}
 
 		Amazon struct {
+			Image         string
 			Instance      string
 			UserData      string `split_words:"true"`
 			Region        string

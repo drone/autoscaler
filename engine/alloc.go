@@ -90,6 +90,7 @@ func (a *allocator) allocate(ctx context.Context, server *autoscaler.Server) err
 			Str("server", server.Name).
 			Msg("failed to provision server")
 
+		server.Error = err.Error()
 		server.State = autoscaler.StateError
 	} else {
 		logger.Debug().

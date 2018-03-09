@@ -98,6 +98,7 @@ func (c *collector) collect(ctx context.Context, server *autoscaler.Server) erro
 			Str("server", server.Name).
 			Msg("failed to destroy server")
 
+		server.Error = err.Error()
 		server.State = autoscaler.StateError
 	} else {
 		logger.Debug().

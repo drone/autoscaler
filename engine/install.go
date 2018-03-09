@@ -186,6 +186,7 @@ poller:
 func (i *installer) errorUpdate(ctx context.Context, server *autoscaler.Server, err error) error {
 	if err != nil {
 		server.State = autoscaler.StateError
+		server.Error = err.Error()
 		i.servers.Update(ctx, server)
 	}
 	return err

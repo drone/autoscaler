@@ -16,13 +16,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 )
 
-const (
-	defaultDeviceName = "/dev/sda1"
-	defaultImage      = "ami-66506c1c"
-	defaultRootSize   = 16
-	defaultVolumeType = "gp2"
-)
-
 type provider struct {
 	init sync.Once
 
@@ -61,7 +54,7 @@ func New(opts ...Option) autoscaler.Provider {
 		p.size = "t2.medium"
 	}
 	if p.image == "" {
-		p.image = "ami-66506c1c"
+		p.image = defaultImage(p.region)
 	}
 	if p.userdata == nil {
 		p.userdata = userdata.T

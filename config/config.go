@@ -37,8 +37,8 @@ type (
 		Agent struct {
 			Host        string
 			Token       string
-			Image       string
-			Concurrency int `default:"2"`
+			Image       string `default:"drone/agent:0.8"`
+			Concurrency int    `default:"2"`
 		}
 
 		HTTP struct {

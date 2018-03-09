@@ -46,6 +46,9 @@ func TestDefaults(t *testing.T) {
 	if got, want := conf.Agent.Concurrency, 2; got != want {
 		t.Errorf("Want default DRONE_AGENT_CONCURRENCY of %d, got %d", want, got)
 	}
+	if got, want := conf.Agent.Image, "drone/agent:0.8"; got != want {
+		t.Errorf("Want default DRONE_AGENT_IMAGE of %s, got %s", want, got)
+	}
 }
 
 func TestLoad(t *testing.T) {

@@ -14,6 +14,13 @@ func WithImage(image string) Option {
 	}
 }
 
+// WithProject returns an option to set the project.
+func WithProject(proj string) Option {
+	return func(p *provider) {
+		p.proj = proj
+	}
+}
+
 // WithSize returns an option to set the instance size.
 func WithSize(size string) Option {
 	return func(p *provider) {

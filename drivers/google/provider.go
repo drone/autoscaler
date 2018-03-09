@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/drone/autoscaler"
+	"google.golang.org/api/compute/v1"
 )
 
 // provider implements a DigitalOcean provider.
@@ -15,11 +16,14 @@ type provider struct {
 	init sync.Once
 
 	key   string
+	proj  string
 	zone  string
 	token string
 	size  string
 	image string
 	tags  []string
+
+	service *compute.Service
 }
 
 // New returns a new Digital Ocean provider.

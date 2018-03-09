@@ -83,7 +83,7 @@ poller:
 		case <-ctx.Done():
 			logger.Debug().
 				Str("name", instance.Name).
-				Msg("docker timeout")
+				Msg("connection timeout")
 
 			return i.errorUpdate(ctx, instance, ctx.Err())
 		case <-time.After(interval):
@@ -91,14 +91,14 @@ poller:
 
 			logger.Debug().
 				Str("name", instance.Name).
-				Msg("docker ping")
+				Msg("connecting to docker")
 
 			_, err := client.ContainerList(ctx, types.ContainerListOptions{})
 			if err != nil {
 				logger.Debug().
 					Str("error", err.Error()).
 					Str("name", instance.Name).
-					Msg("cannot ping docker")
+					Msgf("cannot connect, retry in %v", interval)
 				continue
 			}
 			break poller

@@ -43,6 +43,9 @@ func TestDefaults(t *testing.T) {
 	if got, want := conf.Database.Datasource, "database.sqlite?cache=shared&mode=rwc&_busy_timeout=9999999"; got != want {
 		t.Errorf("Want default DRONE_DATABASE_DATASOURCE of %s, got %s", want, got)
 	}
+	if got, want := conf.Agent.Concurrency, 2; got != want {
+		t.Errorf("Want default DRONE_AGENT_CONCURRENCY of %d, got %d", want, got)
+	}
 }
 
 func TestLoad(t *testing.T) {

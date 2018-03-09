@@ -38,7 +38,7 @@ type (
 			Host        string
 			Token       string
 			Image       string
-			Concurrency int
+			Concurrency int `default:"2"`
 		}
 
 		HTTP struct {

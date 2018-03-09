@@ -45,6 +45,12 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 				Groups:                   aws.StringSlice(p.groups),
 			},
 		},
+		TagSpecifications: []*ec2.TagSpecification{
+			{
+				ResourceType: aws.String("instance"),
+				Tags:         convertTags(p.tags),
+			},
+		},
 	}
 
 	logger := log.Ctx(ctx).With().
@@ -126,15 +132,6 @@ poller:
 				break poller
 			}
 		}
-	}
-
-	_, err = client.CreateTags(&ec2.CreateTagsInput{
-		Resources: []*string{amazonInstance.InstanceId},
-		Tags:      convertTags(p.tags),
-	})
-	if err != nil {
-		log.Warn().Err(err).
-			Msg("cannot tag your instance")
 	}
 
 	logger.Debug().

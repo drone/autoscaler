@@ -39,7 +39,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 			Name: p.datacenter,
 		},
 		SSHKeys: []*hcloud.SSHKey{
-			&hcloud.SSHKey{
+			{
 				ID: p.key,
 			},
 		},

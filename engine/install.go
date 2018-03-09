@@ -135,7 +135,7 @@ poller:
 				fmt.Sprintf("DRONE_HOSTNAME=%s", instance.Name),
 			},
 			Volumes: map[string]struct{}{
-				"/var/run/docker.sock": struct{}{},
+				"/var/run/docker.sock": {},
 			},
 			Labels: map[string]string{
 				"com.centurylinklabs.watchtower.enable":      "true",

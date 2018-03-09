@@ -18,6 +18,7 @@ const (
 	ProviderHetznerCloud = ProviderType("hetznercloud")
 	ProviderLinode       = ProviderType("linode")
 	ProviderOpenStack    = ProviderType("openstack")
+	ProviderPacket       = ProviderType("packet")
 	ProviderScaleway     = ProviderType("scaleway")
 	ProviderVultr        = ProviderType("vultr")
 )

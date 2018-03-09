@@ -216,12 +216,14 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			amazon.WithImage(c.Amazon.Image),
 			amazon.WithRegion(c.Amazon.Region),
 			amazon.WithRetries(c.Amazon.Retries),
+			amazon.WithPrivateIP(c.Amazon.PrivateIP),
 			amazon.WithSSHKey(c.Amazon.SSHKey),
 			amazon.WithSecurityGroup(c.Amazon.SecurityGroup...),
 			amazon.WithSize(c.Amazon.Instance),
 			amazon.WithSubnet(c.Amazon.SubnetID),
 			amazon.WithTags(c.Amazon.Tags),
 			amazon.WithUserData(c.Amazon.UserData),
+			amazon.WithUserDataFile(c.Amazon.UserDataFile),
 		), nil
 	default:
 		return nil, errors.New("missing provider configuration")

@@ -93,11 +93,14 @@ func TestLoad(t *testing.T) {
 		"DRONE_GOOGLE_PROJECT":          "project-foo",
 		"DRONE_GOOGLE_TAGS":             "drone,agent,prod",
 		"DRONE_AMAZON_INSTANCE":         "t2.medium",
+		"DRONE_AMAZON_PRIVATE_IP":       "true",
 		"DRONE_AMAZON_REGION":           "us-east-2",
 		"DRONE_AMAZON_SSHKEY":           "/path/to/ssh/key",
 		"DRONE_AMAZON_SSHKEY_NAME":      "id_rsa",
 		"DRONE_AMAZON_SUBNET_ID":        "subnet-0b32177f",
 		"DRONE_AMAZON_SECURITY_GROUP":   "sg-770eabe1",
+		"DRONE_AMAZON_USERDATA":         "#cloud-init",
+		"DRONE_AMAZON_USERDATA_FILE":    "/path/to/cloud/init.yml",
 		"DRONE_HETZNERCLOUD_TOKEN":      "12345678",
 		"DRONE_HETZNERCLOUD_IMAGE":      "ubuntu-16.04",
 		"DRONE_HETZNERCLOUD_DATACENTER": "nbg1-dc3",
@@ -188,12 +191,15 @@ var jsonConfig = []byte(`{
     ]
 	},
 	"Amazon": {
-    "Instance": "t2.medium",
+		"Instance": "t2.medium",
+		"PrivateIP": true,
 		"Region": "us-east-2",
 		"SSHKey": "/path/to/ssh/key",
 		"SSHKeyName": "id_rsa",
 		"SubnetID": "subnet-0b32177f",
-		"SecurityGroup": [ "sg-770eabe1" ]
+		"SecurityGroup": [ "sg-770eabe1" ],
+		"UserData": "#cloud-init",
+		"UserDataFile": "/path/to/cloud/init.yml"
 	},
   "Google": {
     "Zone": "us-central1-b",

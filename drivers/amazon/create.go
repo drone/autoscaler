@@ -39,7 +39,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		UserData:     aws.String(base64.StdEncoding.EncodeToString(buf.Bytes())),
 		NetworkInterfaces: []*ec2.InstanceNetworkInterfaceSpecification{
 			{
-				AssociatePublicIpAddress: aws.Bool(true),
+				AssociatePublicIpAddress: aws.Bool(!p.privateIP),
 				DeviceIndex:              aws.Int64(0),
 				SubnetId:                 aws.String(p.subnet),
 				Groups:                   aws.StringSlice(p.groups),
@@ -113,6 +113,13 @@ poller:
 				return nil, err
 			}
 			amazonInstance = desc.Reservations[0].Instances[0]
+
+			if p.privateIP {
+				if amazonInstance.PrivateIpAddress != nil {
+					instance.Address = *amazonInstance.PrivateIpAddress
+					break poller
+				}
+			}
 
 			if amazonInstance.PublicIpAddress != nil {
 				instance.Address = *amazonInstance.PublicIpAddress

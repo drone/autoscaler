@@ -9,6 +9,7 @@ import "testing"
 func TestOptions(t *testing.T) {
 	p := New(
 		WithImage("ami-66506c1c"),
+		WithPrivateIP(true),
 		WithRegion("us-west-2"),
 		WithRetries(10),
 		WithSecurityGroup("sg-770eabe1"),
@@ -38,6 +39,9 @@ func TestOptions(t *testing.T) {
 	}
 	if got, want := p.retries, 10; got != want {
 		t.Errorf("Want %d retries, got %d", want, got)
+	}
+	if got, want := p.privateIP, true; got != want {
+		t.Errorf("Want %v privateIP, got %v", want, got)
 	}
 	if got, want := len(p.tags), 2; got != want {
 		t.Errorf("Want %d tags, got %d", want, got)

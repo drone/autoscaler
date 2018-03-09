@@ -26,15 +26,16 @@ const (
 type provider struct {
 	init sync.Once
 
-	retries  int
-	key      string
-	region   string
-	image    string
-	userdata *template.Template
-	size     string
-	subnet   string
-	groups   []string
-	tags     map[string]string
+	retries   int
+	key       string
+	region    string
+	image     string
+	privateIP bool
+	userdata  *template.Template
+	size      string
+	subnet    string
+	groups    []string
+	tags      map[string]string
 }
 
 func (p *provider) getClient() *ec2.EC2 {

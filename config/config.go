@@ -65,19 +65,21 @@ type (
 		Amazon struct {
 			Image         string
 			Instance      string
-			UserData      string `split_words:"true"`
+			PrivateIP     bool `split_words:"true"`
 			Region        string
 			Retries       int
 			SSHKey        string
 			SubnetID      string   `split_words:"true"`
 			SecurityGroup []string `split_words:"true"`
 			Tags          map[string]string
+			UserData      string `envconfig:"DRONE_AMAZON_USERDATA"`
+			UserDataFile  string `envconfig:"DRONE_AMAZON_USERDATA_FILE"`
 		}
 
 		DigitalOcean struct {
 			Token    string
 			Image    string
-			UserData string `split_words:"true"`
+			UserData string
 			Region   string
 			SSHKey   string
 			Size     string
@@ -103,7 +105,7 @@ type (
 		HetznerCloud struct {
 			Datacenter string
 			Image      string
-			UserData   string `split_words:"true"`
+			UserData   string
 			SSHKey     int
 			Token      string
 			Type       string

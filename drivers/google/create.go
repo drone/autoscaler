@@ -17,8 +17,6 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-// Must be a match of regex '(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)
-
 func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpts) (*autoscaler.Instance, error) {
 	p.init.Do(func() {
 		p.setup(ctx)
@@ -46,7 +44,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		Name:           name,
 		Zone:           fmt.Sprintf("projects/%s/zones/%s", p.project, p.zone),
 		MinCpuPlatform: "Automatic",
-		MachineType:    fmt.Sprintf("projects/drone-1191/zones/%s/machineTypes/%s", p.zone, p.size),
+		MachineType:    fmt.Sprintf("projects/%s/zones/%s/machineTypes/%s", p.project, p.zone, p.size),
 		Metadata: &compute.Metadata{
 			Items: []*compute.MetadataItems{
 				{

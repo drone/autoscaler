@@ -7,7 +7,6 @@ package google
 import (
 	"context"
 	"reflect"
-	"time"
 
 	"github.com/rs/zerolog/log"
 	compute "google.golang.org/api/compute/v1"
@@ -47,9 +46,6 @@ func (p *provider) setupFirewall(ctx context.Context) error {
 		SourceRanges: []string{"0.0.0.0/0"},
 		TargetTags:   []string{"allow-docker"},
 	}
-
-	ctx, cancel := context.WithTimeout(ctx, time.Minute)
-	defer cancel()
 
 	op, err := p.service.Firewalls.Insert(p.project, rule).Context(ctx).Do()
 	if err != nil {

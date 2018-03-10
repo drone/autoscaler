@@ -16,6 +16,7 @@ func TestOptions(t *testing.T) {
 		WithDiskType("local-ssd"),
 		WithMachineImage("ubuntu-1604-lts"),
 		WithMachineType("c3.large"),
+		WithNetwork("global/defaults/foo"),
 		WithProject("my-project"),
 		WithTags("drone", "agent"),
 		WithZone("us-central1-f"),
@@ -34,6 +35,9 @@ func TestOptions(t *testing.T) {
 	}
 	if got, want := p.image, "ubuntu-1604-lts"; got != want {
 		t.Errorf("Want image %q, got %q", want, got)
+	}
+	if got, want := p.network, "global/defaults/foo"; got != want {
+		t.Errorf("Want network %q, got %q", want, got)
 	}
 	if got, want := p.project, "my-project"; got != want {
 		t.Errorf("Want project %q, got %q", want, got)

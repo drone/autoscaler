@@ -6,7 +6,6 @@ package digitalocean
 
 import (
 	"io/ioutil"
-	"strings"
 
 	"github.com/drone/autoscaler/drivers/internal/userdata"
 )
@@ -53,12 +52,6 @@ func WithTags(tags ...string) Option {
 func WithToken(token string) Option {
 	return func(p *provider) {
 		p.token = token
-	}
-}
-
-func withTags(tags string) Option {
-	return func(p *provider) {
-		p.tags = strings.Split(tags, ",")
 	}
 }
 

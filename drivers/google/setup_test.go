@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/h2non/gock"
+	compute "google.golang.org/api/compute/v1"
 )
 
 func TestSetupFirewall(t *testing.T) {
@@ -21,6 +22,7 @@ func TestSetupFirewall(t *testing.T) {
 
 	gock.New("https://www.googleapis.com").
 		Post("/compute/v1/projects/my-project/global/firewalls").
+		JSON(createFirewallMock).
 		Reply(200).
 		BodyString(`{ "name": "operation-name" }`)
 
@@ -67,6 +69,21 @@ func TestSetupFirewall_Exists(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+}
+
+var createFirewallMock = &compute.Firewall{
+	Allowed: []*compute.FirewallAllowed{
+		{
+			IPProtocol: "tcp",
+			Ports:      []string{"2376"},
+		},
+	},
+	Direction:    "INGRESS",
+	Name:         "default-allow-docker",
+	Network:      "global/networks/default",
+	Priority:     1000,
+	SourceRanges: []string{"0.0.0.0/0"},
+	TargetTags:   []string{"allow-docker"},
 }
 
 var createFirewallReq = `
@@ -120,30 +137,3 @@ var findFirewallRes = `
   ]
 }
 `
-
-/*
-
-POST https://www.googleapis.com/compute/v1/projects/drone-1191/global/firewalls
-{
-  "name": "default-allow-docker",
-  "selfLink": "projects/drone-1191/global/firewalls/default-allow-docker",
-  "network": "projects/drone-1191/global/networks/default",
-  "direction": "INGRESS",
-  "priority": 1000,
-  "targetTags": [
-    "allow-docker"
-  ],
-  "allowed": [
-    {
-      "IPProtocol": "tcp",
-      "ports": [
-        "2376"
-      ]
-    }
-  ],
-  "sourceRanges": [
-    "0.0.0.0/0"
-  ]
-}
-
-*/

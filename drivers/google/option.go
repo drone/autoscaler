@@ -15,9 +15,16 @@ type Option func(*provider)
 
 // WithDiskSize returns an option to set the instance disk
 // size in gigabytes.
-func WithDiskSize(size int64) Option {
+func WithDiskSize(diskSize int64) Option {
 	return func(p *provider) {
-		p.diskSize = size
+		p.diskSize = diskSize
+	}
+}
+
+// WithDiskType returns an option to set the instance disk type.
+func WithDiskType(diskType string) Option {
+	return func(p *provider) {
+		p.diskType = diskType
 	}
 }
 

@@ -5,16 +5,25 @@
 package google
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/drone/autoscaler/drivers/internal/userdata"
 )
 
 func TestDefaults(t *testing.T) {
-	p := New().(*provider)
+	v, err := New()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	p := v.(*provider)
 
 	if got, want := p.diskSize, int64(50); got != want {
-		t.Errorf("Want size %d, got %d", want, got)
+		t.Errorf("Want diskSize %d, got %d", want, got)
+	}
+	if got, want := p.diskType, "pd-standard"; got != want {
+		t.Errorf("Want diskType %s, got %s", want, got)
 	}
 	if got, want := p.image, "ubuntu-os-cloud/global/images/ubuntu-1604-xenial-v20170721"; got != want {
 		t.Errorf("Want image %q, got %q", want, got)
@@ -22,14 +31,14 @@ func TestDefaults(t *testing.T) {
 	if got, want := p.network, "global/networks/default"; got != want {
 		t.Errorf("Want network %q, got %q", want, got)
 	}
-	if got, want := len(p.scopes), 3; got != want {
-		t.Errorf("Want %d scopes, got %d", want, got)
+	if !reflect.DeepEqual(p.scopes, defaultScopes) {
+		t.Errorf("Want default scopes")
 	}
 	if got, want := p.size, "n1-standard-1"; got != want {
 		t.Errorf("Want size %q, got %q", want, got)
 	}
-	if got, want := len(p.tags), 0; got != want {
-		t.Errorf("Want %d tags, got %d", want, got)
+	if !reflect.DeepEqual(p.tags, defaultTags) {
+		t.Errorf("Want default tags")
 	}
 	if p.userdata != userdata.T {
 		t.Errorf("Want default userdata template")

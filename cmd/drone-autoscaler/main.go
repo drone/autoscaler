@@ -196,6 +196,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 	case c.Google.Project != "":
 		return google.New(
 			google.WithDiskSize(c.Google.DiskSize),
+			google.WithDiskType(c.Google.DiskType),
 			google.WithMachineImage(c.Google.MachineImage),
 			google.WithMachineType(c.Google.MachineType),
 			google.WithLabels(c.Google.Labels),
@@ -205,7 +206,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			google.WithUserData(c.Google.UserData),
 			google.WithUserDataFile(c.Google.UserDataFile),
 			google.WithZone(c.Google.Zone),
-		), nil
+		)
 	case c.DigitalOcean.Token != "":
 		return digitalocean.New(
 			digitalocean.WithSSHKey(c.DigitalOcean.SSHKey),

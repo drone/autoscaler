@@ -8,20 +8,29 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/drone/autoscaler"
 	"github.com/rs/zerolog/log"
 
 	"google.golang.org/api/compute/v1"
+	"google.golang.org/api/googleapi"
 )
 
+// Must be a match of regex '(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)
+
 func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpts) (*autoscaler.Instance, error) {
+	p.init.Do(func() {
+		p.setup(ctx)
+	})
+
 	buf := new(bytes.Buffer)
 	err := p.userdata.Execute(buf, &opts)
 	if err != nil {
 		return nil, err
 	}
-	userdata := buf.String()
+
+	name := strings.ToLower(opts.Name)
 
 	logger := log.Ctx(ctx).With().
 		Str("zone", p.zone).
@@ -34,44 +43,60 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		Msg("instance insert")
 
 	in := &compute.Instance{
-		Name:        opts.Name,
-		Description: "drone agent",
-		MachineType: fmt.Sprintf("zones/%s/machineTypes/%s", p.zone, p.size),
+		Name:           name,
+		Zone:           fmt.Sprintf("projects/%s/zones/%s", p.project, p.zone),
+		MinCpuPlatform: "Automatic",
+		MachineType:    fmt.Sprintf("projects/drone-1191/zones/%s/machineTypes/%s", p.zone, p.size),
+		Metadata: &compute.Metadata{
+			Items: []*compute.MetadataItems{
+				{
+					Key:   "user-data",
+					Value: googleapi.String(buf.String()),
+				},
+			},
+		},
+		Tags: &compute.Tags{
+			Items: p.tags,
+		},
 		Disks: []*compute.AttachedDisk{
 			{
-				Boot:       true,
-				AutoDelete: true,
 				Type:       "PERSISTENT",
+				Boot:       true,
 				Mode:       "READ_WRITE",
+				AutoDelete: true,
+				DeviceName: name,
 				InitializeParams: &compute.AttachedDiskInitializeParams{
 					SourceImage: fmt.Sprintf("https://www.googleapis.com/compute/v1/projects/%s", p.image),
+					DiskType:    fmt.Sprintf("projects/%s/zones/%s/diskTypes/%s", p.project, p.zone, p.diskType),
 					DiskSizeGb:  p.diskSize,
 				},
 			},
 		},
-		Metadata: &compute.Metadata{
-			Items: []*compute.MetadataItems{
-				{
-					Key:   "cloud-init",
-					Value: &userdata,
-				},
-			},
-		},
+		CanIpForward: false,
 		NetworkInterfaces: []*compute.NetworkInterface{
 			{
 				Network: p.network,
+				AccessConfigs: []*compute.AccessConfig{
+					{
+						Name: "External NAT",
+						Type: "ONE_TO_ONE_NAT",
+					},
+				},
 			},
 		},
+		Labels: p.labels,
+		Scheduling: &compute.Scheduling{
+			Preemptible:       false,
+			OnHostMaintenance: "MIGRATE",
+			AutomaticRestart:  googleapi.Bool(true),
+		},
+		DeletionProtection: false,
 		ServiceAccounts: []*compute.ServiceAccount{
 			{
 				Scopes: p.scopes,
 				Email:  "default",
 			},
 		},
-		Tags: &compute.Tags{
-			Items: p.tags,
-		},
-		Labels: p.labels,
 	}
 
 	op, err := p.service.Instances.Insert(p.project, p.zone, in).Context(ctx).Do()
@@ -96,7 +121,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	logger.Debug().
 		Msg("instance insert operation complete")
 
-	resp, err := p.service.Instances.Get(p.project, p.zone, opts.Name).Do()
+	resp, err := p.service.Instances.Get(p.project, p.zone, name).Do()
 	if err != nil {
 		logger.Error().
 			Err(err).
@@ -106,8 +131,8 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 
 	instance := &autoscaler.Instance{
 		Provider: autoscaler.ProviderGoogle,
-		ID:       fmt.Sprint(resp.Id),
-		Name:     resp.Name,
+		ID:       name,
+		Name:     opts.Name,
 		Image:    p.image,
 		Region:   p.zone,
 		Size:     p.size,

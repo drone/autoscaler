@@ -32,13 +32,17 @@ func TestDestroy(t *testing.T) {
 		ID: "my-instance",
 	}
 
-	p := New(
+	p, err := New(
 		WithZone("us-central1-a"),
 		WithProject("my-project"),
-	).(*provider)
-	p.service, _ = compute.New(http.DefaultClient)
+	)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	p.(*provider).service, _ = compute.New(http.DefaultClient)
 
-	err := p.Destroy(mockContext, mockInstance)
+	err = p.Destroy(mockContext, mockInstance)
 	if err != nil {
 		t.Error(err)
 	}
@@ -56,13 +60,17 @@ func TestDestroy_Error(t *testing.T) {
 		ID: "my-instance",
 	}
 
-	p := New(
+	p, err := New(
 		WithZone("us-central1-a"),
 		WithProject("my-project"),
-	).(*provider)
-	p.service, _ = compute.New(http.DefaultClient)
+	)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	p.(*provider).service, _ = compute.New(http.DefaultClient)
 
-	err := p.Destroy(mockContext, mockInstance)
+	err = p.Destroy(mockContext, mockInstance)
 	if err == nil {
 		t.Errorf("Expect error deleting server")
 	}

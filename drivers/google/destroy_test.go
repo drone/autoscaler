@@ -20,7 +20,12 @@ func TestDestroy(t *testing.T) {
 	gock.New("https://www.googleapis.com").
 		Delete("/compute/v1/projects/my-project/zones/us-central1-a/instances/my-instance").
 		Reply(200).
-		BodyString(`{ "operation": { "name": "operation-name" }}`)
+		BodyString(`{ "name": "operation-name" }`)
+
+	gock.New("https://www.googleapis.com").
+		Get("/compute/v1/projects/my-project/zones/us-central1-a/operations/operation-name").
+		Reply(200).
+		BodyString(`{ "status": "DONE" }`)
 
 	mockContext := context.TODO()
 	mockInstance := &autoscaler.Instance{
@@ -36,5 +41,29 @@ func TestDestroy(t *testing.T) {
 	err := p.Destroy(mockContext, mockInstance)
 	if err != nil {
 		t.Error(err)
+	}
+}
+
+func TestDestroy_Error(t *testing.T) {
+	defer gock.Off()
+
+	gock.New("https://www.googleapis.com").
+		Delete("/compute/v1/projects/my-project/zones/us-central1-a/instances/my-instance").
+		Reply(404)
+
+	mockContext := context.TODO()
+	mockInstance := &autoscaler.Instance{
+		ID: "my-instance",
+	}
+
+	p := New(
+		WithZone("us-central1-a"),
+		WithProject("my-project"),
+	).(*provider)
+	p.service, _ = compute.New(http.DefaultClient)
+
+	err := p.Destroy(mockContext, mockInstance)
+	if err == nil {
+		t.Errorf("Expect error deleting server")
 	}
 }

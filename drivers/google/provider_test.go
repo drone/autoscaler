@@ -4,7 +4,11 @@
 
 package google
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/drone/autoscaler/drivers/internal/userdata"
+)
 
 func TestDefaults(t *testing.T) {
 	p := New().(*provider)
@@ -20,10 +24,13 @@ func TestDefaults(t *testing.T) {
 	if got, want := p.key, ""; got != want {
 		t.Errorf("Want key %q, got %q", want, got)
 	}
-	if got, want := p.token, ""; got != want {
-		t.Errorf("Want token %q, got %q", want, got)
-	}
 	if got, want := len(p.tags), 0; got != want {
 		t.Errorf("Want %d tags, got %d", want, got)
+	}
+	if got, want := len(p.scopes), 3; got != want {
+		t.Errorf("Want %d scopes, got %d", want, got)
+	}
+	if p.userdata != userdata.T {
+		t.Errorf("Want default userdata template")
 	}
 }

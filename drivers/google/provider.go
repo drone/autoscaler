@@ -5,23 +5,28 @@
 package google
 
 import (
-	"sync"
+	"context"
+	"errors"
+	"text/template"
+	"time"
 
 	"github.com/drone/autoscaler"
+	"github.com/drone/autoscaler/drivers/internal/userdata"
+
 	"google.golang.org/api/compute/v1"
 )
 
 // provider implements a DigitalOcean provider.
 type provider struct {
-	init sync.Once
-
-	key   string
-	proj  string
-	zone  string
-	token string
-	size  string
-	image string
-	tags  []string
+	key      string
+	image    string
+	network  string
+	project  string
+	scopes   []string
+	size     string
+	tags     []string
+	zone     string
+	userdata *template.Template
 
 	service *compute.Service
 }
@@ -41,5 +46,31 @@ func New(opts ...Option) autoscaler.Provider {
 	if p.image == "" {
 		p.image = "ubuntu-1510-wily-v20151114"
 	}
+	if p.userdata == nil {
+		p.userdata = userdata.T
+	}
+	if len(p.scopes) == 0 {
+		p.scopes = []string{
+			"https://www.googleapis.com/auth/devstorage.read_only",
+			"https://www.googleapis.com/auth/logging.write",
+			"https://www.googleapis.com/auth/monitoring.write",
+		}
+	}
 	return p
+}
+
+func (p *provider) waitZoneOperation(ctx context.Context, name string) error {
+	for {
+		op, err := p.service.ZoneOperations.Get(p.project, p.zone, name).Context(ctx).Do()
+		if err != nil {
+			return err
+		}
+		if op.Error != nil {
+			return errors.New(op.Error.Errors[0].Message)
+		}
+		if op.Status == "DONE" {
+			return nil
+		}
+		time.Sleep(1 * time.Second)
+	}
 }

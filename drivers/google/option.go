@@ -4,6 +4,12 @@
 
 package google
 
+import (
+	"io/ioutil"
+
+	"github.com/drone/autoscaler/drivers/internal/userdata"
+)
+
 // Option configures a Digital Ocean provider option.
 type Option func(*provider)
 
@@ -14,10 +20,17 @@ func WithImage(image string) Option {
 	}
 }
 
-// WithProject returns an option to set the project.
-func WithProject(proj string) Option {
+// WithNetwork returns an option to set the network.
+func WithNetwork(network string) Option {
 	return func(p *provider) {
-		p.proj = proj
+		p.network = network
+	}
+}
+
+// WithProject returns an option to set the project.
+func WithProject(project string) Option {
+	return func(p *provider) {
+		p.project = project
 	}
 }
 
@@ -39,6 +52,30 @@ func WithSSHKey(key string) Option {
 func WithTags(tags ...string) Option {
 	return func(p *provider) {
 		p.tags = tags
+	}
+}
+
+// WithUserData returns an option to set the cloud-init
+// template from text.
+func WithUserData(text string) Option {
+	return func(p *provider) {
+		if text != "" {
+			p.userdata = userdata.Parse(text)
+		}
+	}
+}
+
+// WithUserDataFile returns an option to set the cloud-init
+// template from file.
+func WithUserDataFile(filepath string) Option {
+	return func(p *provider) {
+		if filepath != "" {
+			b, err := ioutil.ReadFile(filepath)
+			if err != nil {
+				panic(err)
+			}
+			p.userdata = userdata.Parse(string(b))
+		}
 	}
 }
 

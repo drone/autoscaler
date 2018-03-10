@@ -11,5 +11,9 @@ import (
 )
 
 func (p *provider) Destroy(ctx context.Context, instance *autoscaler.Instance) error {
-	return nil // TODO
+	op, err := p.service.Instances.Delete(p.project, p.zone, instance.ID).Context(ctx).Do()
+	if err != nil {
+		return err
+	}
+	return p.waitZoneOperation(ctx, op.Name)
 }

@@ -17,7 +17,7 @@ const (
 	StatePending  = ServerState("pending")
 	StateCreating = ServerState("creating")
 	StateCreated  = ServerState("created")
-	StateStaging  = ServerState("staging")
+	StateStaging  = ServerState("staging") // starting
 	StateRunning  = ServerState("running")
 	StateShutdown = ServerState("shutdown")
 	StateStopping = ServerState("stopping")

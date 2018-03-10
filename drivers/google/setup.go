@@ -6,20 +6,65 @@ package google
 
 import (
 	"context"
+	"reflect"
+	"time"
 
-	"golang.org/x/sync/errgroup"
+	"github.com/rs/zerolog/log"
+	compute "google.golang.org/api/compute/v1"
 )
 
 func (p *provider) setup(ctx context.Context) error {
-	var g errgroup.Group
-	if p.key == "" {
-		g.Go(func() error {
-			return p.setupKeypair(ctx)
-		})
+	if reflect.DeepEqual(p.tags, defaultTags) {
+		return p.setupFirewall(ctx)
 	}
-	return g.Wait()
+	return nil
 }
 
-func (p *provider) setupKeypair(ctx context.Context) error {
-	return nil // TODO
+func (p *provider) setupFirewall(ctx context.Context) error {
+	logger := log.Ctx(ctx)
+
+	logger.Debug().
+		Msg("finding default firewall rules")
+
+	_, err := p.service.Firewalls.Get(p.project, "default-allow-docker").Context(ctx).Do()
+	if err == nil {
+		logger.Debug().
+			Msg("found default firewall rule")
+		return nil
+	}
+
+	rule := &compute.Firewall{
+		Allowed: []*compute.FirewallAllowed{
+			{
+				IPProtocol: "tcp",
+				Ports:      []string{"2376"},
+			},
+		},
+		Direction:    "INGRESS",
+		Name:         "default-allow-docker",
+		Network:      p.network,
+		Priority:     1000,
+		SourceRanges: []string{"0.0.0.0/0"},
+		TargetTags:   []string{"allow-docker"},
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, time.Minute)
+	defer cancel()
+
+	op, err := p.service.Firewalls.Insert(p.project, rule).Context(ctx).Do()
+	if err != nil {
+		logger.Error().
+			Err(err).
+			Msg("cannot create firewall operation")
+		return err
+	}
+
+	err = p.waitGlogalOperation(ctx, op.Name)
+	if err != nil {
+		logger.Error().
+			Err(err).
+			Msg("cannot create firewall rule")
+	}
+
+	return err
 }

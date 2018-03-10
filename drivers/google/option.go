@@ -4,34 +4,93 @@
 
 package google
 
+import (
+	"io/ioutil"
+
+	"github.com/drone/autoscaler/drivers/internal/userdata"
+)
+
 // Option configures a Digital Ocean provider option.
 type Option func(*provider)
 
-// WithImage returns an option to set the image.
-func WithImage(image string) Option {
+// WithDiskSize returns an option to set the instance disk
+// size in gigabytes.
+func WithDiskSize(diskSize int64) Option {
+	return func(p *provider) {
+		p.diskSize = diskSize
+	}
+}
+
+// WithDiskType returns an option to set the instance disk type.
+func WithDiskType(diskType string) Option {
+	return func(p *provider) {
+		p.diskType = diskType
+	}
+}
+
+// WithLabels returns an option to set the metadata labels.
+func WithLabels(labels map[string]string) Option {
+	return func(p *provider) {
+		p.labels = labels
+	}
+}
+
+// WithMachineImage returns an option to set the image.
+func WithMachineImage(image string) Option {
 	return func(p *provider) {
 		p.image = image
 	}
 }
 
-// WithSize returns an option to set the instance size.
-func WithSize(size string) Option {
+// WithMachineType returns an option to set the instance type.
+func WithMachineType(size string) Option {
 	return func(p *provider) {
 		p.size = size
 	}
 }
 
-// WithSSHKey returns an option to set the ssh key.
-func WithSSHKey(key string) Option {
+// WithNetwork returns an option to set the network.
+func WithNetwork(network string) Option {
 	return func(p *provider) {
-		p.key = key
+		p.network = network
 	}
 }
 
-// WithTags returns an option to set the image.
+// WithProject returns an option to set the project.
+func WithProject(project string) Option {
+	return func(p *provider) {
+		p.project = project
+	}
+}
+
+// WithTags returns an option to set the resource tags.
 func WithTags(tags ...string) Option {
 	return func(p *provider) {
 		p.tags = tags
+	}
+}
+
+// WithUserData returns an option to set the cloud-init
+// template from text.
+func WithUserData(text string) Option {
+	return func(p *provider) {
+		if text != "" {
+			p.userdata = userdata.Parse(text)
+		}
+	}
+}
+
+// WithUserDataFile returns an option to set the cloud-init
+// template from file.
+func WithUserDataFile(filepath string) Option {
+	return func(p *provider) {
+		if filepath != "" {
+			b, err := ioutil.ReadFile(filepath)
+			if err != nil {
+				panic(err)
+			}
+			p.userdata = userdata.Parse(string(b))
+		}
 	}
 }
 

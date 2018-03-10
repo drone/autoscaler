@@ -88,20 +88,18 @@ type (
 		}
 
 		Google struct {
-			Zone         string `default:"us-central1-a"`
-			MachineType  string `split_words:"true" default:"n1-standard-1"`
-			MachineImage string `split_words:"true" default:"ubuntu-1510-wily-v20151114"`
-			DiskType     string `split_words:"true" default:"pd-standard"`
-			Address      string
-			Network      string `default:"default"`
-			Subnetwork   string
-			Preemptible  bool
-			Scopes       string
-			DiskSize     int `split_words:"true"`
-			Project      string
-			Tags         []string
-			UserData     string `envconfig:"DRONE_GOOGLE_USERDATA"`
-			UserDataFile string `envconfig:"DRONE_GOOGLE_USERDATA_FILE"`
+			MachineType  string            `envconfig:"DRONE_GOOGLE_MACHINE_TYPE"`
+			MachineImage string            `envconfig:"DRONE_GOOGLE_MACHINE_IMAGE"`
+			Network      string            `envconfig:"DRONE_GOOGLE_NETWORK"`
+			Labels       map[string]string `envconfig:"DRONE_GOOGLE_LABELS"`
+			Scopes       string            `envconfig:"DRONE_GOOGLE_SCOPES"`
+			DiskSize     int64             `envconfig:"DRONE_GOOGLE_DISK_SIZE"`
+			DiskType     string            `envconfig:"DRONE_GOOGLE_DISK_TYPE"`
+			Project      string            `envconfig:"DRONE_GOOGLE_PROJECT"`
+			Tags         []string          `envconfig:"DRONE_GOOGLE_TAGS"`
+			UserData     string            `envconfig:"DRONE_GOOGLE_USERDATA"`
+			UserDataFile string            `envconfig:"DRONE_GOOGLE_USERDATA_FILE"`
+			Zone         string            `envconfig:"DRONE_GOOGLE_ZONE"`
 		}
 
 		HetznerCloud struct {

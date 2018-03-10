@@ -4,10 +4,14 @@
 
 package google
 
-import "testing"
+import (
+	"net/http"
+	"testing"
+)
 
 func TestOptions(t *testing.T) {
 	v, err := New(
+		WithClient(http.DefaultClient),
 		WithDiskSize(100),
 		WithDiskType("local-ssd"),
 		WithMachineImage("ubuntu-1604-lts"),

@@ -5,6 +5,7 @@
 package google
 
 import (
+	"net/http"
 	"reflect"
 	"testing"
 
@@ -12,7 +13,9 @@ import (
 )
 
 func TestDefaults(t *testing.T) {
-	v, err := New()
+	v, err := New(
+		WithClient(http.DefaultClient),
+	)
 	if err != nil {
 		t.Error(err)
 		return

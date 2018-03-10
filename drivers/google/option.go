@@ -6,12 +6,27 @@ package google
 
 import (
 	"io/ioutil"
+	"net/http"
 
 	"github.com/drone/autoscaler/drivers/internal/userdata"
+
+	"google.golang.org/api/compute/v1"
 )
 
 // Option configures a Digital Ocean provider option.
 type Option func(*provider)
+
+// WithClient returns an option to set the default http
+// Client used with the Google Compute provider.
+func WithClient(client *http.Client) Option {
+	return func(p *provider) {
+		service, err := compute.New(client)
+		if err != nil {
+			panic(err)
+		}
+		p.service = service
+	}
+}
 
 // WithDiskSize returns an option to set the instance disk
 // size in gigabytes.

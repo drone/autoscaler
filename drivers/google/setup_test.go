@@ -10,7 +10,6 @@ import (
 	"testing"
 
 	"github.com/h2non/gock"
-	compute "google.golang.org/api/compute/v1"
 )
 
 func TestSetupFirewall(t *testing.T) {
@@ -30,7 +29,8 @@ func TestSetupFirewall(t *testing.T) {
 		Reply(200).
 		BodyString(`{ "status": "DONE" }`)
 
-	v, err := New(
+	p, err := New(
+		WithClient(http.DefaultClient),
 		WithZone("us-central1-a"),
 		WithProject("my-project"),
 	)
@@ -38,10 +38,8 @@ func TestSetupFirewall(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	p := v.(*provider)
-	p.service, _ = compute.New(http.DefaultClient)
 
-	err = p.setupFirewall(context.TODO())
+	err = p.(*provider).setupFirewall(context.TODO())
 	if err != nil {
 		t.Error(err)
 	}
@@ -55,7 +53,8 @@ func TestSetupFirewall_Exists(t *testing.T) {
 		Reply(200).
 		BodyString(findFirewallRes)
 
-	v, err := New(
+	p, err := New(
+		WithClient(http.DefaultClient),
 		WithZone("us-central1-a"),
 		WithProject("my-project"),
 	)
@@ -63,10 +62,8 @@ func TestSetupFirewall_Exists(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	p := v.(*provider)
-	p.service, _ = compute.New(http.DefaultClient)
 
-	err = p.setupFirewall(context.TODO())
+	err = p.(*provider).setupFirewall(context.TODO())
 	if err != nil {
 		t.Error(err)
 	}

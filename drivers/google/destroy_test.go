@@ -11,7 +11,6 @@ import (
 
 	"github.com/drone/autoscaler"
 	"github.com/h2non/gock"
-	compute "google.golang.org/api/compute/v1"
 )
 
 func TestDestroy(t *testing.T) {
@@ -33,6 +32,7 @@ func TestDestroy(t *testing.T) {
 	}
 
 	p, err := New(
+		WithClient(http.DefaultClient),
 		WithZone("us-central1-a"),
 		WithProject("my-project"),
 	)
@@ -40,7 +40,6 @@ func TestDestroy(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	p.(*provider).service, _ = compute.New(http.DefaultClient)
 
 	err = p.Destroy(mockContext, mockInstance)
 	if err != nil {
@@ -61,6 +60,7 @@ func TestDestroy_Error(t *testing.T) {
 	}
 
 	p, err := New(
+		WithClient(http.DefaultClient),
 		WithZone("us-central1-a"),
 		WithProject("my-project"),
 	)
@@ -68,7 +68,6 @@ func TestDestroy_Error(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	p.(*provider).service, _ = compute.New(http.DefaultClient)
 
 	err = p.Destroy(mockContext, mockInstance)
 	if err == nil {

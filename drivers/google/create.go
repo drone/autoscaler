@@ -5,6 +5,7 @@
 package google
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 
@@ -15,6 +16,13 @@ import (
 )
 
 func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpts) (*autoscaler.Instance, error) {
+	buf := new(bytes.Buffer)
+	err := p.userdata.Execute(buf, &opts)
+	if err != nil {
+		return nil, err
+	}
+	userdata := buf.String()
+
 	logger := log.Ctx(ctx).With().
 		Str("zone", p.zone).
 		Str("image", p.image).
@@ -28,20 +36,31 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	in := &compute.Instance{
 		Name:        opts.Name,
 		Description: "drone agent",
-		MachineType: "", // TODO setup the machine type
+		MachineType: fmt.Sprintf("zones/%s/machineTypes/%s", p.zone, p.size),
 		Disks: []*compute.AttachedDisk{
 			{
 				Boot:       true,
 				AutoDelete: true,
 				Type:       "PERSISTENT",
 				Mode:       "READ_WRITE",
+				InitializeParams: &compute.AttachedDiskInitializeParams{
+					SourceImage: fmt.Sprintf("https://www.googleapis.com/compute/v1/projects/%s", p.image),
+					DiskSizeGb:  p.diskSize,
+				},
+			},
+		},
+		Metadata: &compute.Metadata{
+			Items: []*compute.MetadataItems{
+				{
+					Key:   "cloud-init",
+					Value: &userdata,
+				},
 			},
 		},
 		NetworkInterfaces: []*compute.NetworkInterface{
-			{Network: p.network},
-		},
-		Tags: &compute.Tags{
-			Items: p.tags,
+			{
+				Network: p.network,
+			},
 		},
 		ServiceAccounts: []*compute.ServiceAccount{
 			{
@@ -49,9 +68,11 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 				Email:  "default",
 			},
 		},
+		Tags: &compute.Tags{
+			Items: p.tags,
+		},
+		Labels: p.labels,
 	}
-
-	// TODO setup the disk
 
 	op, err := p.service.Instances.Insert(p.project, p.zone, in).Context(ctx).Do()
 	if err != nil {

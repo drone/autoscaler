@@ -15,6 +15,7 @@ import (
 	"github.com/drone/autoscaler/config"
 	"github.com/drone/autoscaler/drivers/amazon"
 	"github.com/drone/autoscaler/drivers/digitalocean"
+	"github.com/drone/autoscaler/drivers/google"
 	"github.com/drone/autoscaler/drivers/hetznercloud"
 	"github.com/drone/autoscaler/engine"
 	"github.com/drone/autoscaler/limiter"
@@ -192,6 +193,19 @@ func setupClient(c config.Config) drone.Client {
 // helper function configures the hosting provider.
 func setupProvider(c config.Config) (autoscaler.Provider, error) {
 	switch {
+	case c.Google.Project != "":
+		return google.New(
+			google.WithDiskSize(c.Google.DiskSize),
+			google.WithMachineImage(c.Google.MachineImage),
+			google.WithMachineType(c.Google.MachineType),
+			google.WithLabels(c.Google.Labels),
+			google.WithNetwork(c.Google.Network),
+			google.WithProject(c.Google.Project),
+			google.WithTags(c.Google.Tags...),
+			google.WithUserData(c.Google.UserData),
+			google.WithUserDataFile(c.Google.UserDataFile),
+			google.WithZone(c.Google.Zone),
+		), nil
 	case c.DigitalOcean.Token != "":
 		return digitalocean.New(
 			digitalocean.WithSSHKey(c.DigitalOcean.SSHKey),

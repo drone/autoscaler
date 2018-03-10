@@ -18,8 +18,9 @@ import (
 
 // provider implements a DigitalOcean provider.
 type provider struct {
-	key      string
+	diskSize int64
 	image    string
+	labels   map[string]string
 	network  string
 	project  string
 	scopes   []string
@@ -37,6 +38,9 @@ func New(opts ...Option) autoscaler.Provider {
 	for _, opt := range opts {
 		opt(p)
 	}
+	if p.diskSize == 0 {
+		p.diskSize = 50
+	}
 	if p.zone == "" {
 		p.zone = "us-central1-a"
 	}
@@ -44,7 +48,10 @@ func New(opts ...Option) autoscaler.Provider {
 		p.size = "n1-standard-1"
 	}
 	if p.image == "" {
-		p.image = "ubuntu-1510-wily-v20151114"
+		p.image = "ubuntu-os-cloud/global/images/ubuntu-1604-xenial-v20170721"
+	}
+	if p.network == "" {
+		p.network = "global/networks/default"
 	}
 	if p.userdata == nil {
 		p.userdata = userdata.T

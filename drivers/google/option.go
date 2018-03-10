@@ -13,10 +13,32 @@ import (
 // Option configures a Digital Ocean provider option.
 type Option func(*provider)
 
-// WithImage returns an option to set the image.
-func WithImage(image string) Option {
+// WithDiskSize returns an option to set the instance disk
+// size in gigabytes.
+func WithDiskSize(size int64) Option {
+	return func(p *provider) {
+		p.diskSize = size
+	}
+}
+
+// WithLabels returns an option to set the metadata labels.
+func WithLabels(labels map[string]string) Option {
+	return func(p *provider) {
+		p.labels = labels
+	}
+}
+
+// WithMachineImage returns an option to set the image.
+func WithMachineImage(image string) Option {
 	return func(p *provider) {
 		p.image = image
+	}
+}
+
+// WithMachineType returns an option to set the instance type.
+func WithMachineType(size string) Option {
+	return func(p *provider) {
+		p.size = size
 	}
 }
 
@@ -34,21 +56,7 @@ func WithProject(project string) Option {
 	}
 }
 
-// WithSize returns an option to set the instance size.
-func WithSize(size string) Option {
-	return func(p *provider) {
-		p.size = size
-	}
-}
-
-// WithSSHKey returns an option to set the ssh key.
-func WithSSHKey(key string) Option {
-	return func(p *provider) {
-		p.key = key
-	}
-}
-
-// WithTags returns an option to set the image.
+// WithTags returns an option to set the resource tags.
 func WithTags(tags ...string) Option {
 	return func(p *provider) {
 		p.tags = tags

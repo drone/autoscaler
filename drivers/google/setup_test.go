@@ -86,30 +86,6 @@ var createFirewallMock = &compute.Firewall{
 	TargetTags:   []string{"allow-docker"},
 }
 
-var createFirewallReq = `
-{
-  "name": "default-allow-docker",
-  "selfLink": "projects/drone-1191/global/firewalls/default-allow-docker",
-  "network": "projects/drone-1191/global/networks/default",
-  "direction": "INGRESS",
-  "priority": 1000,
-  "targetTags": [
-    "allow-docker"
-  ],
-  "allowed": [
-    {
-      "IPProtocol": "tcp",
-      "ports": [
-        "2376"
-      ]
-    }
-  ],
-  "sourceRanges": [
-    "0.0.0.0/0"
-  ]
-}
-`
-
 var findFirewallRes = `
 {
   "allowed": [

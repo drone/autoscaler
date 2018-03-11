@@ -10,14 +10,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bluele/slack"
-	"github.com/h2non/gock"
-
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/config"
 	"github.com/drone/autoscaler/mocks"
 
+	"github.com/bluele/slack"
 	"github.com/golang/mock/gomock"
+	"github.com/h2non/gock"
 )
 
 var noContext = context.TODO()
@@ -136,41 +135,6 @@ func TestUpdateError(t *testing.T) {
 	}
 }
 
-// This is an integration test that will send a real
-// message to a Slack channel using a webhook defined
-// in the TEST_SLACK_WEBHOOK environment variable.
-func TestIntegration(t *testing.T) {
-	webhook := os.Getenv("TEST_SLACK_WEBHOOK")
-	if webhook == "" {
-		t.Skipf("Skip Slack integration test. No webhook provided.")
-		return
-	}
-
-	controller := gomock.NewController(t)
-	defer controller.Finish()
-
-	server := &autoscaler.Server{
-		Name:     "i-123789331",
-		Address:  "1.2.3.4",
-		Region:   "nyc1",
-		Size:     "s-1vcpu-1gb",
-		Capacity: 2,
-		State:    autoscaler.StateRunning,
-	}
-
-	conf := config.Config{}
-	conf.Slack.Webhook = webhook
-
-	store := mocks.NewMockServerStore(controller)
-	store.EXPECT().Update(gomock.Any(), server).Return(nil)
-
-	slack := New(conf, store)
-	err := slack.Update(noContext, server)
-	if err != nil {
-		t.Error(err)
-	}
-}
-
 var createPayload = slack.WebHookPostPayload{
 	Text: "Provisioned server instance this-is-a-test-message",
 	Attachments: []*slack.Attachment{
@@ -211,4 +175,39 @@ var errorPayload = slack.WebHookPostPayload{
 			},
 		},
 	},
+}
+
+// This is an integration test that will send a real
+// message to a Slack channel using a webhook defined
+// in the TEST_SLACK_WEBHOOK environment variable.
+func TestIntegration(t *testing.T) {
+	webhook := os.Getenv("TEST_SLACK_WEBHOOK")
+	if webhook == "" {
+		t.Skipf("Skip Slack integration test. No webhook provided.")
+		return
+	}
+
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	server := &autoscaler.Server{
+		Name:     "i-123789331",
+		Address:  "1.2.3.4",
+		Region:   "nyc1",
+		Size:     "s-1vcpu-1gb",
+		Capacity: 2,
+		State:    autoscaler.StateRunning,
+	}
+
+	conf := config.Config{}
+	conf.Slack.Webhook = webhook
+
+	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().Update(gomock.Any(), server).Return(nil)
+
+	slack := New(conf, store)
+	err := slack.Update(noContext, server)
+	if err != nil {
+		t.Error(err)
+	}
 }

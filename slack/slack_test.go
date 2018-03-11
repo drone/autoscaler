@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/bluele/slack"
 	"github.com/h2non/gock"
 
 	"github.com/drone/autoscaler"
@@ -42,10 +43,9 @@ func TestUpdateRunning(t *testing.T) {
 		State:  autoscaler.StateRunning,
 	}
 
-	// TODO: verify the contents of the Slack payload.
-
 	gock.New("https://hooks.slack.com").
-		Get("/services/XXX/YYY/ZZZ").
+		Post("/services/XXX/YYY/ZZZ").
+		JSON(createPayload).
 		Reply(200)
 
 	conf := config.Config{}
@@ -58,6 +58,10 @@ func TestUpdateRunning(t *testing.T) {
 	err := slack.Update(noContext, server)
 	if err != nil {
 		t.Error(err)
+	}
+
+	if !gock.IsDone() {
+		t.Errorf("Pending mocks not executed")
 	}
 }
 
@@ -74,10 +78,8 @@ func TestUpdateStopped(t *testing.T) {
 		State:  autoscaler.StateStopped,
 	}
 
-	// TODO: verify the contents of the Slack payload.
-
 	gock.New("https://hooks.slack.com").
-		Get("/services/XXX/YYY/ZZZ").
+		Post("/services/XXX/YYY/ZZZ").
 		Reply(200)
 
 	conf := config.Config{}
@@ -90,6 +92,11 @@ func TestUpdateStopped(t *testing.T) {
 	err := slack.Update(noContext, server)
 	if err != nil {
 		t.Error(err)
+		return
+	}
+
+	if !gock.IsDone() {
+		t.Errorf("Pending mocks not executed")
 	}
 }
 
@@ -103,13 +110,13 @@ func TestUpdateError(t *testing.T) {
 		Name:   "this-is-a-test-message",
 		Region: "nyc1",
 		Size:   "s-1vcpu-1gb",
+		Error:  "pc load letter",
 		State:  autoscaler.StateError,
 	}
 
-	// TODO: verify the contents of the Slack payload.
-
 	gock.New("https://hooks.slack.com").
-		Get("/services/XXX/YYY/ZZZ").
+		Post("/services/XXX/YYY/ZZZ").
+		JSON(errorPayload).
 		Reply(200)
 
 	conf := config.Config{}
@@ -122,6 +129,10 @@ func TestUpdateError(t *testing.T) {
 	err := slack.Update(noContext, server)
 	if err != nil {
 		t.Error(err)
+	}
+
+	if !gock.IsDone() {
+		t.Errorf("Pending mocks not executed")
 	}
 }
 
@@ -158,4 +169,46 @@ func TestIntegration(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+}
+
+var createPayload = slack.WebHookPostPayload{
+	Text: "Provisioned server instance this-is-a-test-message",
+	Attachments: []*slack.Attachment{
+		{
+			Color: "#00BFA5",
+			Fields: []*slack.AttachmentField{
+				{
+					Title: "Name",
+					Value: "this-is-a-test-message",
+				},
+				{
+					Title: "Size",
+					Value: "s-1vcpu-1gb",
+				},
+				{
+					Title: "Region",
+					Value: "nyc1",
+				},
+			},
+		},
+	},
+}
+
+var errorPayload = slack.WebHookPostPayload{
+	Text: "Problem with server instance this-is-a-test-message",
+	Attachments: []*slack.Attachment{
+		{
+			Color: "#F44336",
+			Fields: []*slack.AttachmentField{
+				{
+					Title: "Name",
+					Value: "this-is-a-test-message",
+				},
+				{
+					Title: "Error",
+					Value: "pc load letter",
+				},
+			},
+		},
+	},
 }

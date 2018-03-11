@@ -51,7 +51,7 @@ func (n *notifier) notifyCreate(server *autoscaler.Server) error {
 		Text: fmt.Sprintf("Provisioned server instance %s", server.Name),
 		Attachments: []*slack.Attachment{
 			{
-				Color: "good",
+				Color: "#00BFA5",
 				Fields: []*slack.AttachmentField{
 					{
 						Title: "Name",
@@ -80,7 +80,7 @@ func (n *notifier) notifyDestroy(server *autoscaler.Server) error {
 		Text: fmt.Sprintf("Terminated server instance %s", server.Name),
 		Attachments: []*slack.Attachment{
 			{
-				Color: "danger",
+				Color: "#CFD8DC",
 				Fields: []*slack.AttachmentField{
 					{
 						Title: "Name",
@@ -114,7 +114,7 @@ func (n *notifier) notifyError(server *autoscaler.Server) error {
 		Text: fmt.Sprintf("Problem with server instance %s", server.Name),
 		Attachments: []*slack.Attachment{
 			{
-				Color: "danger",
+				Color: "#F44336",
 				Fields: []*slack.AttachmentField{
 					{
 						Title: "Name",

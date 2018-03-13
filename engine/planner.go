@@ -137,7 +137,7 @@ func (p *planner) mark(ctx context.Context, n int) error {
 		return nil
 	}
 
-	servers, err := p.servers.List(ctx)
+	servers, err := p.servers.ListState(ctx, autoscaler.StateRunning)
 	if err != nil {
 		logger.Error().Err(err).
 			Msg("cannot fetch server list")

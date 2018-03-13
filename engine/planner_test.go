@@ -214,7 +214,7 @@ func TestPlan_NoIdle(t *testing.T) {
 
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
-	store.EXPECT().List(gomock.Any()).Return(servers, nil)
+	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
 
 	client := mocks.NewMockClient(controller)
 	client.EXPECT().BuildQueue().Return(builds, nil)
@@ -254,7 +254,7 @@ func TestScale_MinAge(t *testing.T) {
 
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
-	store.EXPECT().List(gomock.Any()).Return(servers, nil)
+	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
 
 	client := mocks.NewMockClient(controller)
 	client.EXPECT().BuildQueue().Return(builds, nil)
@@ -292,7 +292,7 @@ func TestPlan_ShutdownIdle(t *testing.T) {
 
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
-	store.EXPECT().List(gomock.Any()).Return(servers, nil)
+	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
 	store.EXPECT().Update(gomock.Any(), servers[2]).Return(nil)
 	store.EXPECT().Update(gomock.Any(), servers[1]).Return(nil)
 

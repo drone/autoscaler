@@ -28,6 +28,7 @@ type provider struct {
 	project  string
 	sshkey   string
 	tags     []string
+	hostname string
 	userdata *template.Template
 
 	client *packngo.Client

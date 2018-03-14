@@ -56,7 +56,7 @@ func WithSSHKey(sshkey string) Option {
 }
 
 // WithTags returns an option to set the image.
-func WithTags(tags ...string) Option {
+func WithTags(tags []string) Option {
 	return func(p *provider) {
 		p.tags = tags
 	}
@@ -82,6 +82,15 @@ func WithUserDataFile(filepath string) Option {
 				panic(err)
 			}
 			p.userdata = userdata.Parse(string(b))
+		}
+	}
+}
+
+// WithHostname returns an option to set the hostname
+func WithHostname(hostname string) Option {
+	return func(p *provider) {
+		if hostname != "" {
+			p.hostname = hostname
 		}
 	}
 }

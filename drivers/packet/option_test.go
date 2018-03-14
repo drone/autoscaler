@@ -14,7 +14,7 @@ func TestOptions(t *testing.T) {
 		WithPlan("baremetal_1"),
 		WithProject("my_project"),
 		WithSSHKey("id_rsa"),
-		WithTags("drone", "agent"),
+		WithTags([]string{"drone", "agent"}),
 	).(*provider)
 
 	if got, want := p.apikey, "my_authentication_token"; got != want {

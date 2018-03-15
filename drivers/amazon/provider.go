@@ -39,7 +39,7 @@ func (p *provider) getClient() *ec2.EC2 {
 }
 
 // New returns a new Digital Ocean provider.
-func New(opts ...Option) autoscaler.Provider {
+func New(opts ...Option) (autoscaler.Provider, error) {
 	p := new(provider)
 	for _, opt := range opts {
 		opt(p)
@@ -57,7 +57,9 @@ func New(opts ...Option) autoscaler.Provider {
 		p.image = defaultImage(p.region)
 	}
 	if p.userdata == nil {
-		p.userdata = userdata.T
+		d, err := userdata.DetectUserdata(p.image)
+		p.userdata = d
+		return p, err
 	}
-	return p
+	return p, nil
 }

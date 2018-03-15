@@ -8,8 +8,9 @@ import (
 	"sync"
 	"text/template"
 
-	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/drivers/internal/userdata"
+
+	"github.com/drone/autoscaler"
 
 	"github.com/packethost/packngo"
 )
@@ -35,7 +36,7 @@ type provider struct {
 }
 
 // New returns a new Packet.net provider.
-func New(opts ...Option) autoscaler.Provider {
+func New(opts ...Option) (autoscaler.Provider, error) {
 	p := new(provider)
 	for _, opt := range opts {
 		opt(p)
@@ -52,12 +53,16 @@ func New(opts ...Option) autoscaler.Provider {
 	if p.billing == "" {
 		p.billing = "hourly"
 	}
-	if p.userdata == nil {
-		p.userdata = userdata.T
-	}
 	if p.client == nil {
 		p.client = packngo.NewClient(
 			consumerToken, p.apikey, nil)
 	}
-	return p
+
+	if p.userdata == nil {
+		d, err := userdata.DetectUserdata(p.os)
+		p.userdata = d
+		return p, err
+	}
+
+	return p, nil
 }

@@ -44,6 +44,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		OS:           p.os,
 		ProjectID:    p.project,
 		BillingCycle: p.billing,
+		UserData:     buf.String(),
 	}
 
 	logger.Debug().

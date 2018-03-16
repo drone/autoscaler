@@ -11,11 +11,8 @@ import (
 )
 
 func TestDefaults(t *testing.T) {
-	n, e := New()
-	if e != nil {
-		t.Error(e)
-		return
-	}
+	n := New()
+
 	p := n.(*provider)
 	if got, want := p.plan, "baremetal_0"; got != want {
 		t.Errorf("Want plan %q, got %q", want, got)
@@ -26,10 +23,10 @@ func TestDefaults(t *testing.T) {
 	if got, want := p.billing, "hourly"; got != want {
 		t.Errorf("Want billing %q, got %q", want, got)
 	}
-	if got, want := p.os, "ubuntu_16_04"; got != want {
+	if got, want := p.os, "ubuntu_17_10"; got != want {
 		t.Errorf("Want os %q, got %q", want, got)
 	}
-	if p.userdata != userdata.Ubuntu {
-		t.Errorf("Want ubuntu userdata template")
+	if p.userdata != userdata.T {
+		t.Errorf("Want default userdata template")
 	}
 }

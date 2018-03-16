@@ -227,20 +227,20 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			hetznercloud.WithServerType(c.HetznerCloud.Type),
 			hetznercloud.WithSSHKey(c.HetznerCloud.SSHKey),
 			hetznercloud.WithToken(c.HetznerCloud.Token),
-		)
+		), nil
 	case c.Packet.APIKey != "":
 		return packet.New(
 			packet.WithAPIKey(c.Packet.APIKey),
 			packet.WithFacility(c.Packet.Facility),
 			packet.WithProject(c.Packet.ProjectID),
 			packet.WithPlan(c.Packet.Plan),
-			packet.WithTags(c.Packet.Tags),
+			packet.WithTags(c.Packet.Tags...),
 			packet.WithOS(c.Packet.OS),
 			packet.WithSSHKey(c.Packet.SSHKey),
 			packet.WithUserData(c.Packet.UserData),
 			packet.WithUserDataFile(c.Packet.UserDataFile),
 			packet.WithHostname(c.Packet.Hostname),
-		)
+		), nil
 
 	case os.Getenv("AWS_ACCESS_KEY_ID") != "" || os.Getenv("AWS_IAM") != "":
 		return amazon.New(
@@ -255,7 +255,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			amazon.WithTags(c.Amazon.Tags),
 			amazon.WithUserData(c.Amazon.UserData),
 			amazon.WithUserDataFile(c.Amazon.UserDataFile),
-		)
+		), nil
 	default:
 		return nil, errors.New("missing provider configuration")
 	}

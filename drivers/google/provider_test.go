@@ -43,8 +43,8 @@ func TestDefaults(t *testing.T) {
 	if !reflect.DeepEqual(p.tags, defaultTags) {
 		t.Errorf("Want default tags")
 	}
-	if p.userdata != userdata.Ubuntu {
-		t.Errorf("Want ubuntu userdata template")
+	if p.userdata != userdata.T {
+		t.Errorf("Want default userdata template")
 	}
 	if got, want := p.zone, "us-central1-a"; got != want {
 		t.Errorf("Want region %q, got %q", want, got)

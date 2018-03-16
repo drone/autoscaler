@@ -6,8 +6,6 @@ package userdata
 
 import (
 	"encoding/base64"
-	"fmt"
-	"strings"
 	"text/template"
 )
 
@@ -30,19 +28,8 @@ func Parse(text string) *template.Template {
 	)
 }
 
-// DetectUserdata returns the docker provisioning userdata script based on the OS string
-func DetectUserdata(os string) (*template.Template, error) {
-	switch {
-	case strings.Contains(os, "ubuntu"):
-		return Ubuntu, nil
-	default:
-		return nil, fmt.Errorf("docker provisioning script unsuported for the given OS image : %s", os)
-	}
-
-}
-
-// Ubuntu is the docker installation script for the Ubuntu OS
-var Ubuntu = Parse(`#cloud-config
+// T is the default userdata template.
+var T = Parse(`#cloud-config
 
 apt_reboot_if_required: false
 package_update: false

@@ -36,7 +36,7 @@ type provider struct {
 }
 
 // New returns a new Packet.net provider.
-func New(opts ...Option) (autoscaler.Provider, error) {
+func New(opts ...Option) autoscaler.Provider {
 	p := new(provider)
 	for _, opt := range opts {
 		opt(p)
@@ -45,7 +45,7 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 		p.facility = "ewr1"
 	}
 	if p.os == "" {
-		p.os = "ubuntu_16_04"
+		p.os = "ubuntu_17_10"
 	}
 	if p.plan == "" {
 		p.plan = "baremetal_0"
@@ -59,10 +59,9 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 	}
 
 	if p.userdata == nil {
-		d, err := userdata.DetectUserdata(p.os)
-		p.userdata = d
-		return p, err
+		p.userdata = userdata.T
+		return p
 	}
 
-	return p, nil
+	return p
 }

@@ -7,7 +7,6 @@ package packet
 import (
 	"bytes"
 	"context"
-	"strings"
 	"time"
 
 	"github.com/drone/autoscaler"
@@ -25,8 +24,6 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	if err != nil {
 		return nil, err
 	}
-
-	name := strings.ToLower(opts.Name)
 
 	logger := log.Ctx(ctx).With().
 		Str("project", p.project).
@@ -57,11 +54,11 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 
 	instance := &autoscaler.Instance{
 		Provider: autoscaler.ProviderPacket,
-		ID:       name,
+		ID:       d.ID,
 		Name:     opts.Name,
-		Image:    p.os,
-		Region:   p.facility,
-		Size:     p.plan,
+		Image:    d.OS.Slug,
+		Region:   d.Facility.Code,
+		Size:     d.Plan.Slug,
 	}
 
 	interval := time.Duration(0)
@@ -81,7 +78,7 @@ poller:
 				logger.Error().
 					Err(err).
 					Msg("getting device info")
-				return instance, err
+				return nil, err
 			}
 			if d.State == "active" {
 				for _, ip := range d.Network {

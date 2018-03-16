@@ -75,6 +75,9 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 	if p.network == "" {
 		p.network = "global/networks/default"
 	}
+	if p.userdata == nil {
+		p.userdata = userdata.T
+	}
 	if len(p.tags) == 0 {
 		p.tags = defaultTags
 	}
@@ -90,11 +93,6 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 		if err != nil {
 			return nil, err
 		}
-	}
-	if p.userdata == nil {
-		d, err := userdata.DetectUserdata(p.image)
-		p.userdata = d
-		return p, err
 	}
 	return p, nil
 }

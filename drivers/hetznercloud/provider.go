@@ -29,7 +29,7 @@ type provider struct {
 }
 
 // New returns a new Digital Ocean provider.
-func New(opts ...Option) (autoscaler.Provider, error) {
+func New(opts ...Option) autoscaler.Provider {
 	p := new(provider)
 	for _, opt := range opts {
 		opt(p)
@@ -43,11 +43,8 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 	if p.image == "" {
 		p.image = "ubuntu-16.04"
 	}
-
 	if p.userdata == nil {
-		d, err := userdata.DetectUserdata(p.image)
-		p.userdata = d
-		return p, err
+		p.userdata = userdata.T
 	}
-	return p, nil
+	return p
 }

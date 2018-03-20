@@ -131,6 +131,18 @@ func (e *engine) allocate(ctx context.Context) {
 
 // runs the installation process.
 func (e *engine) install(ctx context.Context) {
+	// Any Staging server is not considered installed so revert its state to run the installer again.
+	// This happens when the autoscaler is stopped after the server is created, but before the installation is complete.
+	stagings, err := e.allocator.servers.ListState(ctx, autoscaler.StateStaging)
+	if err != nil {
+		log.Warn().Err(err)
+	} else {
+		for _, s := range stagings {
+			s.State = autoscaler.StateCreated
+			err = e.allocator.servers.Update(ctx, s)
+		}
+	}
+
 	const interval = time.Second * 10
 	for {
 		select {

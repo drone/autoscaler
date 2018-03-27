@@ -212,10 +212,17 @@ func (p *planner) count(ctx context.Context) (pending, running int, err error) {
 		return pending, running, err
 	}
 	for _, activity := range activity {
-		if activity.Status == drone.StatusPending {
-			pending++
-		} else {
-			running++
+		build, err := p.client.Build(activity.Owner, activity.Name, activity.Number);
+		if err != nil {
+			return pending, running, err
+		}
+
+		for _, process := range build.Procs {
+			if process.Status == drone.StatusPending {
+				pending++
+			} else {
+				running++
+			}
 		}
 	}
 	return

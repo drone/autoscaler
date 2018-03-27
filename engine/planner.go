@@ -218,7 +218,7 @@ func (p *planner) count(ctx context.Context) (pending, running int, err error) {
 		}
 
 		for _, process := range build.Procs {
-			if process.Status == drone.StatusPending {
+			if process.State == drone.StatusPending {
 				pending++
 			} else {
 				running++

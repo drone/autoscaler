@@ -82,27 +82,13 @@ func TestPlan_MaxCapacity(t *testing.T) {
 		{Status: drone.StatusPending, Owner: "foo", Name: "bar", Number: 42},
 		{Status: drone.StatusPending, Owner: "foo", Name: "bar", Number: 42},
 	}
-	client.EXPECT().Build("foo", "bar", 42).Return(drone.Build{
-		Procs: [{State: drone.StatusRunning}]
-	}, nil)
-	client.EXPECT().Build("foo", "bar", 42).Return(drone.Build{
-		Procs: [{State: drone.StatusRunning}]
-	}, nil)
-	client.EXPECT().Build("foo", "bar", 42).Return(drone.Build{
-		Procs: [{State: drone.StatusRunning}]
-	}, nil)
-	client.EXPECT().Build("foo", "bar", 42).Return(drone.Build{
-		Procs: [{State: drone.StatusRunning}]
-	}, nil)
-	client.EXPECT().Build("foo", "bar", 42).Return(drone.Build{
-		Procs: [{State: drone.StatusPending}]
-	}, nil)
-	client.EXPECT().Build("foo", "bar", 42).Return(drone.Build{
-		Procs: [{State: drone.StatusPending}]
-	}, nil)
-	client.EXPECT().Build("foo", "bar", 42).Return(drone.Build{
-		Procs: [{State: drone.StatusPending}]
-	}, nil)
+	client.EXPECT().Build("foo", "bar", 42).Return(&drone.Build{Procs: []*drone.Proc{{State: drone.StatusRunning}}}, nil)
+	client.EXPECT().Build("foo", "bar", 42).Return(&drone.Build{Procs: []*drone.Proc{{State: drone.StatusRunning}}}, nil)
+	client.EXPECT().Build("foo", "bar", 42).Return(&drone.Build{Procs: []*drone.Proc{{State: drone.StatusRunning}}}, nil)
+	client.EXPECT().Build("foo", "bar", 42).Return(&drone.Build{Procs: []*drone.Proc{{State: drone.StatusRunning}}}, nil)
+	client.EXPECT().Build("foo", "bar", 42).Return(&drone.Build{Procs: []*drone.Proc{{State: drone.StatusPending}}}, nil)
+	client.EXPECT().Build("foo", "bar", 42).Return(&drone.Build{Procs: []*drone.Proc{{State: drone.StatusPending}}}, nil)
+	client.EXPECT().Build("foo", "bar", 42).Return(&drone.Build{Procs: []*drone.Proc{{State: drone.StatusPending}}}, nil)
 
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
@@ -157,39 +143,17 @@ func TestPlan_MoreCapacity(t *testing.T) {
 		{Status: drone.StatusPending, Owner: "foo", Name: "bar", Number: 42}, // ignore, would exceed max pool size
 		{Status: drone.StatusPending, Owner: "foo", Name: "bar", Number: 42}, // ignore, would exceed max pool size
 	}
-	client.EXPECT().Build("foo", "bar", 42).Return(drone.Build{
-		Procs: [{State: drone.StatusRunning}]
-	}, nil)
-	client.EXPECT().Build("foo", "bar", 42).Return(drone.Build{
-		Procs: [{State: drone.StatusRunning}]
-	}, nil)
-	client.EXPECT().Build("foo", "bar", 42).Return(drone.Build{
-		Procs: [{State: drone.StatusPending}]
-	}, nil)
-	client.EXPECT().Build("foo", "bar", 42).Return(drone.Build{
-		Procs: [{State: drone.StatusPending}]
-	}, nil)
-	client.EXPECT().Build("foo", "bar", 42).Return(drone.Build{
-		Procs: [{State: drone.StatusPending}]
-	}, nil)
-	client.EXPECT().Build("foo", "bar", 42).Return(drone.Build{
-		Procs: [{State: drone.StatusPending}]
-	}, nil)
-	client.EXPECT().Build("foo", "bar", 42).Return(drone.Build{
-		Procs: [{State: drone.StatusPending}]
-	}, nil)
-	client.EXPECT().Build("foo", "bar", 42).Return(drone.Build{
-		Procs: [{State: drone.StatusPending}]
-	}, nil)
-	client.EXPECT().Build("foo", "bar", 42).Return(drone.Build{
-		Procs: [{State: drone.StatusPending}]
-	}, nil)
-	client.EXPECT().Build("foo", "bar", 42).Return(drone.Build{
-		Procs: [{State: drone.StatusPending}]
-	}, nil)
-	client.EXPECT().Build("foo", "bar", 42).Return(drone.Build{
-		Procs: [{State: drone.StatusPending}]
-	}, nil)
+	client.EXPECT().Build("foo", "bar", 42).Return(&drone.Build{Procs: []*drone.Proc{{State: drone.StatusRunning}}}, nil)
+	client.EXPECT().Build("foo", "bar", 42).Return(&drone.Build{Procs: []*drone.Proc{{State: drone.StatusRunning}}}, nil)
+	client.EXPECT().Build("foo", "bar", 42).Return(&drone.Build{Procs: []*drone.Proc{{State: drone.StatusPending}}}, nil)
+	client.EXPECT().Build("foo", "bar", 42).Return(&drone.Build{Procs: []*drone.Proc{{State: drone.StatusPending}}}, nil)
+	client.EXPECT().Build("foo", "bar", 42).Return(&drone.Build{Procs: []*drone.Proc{{State: drone.StatusPending}}}, nil)
+	client.EXPECT().Build("foo", "bar", 42).Return(&drone.Build{Procs: []*drone.Proc{{State: drone.StatusPending}}}, nil)
+	client.EXPECT().Build("foo", "bar", 42).Return(&drone.Build{Procs: []*drone.Proc{{State: drone.StatusPending}}}, nil)
+	client.EXPECT().Build("foo", "bar", 42).Return(&drone.Build{Procs: []*drone.Proc{{State: drone.StatusPending}}}, nil)
+	client.EXPECT().Build("foo", "bar", 42).Return(&drone.Build{Procs: []*drone.Proc{{State: drone.StatusPending}}}, nil)
+	client.EXPECT().Build("foo", "bar", 42).Return(&drone.Build{Procs: []*drone.Proc{{State: drone.StatusPending}}}, nil)
+	client.EXPECT().Build("foo", "bar", 42).Return(&drone.Build{Procs: []*drone.Proc{{State: drone.StatusPending}}}, nil)
 
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
@@ -275,19 +239,11 @@ func TestPlan_NoIdle(t *testing.T) {
 
 	client := mocks.NewMockClient(controller)
 	client.EXPECT().BuildQueue().Return(builds, nil)
-	client.EXPECT().Build("foo", "bar", 42).Return(drone.Build{
-		Procs: [{State: drone.StatusRunning}]
-	}, nil)
-	client.EXPECT().Build("foo", "bar", 42).Return(drone.Build{
-		Procs: [{State: drone.StatusRunning}]
-	}, nil)
+	client.EXPECT().Build("foo", "bar", 42).Return(&drone.Build{Procs: []*drone.Proc{{State: drone.StatusRunning}}}, nil)
+	client.EXPECT().Build("foo", "bar", 42).Return(&drone.Build{Procs: []*drone.Proc{{State: drone.StatusRunning}}}, nil)
 	client.EXPECT().BuildQueue().Return(builds, nil)
-	client.EXPECT().Build("foo", "bar", 42).Return(drone.Build{
-		Procs: [{State: drone.StatusRunning}]
-	}, nil)
-	client.EXPECT().Build("foo", "bar", 42).Return(drone.Build{
-		Procs: [{State: drone.StatusRunning}]
-	}, nil)
+	client.EXPECT().Build("foo", "bar", 42).Return(&drone.Build{Procs: []*drone.Proc{{State: drone.StatusRunning}}}, nil)
+	client.EXPECT().Build("foo", "bar", 42).Return(&drone.Build{Procs: []*drone.Proc{{State: drone.StatusRunning}}}, nil)
 	client.EXPECT().Build(gomock.Any(), gomock.Any(), gomock.Any()).Return(&drone.Build{Procs: []*drone.Proc{{Machine: "server1"}}}, nil)
 	client.EXPECT().Build(gomock.Any(), gomock.Any(), gomock.Any()).Return(&drone.Build{Procs: []*drone.Proc{{Machine: "server2"}}}, nil)
 

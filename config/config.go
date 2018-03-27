@@ -54,7 +54,7 @@ type (
 		}
 
 		Prometheus struct {
-			Token string
+			AuthToken string `split_words:"true"`
 		}
 
 		Database struct {

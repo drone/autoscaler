@@ -92,7 +92,7 @@ func main() {
 	r.Use(hlog.RequestIDHandler("request_id", "Request-Id"))
 
 	r.Route(conf.HTTP.Root, func(root chi.Router) {
-		root.Get("/metrics", server.HandleMetrics(conf.Prometheus.Token))
+		root.Get("/metrics", server.HandleMetrics(conf.Prometheus.AuthToken))
 		root.Get("/version", server.HandleVersion(source, version, commit))
 		root.Get("/healthz", server.HandleHealthz())
 		root.Get("/varz", server.HandleVarz(enginex))

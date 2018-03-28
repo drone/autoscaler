@@ -74,7 +74,7 @@ func TestLoad(t *testing.T) {
 		"DRONE_TLS_AUTOCERT":               "true",
 		"DRONE_TLS_CERT":                   "/path/to/cert.crt",
 		"DRONE_TLS_KEY":                    "/path/to/cert.key",
-		"DRONE_PROMETHEUS_TOKEN":           "b359e05e8",
+		"DRONE_PROMETHEUS_AUTH_TOKEN":      "b359e05e8",
 		"DRONE_DATABASE_DRIVER":            "mysql",
 		"DRONE_DATABASE_DATASOURCE":        "user:password@/dbname",
 		"DRONE_DIGITALOCEAN_TOKEN":         "2573633eb",
@@ -182,7 +182,7 @@ var jsonConfig = []byte(`{
     "Key": "/path/to/cert.key"
   },
   "Prometheus": {
-    "Token": "b359e05e8"
+    "AuthToken": "b359e05e8"
   },
   "Database": {
     "Driver": "mysql",

@@ -56,6 +56,8 @@ func New(
 			image:   config.Agent.Image,
 			secret:  config.Agent.Token,
 			server:  config.Agent.Host,
+			keepaliveTime: config.Agent.KeepaliveTime,
+			keepaliveTimeout: config.Agent.KeepaliveTimeout,
 			client:  newDockerClient,
 		},
 		planner: &planner{

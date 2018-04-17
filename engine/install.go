@@ -25,6 +25,8 @@ type installer struct {
 	image  string
 	secret string
 	server string
+	keepaliveTime time.Duration
+	keepaliveTimeout time.Duration
 
 	servers autoscaler.ServerStore
 	client  clientFunc
@@ -133,6 +135,8 @@ poller:
 				fmt.Sprintf("DRONE_SERVER=%s", i.server),
 				fmt.Sprintf("DRONE_MAX_PROCS=%v", instance.Capacity),
 				fmt.Sprintf("DRONE_HOSTNAME=%s", instance.Name),
+				fmt.Sprintf("DRONE_KEEPALIVE_TIME=%s", i.keepaliveTime),
+				fmt.Sprintf("DRONE_KEEPALIVE_TIMEOUT=%s", i.keepaliveTimeout),
 			},
 			Volumes: map[string]struct{}{
 				"/var/run/docker.sock": {},

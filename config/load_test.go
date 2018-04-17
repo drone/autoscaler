@@ -169,7 +169,9 @@ var jsonConfig = []byte(`{
     "Host": "drone.company.com:9000",
     "Token": "f5064039f5",
     "Image": "drone/agent:0.8",
-    "Concurrency": 2
+    "Concurrency": 2,
+    "KeepaliveTime": 360000000000,
+    "KeepaliveTimeout": 30000000000
   },
   "HTTP": {
     "Host": "autoscaler.drone.company.com",

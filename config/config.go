@@ -62,6 +62,10 @@ type (
 			Datasource string `default:"database.sqlite?cache=shared&mode=rwc&_busy_timeout=9999999"`
 		}
 
+		Zombie struct {
+			MinAge time.Duration `default:"5m"`
+		}
+
 		Amazon struct {
 			Image         string
 			Instance      string

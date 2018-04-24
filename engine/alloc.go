@@ -32,6 +32,7 @@ func (a *allocator) Allocate(ctx context.Context) error {
 
 	for _, server := range servers {
 		server.State = autoscaler.StateCreating
+		server.Created = time.Now().Unix()
 		err = a.servers.Update(ctx, server)
 		if err != nil {
 			logger.Error().

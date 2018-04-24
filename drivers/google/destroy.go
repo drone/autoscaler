@@ -6,6 +6,7 @@ package google
 
 import (
 	"context"
+	"strings"
 
 	"github.com/drone/autoscaler"
 )
@@ -13,6 +14,10 @@ import (
 func (p *provider) Destroy(ctx context.Context, instance *autoscaler.Instance) error {
 	op, err := p.service.Instances.Delete(p.project, p.zone, instance.ID).Context(ctx).Do()
 	if err != nil {
+		if strings.Contains(err.Error(), "Error 404") {
+			// the instance doesn't exist. which is okay, that's our goal anyway
+			return nil
+		}
 		return err
 	}
 	return p.waitZoneOperation(ctx, op.Name)

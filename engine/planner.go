@@ -8,6 +8,7 @@ import (
 	"context"
 	"sort"
 	"time"
+	"os"
 
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/limiter"
@@ -207,6 +208,9 @@ func (p *planner) mark(ctx context.Context, n int) error {
 // helper function returns the number of pending and
 // running builds in the remote Drone installation.
 func (p *planner) count(ctx context.Context) (pending, running int, err error) {
+	if os.Getenv("ENABLE_MATRIX_CALC") == "true" {
+		return p.countMatrix(ctx)
+	}
 	activity, err := p.client.BuildQueue()
 	if err != nil {
 		return pending, running, err
@@ -216,6 +220,29 @@ func (p *planner) count(ctx context.Context) (pending, running int, err error) {
 			pending++
 		} else {
 			running++
+		}
+	}
+	return
+}
+
+func (p *planner) countMatrix(ctx context.Context) (pending, running int, err error) {
+	activity, err := p.client.BuildQueue()
+	if err != nil {
+		return pending, running, err
+	}
+	for _, activity := range activity {
+		build, err := p.client.Build(activity.Owner, activity.Name, activity.Number);
+		if err != nil {
+			return pending, running, err
+		}
+
+		for _, process := range build.Procs {
+			switch process.State {
+				case drone.StatusPending:
+					pending++
+				case drone.StatusRunning:
+					running++
+			}
 		}
 	}
 	return

@@ -63,6 +63,7 @@ type (
 		}
 
 		Amazon struct {
+			DeviceName    string `envconfig:"DRONE_AMAZON_DEVICE_NAME"`
 			Image         string
 			Instance      string
 			PrivateIP     bool `split_words:"true"`
@@ -74,6 +75,8 @@ type (
 			Tags          map[string]string
 			UserData      string `envconfig:"DRONE_AMAZON_USERDATA"`
 			UserDataFile  string `envconfig:"DRONE_AMAZON_USERDATA_FILE"`
+			VolumeSize    int64  `envconfig:"DRONE_AMAZON_VOLUME_SIZE"`
+			VolumeType    string `envconfig:"DRONE_AMAZON_VOLUME_TYPE"`
 		}
 
 		DigitalOcean struct {

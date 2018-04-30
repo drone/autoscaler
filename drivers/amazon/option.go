@@ -13,6 +13,13 @@ import (
 // Option configures a Digital Ocean provider option.
 type Option func(*provider)
 
+// WithDeviceName returns an option to set the device name.
+func WithDeviceName(n string) Option {
+	return func(p *provider) {
+		p.deviceName = n
+	}
+}
+
 // WithImage returns an option to set the image.
 func WithImage(image string) Option {
 	return func(p *provider) {
@@ -97,5 +104,20 @@ func WithUserDataFile(filepath string) Option {
 			}
 			p.userdata = userdata.Parse(string(b))
 		}
+	}
+}
+
+// WithVolumeSize returns an option to set the volume size
+// in gigabytes.
+func WithVolumeSize(s int64) Option {
+	return func(p *provider) {
+		p.volumeSize = s
+	}
+}
+
+// WithVolumeType returns an option to set the volume type.
+func WithVolumeType(t string) Option {
+	return func(p *provider) {
+		p.volumeType = t
 	}
 }

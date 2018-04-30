@@ -51,6 +51,16 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 				Tags:         convertTags(p.tags),
 			},
 		},
+		BlockDeviceMappings: []*ec2.BlockDeviceMapping{
+			{
+				DeviceName: aws.String(p.deviceName),
+				Ebs: &ec2.EbsBlockDevice{
+					VolumeSize:          aws.Int64(p.volumeSize),
+					VolumeType:          aws.String(p.volumeType),
+					DeleteOnTermination: aws.Bool(true),
+				},
+			},
+		},
 	}
 
 	logger := log.Ctx(ctx).With().

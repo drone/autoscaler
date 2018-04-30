@@ -230,6 +230,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 
 	case os.Getenv("AWS_ACCESS_KEY_ID") != "" || os.Getenv("AWS_IAM") != "":
 		return amazon.New(
+			amazon.WithDeviceName(c.Amazon.DeviceName),
 			amazon.WithImage(c.Amazon.Image),
 			amazon.WithRegion(c.Amazon.Region),
 			amazon.WithRetries(c.Amazon.Retries),
@@ -241,6 +242,8 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			amazon.WithTags(c.Amazon.Tags),
 			amazon.WithUserData(c.Amazon.UserData),
 			amazon.WithUserDataFile(c.Amazon.UserDataFile),
+			amazon.WithVolumeSize(c.Amazon.VolumeSize),
+			amazon.WithVolumeType(c.Amazon.VolumeType),
 		), nil
 	default:
 		return nil, errors.New("missing provider configuration")

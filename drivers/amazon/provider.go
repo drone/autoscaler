@@ -19,16 +19,19 @@ import (
 type provider struct {
 	init sync.Once
 
-	retries   int
-	key       string
-	region    string
-	image     string
-	privateIP bool
-	userdata  *template.Template
-	size      string
-	subnet    string
-	groups    []string
-	tags      map[string]string
+	deviceName string
+	volumeSize int64
+	volumeType string
+	retries    int
+	key        string
+	region     string
+	image      string
+	privateIP  bool
+	userdata   *template.Template
+	size       string
+	subnet     string
+	groups     []string
+	tags       map[string]string
 }
 
 func (p *provider) getClient() *ec2.EC2 {
@@ -55,6 +58,15 @@ func New(opts ...Option) autoscaler.Provider {
 	}
 	if p.image == "" {
 		p.image = defaultImage(p.region)
+	}
+	if p.deviceName == "" {
+		p.deviceName = "/dev/sda1"
+	}
+	if p.volumeSize == 0 {
+		p.volumeSize = 32
+	}
+	if p.volumeType == "" {
+		p.volumeType = "gp2"
 	}
 	if p.userdata == nil {
 		p.userdata = userdata.T

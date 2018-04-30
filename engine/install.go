@@ -11,6 +11,9 @@ import (
 	"io/ioutil"
 	"sync"
 	"time"
+	"regexp"
+	"strconv"
+	"os"
 
 	"github.com/drone/autoscaler"
 	"github.com/rs/zerolog/log"
@@ -125,6 +128,22 @@ poller:
 		Str("image", i.image).
 		Msg("create agent container")
 
+	keepaliveTimeEnv := os.Getenv("DRONE_AGENT_KEEPALIVE_TIME")
+	if keepaliveTimeEnv != "" {
+		logger.Debug().
+			Str("value", keepaliveTimeEnv).
+			Msg("DRONE_AGENT_KEEPALIVE_TIME override set")
+		i.keepaliveTime = ParseMinuteSecondTimeDuration(keepaliveTimeEnv)
+	}
+
+	keepaliveTimeoutEnv := os.Getenv("DRONE_AGENT_KEEPALIVE_TIMEOUT")
+	if keepaliveTimeEnv != "" {
+		logger.Debug().
+			Str("value", keepaliveTimeoutEnv).
+			Msg("DRONE_AGENT_KEEPALIVE_TIMEOUT override set")
+		i.keepaliveTimeout = ParseMinuteSecondTimeDuration(keepaliveTimeoutEnv)
+	}
+
 	res, err := client.ContainerCreate(ctx,
 		&container.Config{
 			Image:        i.image,
@@ -194,4 +213,27 @@ func (i *installer) errorUpdate(ctx context.Context, server *autoscaler.Server, 
 		i.servers.Update(ctx, server)
 	}
 	return err
+}
+
+func ParseMinuteSecondTimeDuration(str string) time.Duration {
+	durationRegex := regexp.MustCompile(`(?P<minutes>\d+m)?(?P<seconds>\d+s)?`)
+	matches := durationRegex.FindStringSubmatch(str)
+
+	minutes := ParseInt64(matches[1])
+	seconds := ParseInt64(matches[2])
+
+	minute := int64(time.Minute)
+	second := int64(time.Second)
+	return time.Duration(minutes*minute + seconds*second)
+}
+
+func ParseInt64(value string) int64 {
+	if len(value) == 0 {
+		return 0
+	}
+	parsed, err := strconv.Atoi(value[:len(value)-1])
+	if err != nil {
+		return 0
+	}
+	return int64(parsed)
 }

@@ -39,6 +39,10 @@ func TestCreate(t *testing.T) {
 		t.Error(err)
 	}
 
+	if !gock.IsDone() {
+		t.Errorf("Expected http requests not detected")
+	}
+
 	t.Run("Attributes", testInstance(instance))
 }
 
@@ -60,6 +64,10 @@ func TestCreate_CreateError(t *testing.T) {
 		t.Errorf("Expect error returned from digital ocean")
 	} else if _, ok := err.(*godo.ErrorResponse); !ok {
 		t.Errorf("Expect ErrorResponse digital ocean")
+	}
+
+	if !gock.IsDone() {
+		t.Errorf("Expected http requests not detected")
 	}
 }
 
@@ -86,6 +94,10 @@ func TestCreate_DescribeError(t *testing.T) {
 		t.Errorf("Expect error returned from digital ocean")
 	} else if _, ok := err.(*godo.ErrorResponse); !ok {
 		t.Errorf("Expect ErrorResponse digital ocean")
+	}
+
+	if !gock.IsDone() {
+		t.Errorf("Expected http requests not detected")
 	}
 
 	t.Run("Attributes", testInstance(instance))
@@ -118,6 +130,10 @@ func TestCreate_DescribeTimeout(t *testing.T) {
 		t.Errorf("Expected context deadline exceeded, got nil")
 	} else if err.Error() != "context deadline exceeded" {
 		t.Errorf("Expected context deadline exceeded, got %s", err)
+	}
+
+	if !gock.IsDone() {
+		t.Errorf("Expected http requests not detected")
 	}
 
 	t.Run("Attributes", testInstance(instance))

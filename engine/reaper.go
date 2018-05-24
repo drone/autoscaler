@@ -94,14 +94,23 @@ func (r *reaper) reap(ctx context.Context, server *autoscaler.Server) error {
 			Size:     server.Size,
 		}
 
-		// TODO(bradrydzewski) if the server no longer exists
-		// this will fail. In this case we should handle this
-		// gracefully and delete the server from the database.
-		// Note that we need to be absolutely certain the server
-		// no longer exists.
-
 		err := r.provider.Destroy(ctx, in)
-		if err != nil {
+		// TODO implement ErrInstanceNotFound in Google driver
+		// TODO implement ErrInstanceNotFound in Amazon driver
+		// TODO implement ErrInstanceNotFound in Hetzner driver
+		// TODO implement ErrInstanceNotFound in Packet driver
+		if err == autoscaler.ErrInstanceNotFound {
+			logger.Info().
+				Str("state", "error").
+				Str("server", server.Name).
+				Msg("server no longer exists. nothing to destroy")
+
+			// this accounts for the fact that the server can be
+			// manually terminated outside of the autoscaler. In
+			// this case the reaper continues and updates the
+			// server state to stopped (below)
+
+		} else if err != nil {
 			logger.Error().Err(err).
 				Str("state", "error").
 				Str("server", server.Name).

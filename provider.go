@@ -4,7 +4,10 @@
 
 package autoscaler
 
-import "context"
+import (
+	"context"
+	"errors"
+)
 
 // ProviderType specifies the hosting provider.
 type ProviderType string
@@ -22,6 +25,10 @@ const (
 	ProviderScaleway     = ProviderType("scaleway")
 	ProviderVultr        = ProviderType("vultr")
 )
+
+// ErrInstanceNotFound is returned when the requested
+// instance does not exist in the cloud provider.
+var ErrInstanceNotFound = errors.New("Not Found")
 
 // A Provider represents a hosting provider, such as
 // Digital Ocean and is responsible for server management.

@@ -53,6 +53,10 @@ func TestSetupKey_FoundMatch(t *testing.T) {
 	if got, want := p.key, "00:11:22:33:44:55:66:77:88:99:aa:bb:cc:dd:ee:ff"; got != want {
 		t.Errorf("Want fingerprint %s, got %s", want, got)
 	}
+
+	if !gock.IsDone() {
+		t.Errorf("Expected http requests not detected")
+	}
 }
 
 func TestSetupKey_NoMatch(t *testing.T) {
@@ -74,6 +78,10 @@ func TestSetupKey_NoMatch(t *testing.T) {
 
 	if got, want := p.key, "3b:16:bf:e4:8b:00:8b:b8:59:8c:a9:d3:f0:19:45:fa"; got != want {
 		t.Errorf("Want fingerprint %s, got %s", want, got)
+	}
+
+	if !gock.IsDone() {
+		t.Errorf("Expected http requests not detected")
 	}
 }
 

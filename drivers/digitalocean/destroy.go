@@ -27,6 +27,19 @@ func (p *provider) Destroy(ctx context.Context, instance *autoscaler.Instance) e
 		return err
 	}
 
+	_, res, err := client.Droplets.Get(ctx, id)
+	if err != nil && res.StatusCode == 404 {
+		logger.Warn().
+			Err(err).
+			Msg("droplet does not exist")
+		return autoscaler.ErrInstanceNotFound
+	} else if err != nil {
+		logger.Error().
+			Err(err).
+			Msg("cannot find droplet")
+		return err
+	}
+
 	logger.Debug().
 		Msg("deleting droplet")
 

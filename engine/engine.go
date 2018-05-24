@@ -201,7 +201,7 @@ func (e *engine) plan(ctx context.Context) {
 
 // runs the ping process.
 func (e *engine) ping(ctx context.Context) {
-	const interval = time.Minute
+	const interval = time.Minute * 10
 	for {
 		select {
 		case <-ctx.Done():

@@ -27,6 +27,7 @@ type engine struct {
 	collector *collector
 	installer *installer
 	planner   *planner
+	reaper    *reaper
 
 	interval time.Duration
 	paused   bool
@@ -65,6 +66,10 @@ func New(
 			min:     config.Pool.Min,
 			max:     config.Pool.Max,
 			cap:     config.Agent.Concurrency,
+		},
+		reaper: &reaper{
+			servers:  servers,
+			provider: provider,
 		},
 	}
 }
@@ -111,6 +116,10 @@ func (e *engine) Start(ctx context.Context) {
 	}()
 	go func() {
 		e.purge(ctx)
+		wg.Done()
+	}()
+	go func() {
+		e.reap(ctx)
 		wg.Done()
 	}()
 	wg.Wait()
@@ -201,6 +210,21 @@ func (e *engine) purge(ctx context.Context) {
 				Str("ttl", retain.String()).
 				Msg("clear stopped servers from database")
 			e.planner.servers.Purge(ctx, time.Now().Add(retain).Unix())
+		}
+	}
+}
+
+// runs the reaper process.
+func (e *engine) reap(ctx context.Context) {
+	// the reaper is run hourly since in general this
+	// should happen infrequently.
+	const interval = time.Hour
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-time.After(interval):
+			e.reaper.Reap(ctx)
 		}
 	}
 }

@@ -13,10 +13,10 @@ import (
 	"time"
 
 	"github.com/drone/autoscaler"
-	"github.com/rs/zerolog/log"
 
 	"docker.io/go-docker/api/types"
 	"docker.io/go-docker/api/types/container"
+	"github.com/rs/zerolog/log"
 )
 
 type installer struct {

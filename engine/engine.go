@@ -26,6 +26,7 @@ type engine struct {
 	allocator *allocator
 	collector *collector
 	installer *installer
+	pinger    *pinger
 	planner   *planner
 	reaper    *reaper
 
@@ -57,6 +58,10 @@ func New(
 			image:   config.Agent.Image,
 			secret:  config.Agent.Token,
 			server:  config.Agent.Host,
+			client:  newDockerClient,
+		},
+		pinger: &pinger{
+			servers: servers,
 			client:  newDockerClient,
 		},
 		planner: &planner{
@@ -122,6 +127,10 @@ func (e *engine) Start(ctx context.Context) {
 		e.reap(ctx)
 		wg.Done()
 	}()
+	go func() {
+		e.ping(ctx)
+		wg.Done()
+	}()
 	wg.Wait()
 }
 
@@ -178,11 +187,6 @@ func (e *engine) collect(ctx context.Context) {
 
 // runs the planning process.
 func (e *engine) plan(ctx context.Context) {
-	// if e.planner.min+e.planner.max == 0 {
-	// 	log.Ctx(ctx).Warn().
-	// 		Msg("autoscaling disabled: pool min and max are zero")
-	// 	return
-	// }
 	for {
 		select {
 		case <-ctx.Done():
@@ -191,6 +195,19 @@ func (e *engine) plan(ctx context.Context) {
 			if !e.Paused() {
 				e.planner.Plan(ctx)
 			}
+		}
+	}
+}
+
+// runs the ping process.
+func (e *engine) ping(ctx context.Context) {
+	const interval = time.Minute
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-time.After(interval):
+			e.collector.Collect(ctx)
 		}
 	}
 }

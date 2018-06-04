@@ -207,7 +207,7 @@ func (e *engine) ping(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-time.After(interval):
-			e.collector.Collect(ctx)
+			e.pinger.Ping(ctx)
 		}
 	}
 }

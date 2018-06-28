@@ -96,7 +96,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		Str("name", instance.Name).
 		Msg("instance create success")
 
-	// poll the digitalocean endpoint for server updates
+	// poll the amazon endpoint for server updates
 	// and exit when a network address is allocated.
 	interval := time.Duration(0)
 poller:

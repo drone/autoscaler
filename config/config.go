@@ -114,5 +114,18 @@ type (
 			UserData     string `envconfig:"DRONE_HETZNERCLOUD_USERDATA"`
 			UserDataFile string `envconfig:"DRONE_HETZNERCLOUD_USERDATA_FILE"`
 		}
+
+		Packet struct {
+			APIKey       string
+			Facility     string
+			Plan         string
+			OS           string
+			ProjectID    string `split_words:"true"`
+			Tags         []string
+			SSHKey       string
+			UserData     string `envconfig:"DRONE_PACKET_USERDATA"`
+			UserDataFile string `envconfig:"DRONE_PACKET_USERDATA_FILE"`
+			Hostname     string
+		}
 	}
 )

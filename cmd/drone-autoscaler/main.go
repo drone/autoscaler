@@ -17,6 +17,7 @@ import (
 	"github.com/drone/autoscaler/drivers/digitalocean"
 	"github.com/drone/autoscaler/drivers/google"
 	"github.com/drone/autoscaler/drivers/hetznercloud"
+	"github.com/drone/autoscaler/drivers/packet"
 	"github.com/drone/autoscaler/engine"
 	"github.com/drone/autoscaler/limiter"
 	"github.com/drone/autoscaler/metrics"
@@ -226,6 +227,19 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			hetznercloud.WithServerType(c.HetznerCloud.Type),
 			hetznercloud.WithSSHKey(c.HetznerCloud.SSHKey),
 			hetznercloud.WithToken(c.HetznerCloud.Token),
+		), nil
+	case c.Packet.APIKey != "":
+		return packet.New(
+			packet.WithAPIKey(c.Packet.APIKey),
+			packet.WithFacility(c.Packet.Facility),
+			packet.WithProject(c.Packet.ProjectID),
+			packet.WithPlan(c.Packet.Plan),
+			packet.WithTags(c.Packet.Tags...),
+			packet.WithOS(c.Packet.OS),
+			packet.WithSSHKey(c.Packet.SSHKey),
+			packet.WithUserData(c.Packet.UserData),
+			packet.WithUserDataFile(c.Packet.UserDataFile),
+			packet.WithHostname(c.Packet.Hostname),
 		), nil
 
 	case os.Getenv("AWS_ACCESS_KEY_ID") != "" || os.Getenv("AWS_IAM") != "":

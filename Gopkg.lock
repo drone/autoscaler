@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  name = "cloud.google.com/go"
+  packages = ["compute/metadata"]
+  revision = "20d4028b8a750c2aca76bf9fefa8ed2d0109b573"
+  version = "v0.19.0"
+
+[[projects]]
   name = "docker.io/go-docker"
   packages = [
     ".",
@@ -386,7 +392,10 @@
   name = "golang.org/x/oauth2"
   packages = [
     ".",
-    "internal"
+    "google",
+    "internal",
+    "jws",
+    "jwt"
   ]
   revision = "543e37812f10c46c622c9575afd7ad22f22a12ba"
 
@@ -403,12 +412,26 @@
   revision = "dd2ff4accc098aceecb86b36eaa7829b2a17b1c9"
 
 [[projects]]
+  branch = "master"
+  name = "google.golang.org/api"
+  packages = [
+    "compute/v1",
+    "gensupport",
+    "googleapi",
+    "googleapi/internal/uritemplates"
+  ]
+  revision = "c24aa0e5ed34558ea50c016e4fb92c5e9aa69f2c"
+
+[[projects]]
   name = "google.golang.org/appengine"
   packages = [
+    ".",
     "internal",
+    "internal/app_identity",
     "internal/base",
     "internal/datastore",
     "internal/log",
+    "internal/modules",
     "internal/remote_api",
     "internal/urlfetch",
     "urlfetch"
@@ -419,6 +442,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8d47a9c1901856affd5753c64d2afd25b68db168e5efc3f2f665530d984064d9"
+  inputs-digest = "55c64276f4cb7ec5c26b2556c42f7cb121abf5a5dcc8c5a7d2dd57e67f46e4c5"
   solver-name = "gps-cdcl"
   solver-version = 1

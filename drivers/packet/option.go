@@ -85,3 +85,12 @@ func WithUserDataFile(filepath string) Option {
 		}
 	}
 }
+
+// WithHostname returns an option to set the hostname
+func WithHostname(hostname string) Option {
+	return func(p *provider) {
+		if hostname != "" {
+			p.hostname = hostname
+		}
+	}
+}

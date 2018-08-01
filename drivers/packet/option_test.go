@@ -7,7 +7,7 @@ package packet
 import "testing"
 
 func TestOptions(t *testing.T) {
-	p := New(
+	pp := New(
 		WithAPIKey("my_authentication_token"),
 		WithFacility("sjc1"),
 		WithOS("ubuntu_16_10"),
@@ -15,7 +15,8 @@ func TestOptions(t *testing.T) {
 		WithProject("my_project"),
 		WithSSHKey("id_rsa"),
 		WithTags("drone", "agent"),
-	).(*provider)
+	)
+	p := pp.(*provider)
 
 	if got, want := p.apikey, "my_authentication_token"; got != want {
 		t.Errorf("Want api key %q, got %q", want, got)

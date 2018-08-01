@@ -15,8 +15,7 @@ import (
 	"github.com/drone/autoscaler/drivers/internal/userdata"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
-
-	"google.golang.org/api/compute/v1"
+	compute "google.golang.org/api/compute/v1"
 )
 
 var (
@@ -32,7 +31,7 @@ var (
 	}
 )
 
-// provider implements a DigitalOcean provider.
+// provider implements a Google provider.
 type provider struct {
 	init sync.Once
 

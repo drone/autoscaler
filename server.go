@@ -6,11 +6,17 @@ package autoscaler
 
 import (
 	"context"
+	"database/sql/driver"
 	"errors"
 )
 
 // ServerState specifies the server state.
 type ServerState string
+
+// Value converts the value to a sql string.
+func (s ServerState) Value() (driver.Value, error) {
+	return string(s), nil
+}
 
 // ServerState type enumeration.
 const (

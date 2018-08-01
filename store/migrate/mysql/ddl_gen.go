@@ -100,7 +100,7 @@ SELECT name FROM migrations
 //
 
 var createTableServers = `
-CREATE TABLE IF NOT EXISTS servers (
+CREATE TABLE servers (
  server_name      VARCHAR(50) PRIMARY KEY
 ,server_id        VARCHAR(250)
 ,server_provider  VARCHAR(50)
@@ -125,9 +125,9 @@ CREATE TABLE IF NOT EXISTS servers (
 `
 
 var createIndexServerId = `
-CREATE INDEX IF NOT EXISTS ix_servers_id ON servers (server_id);
+CREATE INDEX ix_servers_id ON servers (server_id);
 `
 
 var createIndexServerState = `
-CREATE INDEX IF NOT EXISTS ix_servers_state ON servers (server_state);
+CREATE INDEX ix_servers_state ON servers (server_state);
 `

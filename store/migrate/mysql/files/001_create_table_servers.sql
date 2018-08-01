@@ -1,6 +1,6 @@
 -- name: create-table-servers
 
-CREATE TABLE IF NOT EXISTS servers (
+CREATE TABLE servers (
  server_name      VARCHAR(50) PRIMARY KEY
 ,server_id        VARCHAR(250)
 ,server_provider  VARCHAR(50)
@@ -25,8 +25,8 @@ CREATE TABLE IF NOT EXISTS servers (
 
 -- name: create-index-server-id
 
-CREATE INDEX IF NOT EXISTS ix_servers_id ON servers (server_id);
+CREATE INDEX ix_servers_id ON servers (server_id);
 
 -- name: create-index-server-state
 
-CREATE INDEX IF NOT EXISTS ix_servers_state ON servers (server_state);
+CREATE INDEX ix_servers_state ON servers (server_state);

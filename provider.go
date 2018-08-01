@@ -6,11 +6,17 @@ package autoscaler
 
 import (
 	"context"
+	"database/sql/driver"
 	"errors"
 )
 
 // ProviderType specifies the hosting provider.
 type ProviderType string
+
+// Value converts the value to a sql string.
+func (s ProviderType) Value() (driver.Value, error) {
+	return string(s), nil
+}
 
 // Provider type enumeration.
 const (

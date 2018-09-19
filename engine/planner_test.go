@@ -6,9 +6,9 @@ package engine
 
 import (
 	"context"
+	"os"
 	"testing"
 	"time"
-	"os"
 
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/config"
@@ -320,9 +320,9 @@ func TestPlan_ShutdownIdle(t *testing.T) {
 // and the server capacity is < the pool maximum,
 // additional servers are provisioned.
 func TestPlan_MatrixMoreCapacity(t *testing.T) {
-	os.Setenv("ENABLE_MATRIX_CALC", "true");
-	defer os.Unsetenv("ENABLE_MATRIX_CALC");
-	
+	os.Setenv("ENABLE_MATRIX_CALC", "true")
+	defer os.Unsetenv("ENABLE_MATRIX_CALC")
+
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
@@ -345,7 +345,7 @@ func TestPlan_MatrixMoreCapacity(t *testing.T) {
 
 	client := mocks.NewMockClient(controller)
 	client.EXPECT().BuildQueue().Return(builds, nil)
-	
+
 	// pending build has 4 processes
 	client.EXPECT().Build(gomock.Any(), gomock.Any(), gomock.Any()).Return(&drone.Build{Procs: []*drone.Proc{
 		{State: drone.StatusPending},

@@ -14,6 +14,9 @@ type (
 
 		Slack struct {
 			Webhook string
+			Create  bool `default:"true"`
+			Destroy bool `default:"true"`
+			Error   bool `default:"true"`
 		}
 
 		Logs struct {

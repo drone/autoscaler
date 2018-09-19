@@ -24,6 +24,9 @@ func New(config config.Config, base autoscaler.ServerStore) autoscaler.ServerSto
 	return &notifier{
 		ServerStore: base,
 		client:      slack.NewWebHook(config.Slack.Webhook),
+		create:      config.Slack.Create,
+		destroy:     config.Slack.Destroy,
+		error:       config.Slack.Error,
 	}
 }
 
@@ -31,16 +34,19 @@ type notifier struct {
 	autoscaler.ServerStore
 	client  *slack.WebHook
 	channel string
+	create  bool
+	destroy bool
+	error   bool
 }
 
 func (n *notifier) Update(ctx context.Context, server *autoscaler.Server) error {
 	err := n.ServerStore.Update(ctx, server)
 	switch {
-	case server.State == autoscaler.StateRunning:
+	case server.State == autoscaler.StateRunning && n.create:
 		n.notifyCreate(server)
-	case server.State == autoscaler.StateStopped:
+	case server.State == autoscaler.StateStopped && n.destroy:
 		n.notifyDestroy(server)
-	case server.State == autoscaler.StateError:
+	case server.State == autoscaler.StateError && n.error:
 		n.notifyError(server)
 	}
 	return err

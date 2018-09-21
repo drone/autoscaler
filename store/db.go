@@ -20,6 +20,8 @@ func Connect(driver, datasource string) (*sqlx.DB, error) {
 		return nil, err
 	}
 	switch driver {
+	case "postgres":
+		db.SetMaxIdleConns(0)
 	case "mysql":
 		db.SetMaxIdleConns(0)
 	case "sqlite3":

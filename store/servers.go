@@ -93,7 +93,7 @@ func (db *serverStore) Purge(ctx context.Context, before int64) error {
 }
 
 const serverFindStmt = `
-SELECT 
+SELECT
  server_name
 ,server_id
 ,server_provider
@@ -114,12 +114,12 @@ SELECT
 ,server_updated
 ,server_started
 ,server_stopped
-FROM servers 
+FROM servers
 WHERE server_name=:server_name
 `
 
 const serverListStmt = `
-SELECT 
+SELECT
  server_name
 ,server_id
 ,server_provider
@@ -140,12 +140,12 @@ SELECT
 ,server_updated
 ,server_started
 ,server_stopped
-FROM servers 
+FROM servers
 ORDER BY server_created ASC
 `
 
 const serverListStateStmt = `
-SELECT 
+SELECT
  server_name
 ,server_id
 ,server_provider
@@ -166,7 +166,7 @@ SELECT
 ,server_updated
 ,server_started
 ,server_stopped
-FROM servers 
+FROM servers
 WHERE server_state=:server_state
 ORDER BY server_created ASC
 `
@@ -218,7 +218,7 @@ INSERT INTO servers (
 `
 
 const serverUpdateStmt = `
-UPDATE servers SET 
+UPDATE servers SET
  server_id=:server_id
 ,server_provider=:server_provider
 ,server_state=:server_state

@@ -49,6 +49,7 @@ func TestUpdateRunning(t *testing.T) {
 
 	conf := config.Config{}
 	conf.Slack.Webhook = "https://hooks.slack.com/services/XXX/YYY/ZZZ"
+	conf.Slack.Create = true
 
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().Update(gomock.Any(), server).Return(nil)
@@ -83,6 +84,7 @@ func TestUpdateStopped(t *testing.T) {
 
 	conf := config.Config{}
 	conf.Slack.Webhook = "https://hooks.slack.com/services/XXX/YYY/ZZZ"
+	conf.Slack.Destroy = true
 
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().Update(gomock.Any(), server).Return(nil)
@@ -120,6 +122,7 @@ func TestUpdateError(t *testing.T) {
 
 	conf := config.Config{}
 	conf.Slack.Webhook = "https://hooks.slack.com/services/XXX/YYY/ZZZ"
+	conf.Slack.Error = true
 
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().Update(gomock.Any(), server).Return(nil)

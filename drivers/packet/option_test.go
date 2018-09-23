@@ -14,6 +14,7 @@ func TestOptions(t *testing.T) {
 		WithPlan("baremetal_1"),
 		WithProject("my_project"),
 		WithSSHKey("id_rsa"),
+		WithHostname("agent-abcdef"),
 		WithTags("drone", "agent"),
 	).(*provider)
 
@@ -27,13 +28,16 @@ func TestOptions(t *testing.T) {
 		t.Errorf("Want os %q, got %q", want, got)
 	}
 	if got, want := p.plan, "baremetal_1"; got != want {
-		t.Errorf("Want os %q, got %q", want, got)
+		t.Errorf("Want plan %q, got %q", want, got)
 	}
 	if got, want := p.project, "my_project"; got != want {
-		t.Errorf("Want os %q, got %q", want, got)
+		t.Errorf("Want project %q, got %q", want, got)
 	}
 	if got, want := p.sshkey, "id_rsa"; got != want {
-		t.Errorf("Want os %q, got %q", want, got)
+		t.Errorf("Want sshkey %q, got %q", want, got)
+	}
+	if got, want := p.hostname, "agent-abcdef"; got != want {
+		t.Errorf("Want hostname %q, got %q", want, got)
 	}
 	if got, want := len(p.tags), 2; got != want {
 		t.Errorf("Want %d tags, got %d", want, got)

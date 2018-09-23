@@ -117,6 +117,16 @@ func TestLoad(t *testing.T) {
 		"DRONE_HETZNERCLOUD_TYPE":          "cx11",
 		"DRONE_HETZNERCLOUD_USERDATA":      "#cloud-init",
 		"DRONE_HETZNERCLOUD_USERDATA_FILE": "/path/to/cloud/init.yml",
+		"DRONE_PACKET_APIKEY":              "12345678",
+		"DRONE_PACKET_FACILITY":            "facility",
+		"DRONE_PACKET_PROJECT_ID":          "project",
+		"DRONE_PACKET_PLAN":                "plan",
+		"DRONE_PACKET_OS":                  "ubuntu",
+		"DRONE_PACKET_SSHKEY":              "id_rsa",
+		"DRONE_PACKET_USERDATA":            "#cloud-init",
+		"DRONE_PACKET_USERDATA_FILE":       "/path/to/cloud/init.yml",
+		"DRONE_PACKET_HOSTNAME":            "agent",
+		"DRONE_PACKET_TAGS":                "drone,agent,prod",
 	}
 
 	defer func() {
@@ -248,5 +258,21 @@ var jsonConfig = []byte(`{
     "Type": "cx11",
     "UserData": "#cloud-init",
     "UserDataFile": "/path/to/cloud/init.yml"
+  },
+  "Packet": {
+    "APIKey": "12345678",
+    "Facility": "facility",
+    "ProjectID": "project",
+    "Plan": "plan",
+    "OS": "ubuntu",
+    "SSHKey": "id_rsa",
+    "UserData": "#cloud-init",
+    "UserDataFile": "/path/to/cloud/init.yml",
+    "Hostname": "agent",
+    "Tags": [
+      "drone",
+      "agent",
+      "prod"
+    ]
   }
 }`)

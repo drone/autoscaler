@@ -55,6 +55,8 @@ func TestLoad(t *testing.T) {
 	environ := map[string]string{
 		"DRONE_INTERVAL":                   "1m",
 		"DRONE_SLACK_WEBHOOK":              "https://hooks.slack.com/services/XXX/YYY/ZZZ",
+		"DRONE_SLACK_CREATE":               "false",
+		"DRONE_SLACK_DESTROY":              "false",
 		"DRONE_LOGS_DEBUG":                 "true",
 		"DRONE_LOGS_COLOR":                 "true",
 		"DRONE_LOGS_PRETTY":                "true",
@@ -148,7 +150,10 @@ func TestLoad(t *testing.T) {
 var jsonConfig = []byte(`{
   "Interval": 60000000000,
   "Slack": {
-    "Webhook": "https://hooks.slack.com/services/XXX/YYY/ZZZ"
+    "Webhook": "https://hooks.slack.com/services/XXX/YYY/ZZZ",
+    "Create": false,
+    "Destroy": false,
+    "Error": true
   },
   "Logs": {
     "Color": true,

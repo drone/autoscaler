@@ -6,9 +6,9 @@ package engine
 
 import (
 	"context"
+	"os"
 	"sort"
 	"time"
-	"os"
 
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/limiter"
@@ -231,17 +231,17 @@ func (p *planner) countMatrix(ctx context.Context) (pending, running int, err er
 		return pending, running, err
 	}
 	for _, activity := range activity {
-		build, err := p.client.Build(activity.Owner, activity.Name, activity.Number);
+		build, err := p.client.Build(activity.Owner, activity.Name, activity.Number)
 		if err != nil {
 			return pending, running, err
 		}
 
 		for _, process := range build.Procs {
 			switch process.State {
-				case drone.StatusPending:
-					pending++
-				case drone.StatusRunning:
-					running++
+			case drone.StatusPending:
+				pending++
+			case drone.StatusRunning:
+				running++
 			}
 		}
 	}

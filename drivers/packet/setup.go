@@ -9,7 +9,6 @@ import (
 	"errors"
 
 	"github.com/packethost/packngo"
-
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
 )

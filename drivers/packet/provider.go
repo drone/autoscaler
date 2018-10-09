@@ -10,7 +10,6 @@ import (
 
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/drivers/internal/userdata"
-
 	"github.com/packethost/packngo"
 )
 
@@ -27,6 +26,7 @@ type provider struct {
 	plan     string
 	project  string
 	sshkey   string
+	hostname string
 	tags     []string
 	userdata *template.Template
 
@@ -43,7 +43,7 @@ func New(opts ...Option) autoscaler.Provider {
 		p.facility = "ewr1"
 	}
 	if p.os == "" {
-		p.os = "ubuntu_16_04"
+		p.os = "ubuntu_18_04"
 	}
 	if p.plan == "" {
 		p.plan = "baremetal_0"

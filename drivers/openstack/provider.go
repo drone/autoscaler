@@ -32,7 +32,7 @@ type provider struct {
 }
 
 // New returns a new OpenStack provider.
-func New(opts ...Option) autoscaler.Provider {
+func New(opts ...Option) (autoscaler.Provider, error) {
 	p := new(provider)
 	for _, opt := range opts {
 		opt(p)
@@ -43,21 +43,22 @@ func New(opts ...Option) autoscaler.Provider {
 	}
 
 	if p.computeClient == nil {
-		opts, err := openstack.AuthOptionsFromEnv()
+		authOpts, err := openstack.AuthOptionsFromEnv()
+		if err != nil {
+			return nil, err
+		}
 
+		authClient, err := openstack.AuthenticatedClient(authOpts)
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
-		authClient, err := openstack.AuthenticatedClient(opts)
-		if err != nil {
-			panic(err)
-		}
+
 		p.computeClient, err = openstack.NewComputeV2(authClient, gophercloud.EndpointOpts{
 			Region: p.region,
 		})
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 	}
-	return p
+	return p, nil
 }

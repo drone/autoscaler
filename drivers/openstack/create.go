@@ -79,7 +79,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		Image:    p.image,
 		Size:     p.flavor,
 	}
-	err = p.deleteFloatingIps(instance)
+
 	logger.Debug().
 		Str("name", instance.Name).
 		Str("ip", instance.Address).

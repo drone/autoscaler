@@ -5,9 +5,9 @@
 package openstack
 
 import (
-	"io/ioutil"
-
 	"github.com/drone/autoscaler/drivers/internal/userdata"
+	"github.com/gophercloud/gophercloud"
+	"io/ioutil"
 )
 
 type Option func(*provider)
@@ -37,6 +37,13 @@ func WithFlavor(flavor string) Option {
 func WithSecurityGroup(group ...string) Option {
 	return func(p *provider) {
 		p.groups = group
+	}
+}
+// WithComputeClient returns an option to set the
+// GopherCloud ServiceClient.
+func WithComputeClient(computeClient *gophercloud.ServiceClient) Option {
+	return func(p *provider) {
+		p.computeClient = computeClient
 	}
 }
 

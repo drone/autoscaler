@@ -270,7 +270,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			openstack.WithMetadata(c.OpenStack.Metadata),
 			openstack.WithUserData(c.OpenStack.UserData),
 			openstack.WithUserDataFile(c.OpenStack.UserDataFile),
-		), nil
+		)
 	default:
 		return nil, errors.New("missing provider configuration")
 	}

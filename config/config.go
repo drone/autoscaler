@@ -4,7 +4,9 @@
 
 package config
 
-import "time"
+import (
+	"time"
+)
 
 type (
 	// Config stores the configuration settings.
@@ -129,6 +131,18 @@ type (
 			UserData     string `envconfig:"DRONE_PACKET_USERDATA"`
 			UserDataFile string `envconfig:"DRONE_PACKET_USERDATA_FILE"`
 			Hostname     string
+		}
+
+		OpenStack struct {
+			Region        string `envconfig:"OS_REGION_NAME"`
+			Image         string
+			Flavor        string
+			Pool          string   `envconfig:"DRONE_OPENSTACK_IP_POOL"`
+			SecurityGroup []string `split_words:"true"`
+			SSHKey        string
+			Metadata      map[string]string
+			UserData      string `envconfig:"DRONE_OPENSTACK_USERDATA"`
+			UserDataFile  string `envconfig:"DRONE_OPENSTACK_USERDATA_FILE"`
 		}
 	}
 )

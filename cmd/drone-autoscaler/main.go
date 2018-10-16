@@ -17,6 +17,7 @@ import (
 	"github.com/drone/autoscaler/drivers/digitalocean"
 	"github.com/drone/autoscaler/drivers/google"
 	"github.com/drone/autoscaler/drivers/hetznercloud"
+	"github.com/drone/autoscaler/drivers/openstack"
 	"github.com/drone/autoscaler/drivers/packet"
 	"github.com/drone/autoscaler/engine"
 	"github.com/drone/autoscaler/limiter"
@@ -257,6 +258,18 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			amazon.WithUserDataFile(c.Amazon.UserDataFile),
 			amazon.WithVolumeSize(c.Amazon.VolumeSize),
 			amazon.WithVolumeType(c.Amazon.VolumeType),
+		), nil
+	case os.Getenv("OS_USERNAME") != "":
+		return openstack.New(
+			openstack.WithImage(c.OpenStack.Image),
+			openstack.WithRegion(c.OpenStack.Region),
+			openstack.WithFlavor(c.OpenStack.Flavor),
+			openstack.WithFloatingIpPool(c.OpenStack.Pool),
+			openstack.WithSSHKey(c.OpenStack.SSHKey),
+			openstack.WithSecurityGroup(c.OpenStack.SecurityGroup...),
+			openstack.WithMetadata(c.OpenStack.Metadata),
+			openstack.WithUserData(c.OpenStack.UserData),
+			openstack.WithUserDataFile(c.OpenStack.UserDataFile),
 		), nil
 	default:
 		return nil, errors.New("missing provider configuration")

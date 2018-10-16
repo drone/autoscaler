@@ -19,19 +19,20 @@ import (
 type provider struct {
 	init sync.Once
 
-	deviceName string
-	volumeSize int64
-	volumeType string
-	retries    int
-	key        string
-	region     string
-	image      string
-	privateIP  bool
-	userdata   *template.Template
-	size       string
-	subnet     string
-	groups     []string
-	tags       map[string]string
+	deviceName    string
+	volumeSize    int64
+	volumeType    string
+	retries       int
+	key           string
+	region        string
+	image         string
+	privateIP     bool
+	userdata      *template.Template
+	size          string
+	subnet        string
+	groups        []string
+	tags          map[string]string
+	iamProfileArn string
 }
 
 func (p *provider) getClient() *ec2.EC2 {

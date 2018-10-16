@@ -38,14 +38,23 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		}
 	}
 
+	var marketOptions *ec2.InstanceMarketOptionsRequest
+
+	if p.spotInstance == true {
+		marketOptions = &ec2.InstanceMarketOptionsRequest{
+			MarketType: aws.String("spot"),
+		}
+	}
+
 	in := &ec2.RunInstancesInput{
-		KeyName:            aws.String(p.key),
-		ImageId:            aws.String(p.image),
-		InstanceType:       aws.String(p.size),
-		MinCount:           aws.Int64(1),
-		MaxCount:           aws.Int64(1),
-		UserData:           aws.String(base64.StdEncoding.EncodeToString(buf.Bytes())),
-		IamInstanceProfile: iamProfile,
+		KeyName:               aws.String(p.key),
+		ImageId:               aws.String(p.image),
+		InstanceType:          aws.String(p.size),
+		MinCount:              aws.Int64(1),
+		MaxCount:              aws.Int64(1),
+		InstanceMarketOptions: marketOptions,
+		IamInstanceProfile:    iamProfile,
+		UserData:              aws.String(base64.StdEncoding.EncodeToString(buf.Bytes())),
 		NetworkInterfaces: []*ec2.InstanceNetworkInterfaceSpecification{
 			{
 				AssociatePublicIpAddress: aws.Bool(!p.privateIP),

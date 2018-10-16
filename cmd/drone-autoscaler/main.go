@@ -258,6 +258,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			amazon.WithVolumeSize(c.Amazon.VolumeSize),
 			amazon.WithVolumeType(c.Amazon.VolumeType),
 			amazon.WithIamProfileArn(c.Amazon.IamProfileArn),
+			amazon.WithMarketType(c.Amazon.MarketType),
 		), nil
 	default:
 		return nil, errors.New("missing provider configuration")

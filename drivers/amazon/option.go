@@ -121,3 +121,10 @@ func WithVolumeType(t string) Option {
 		p.volumeType = t
 	}
 }
+
+// WithIamProfileArn returns an option to set the iam profile arn.
+func WithIamProfileArn(t string) Option {
+	return func(p *provider) {
+		p.iamProfileArn = t
+	}
+}

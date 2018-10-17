@@ -12,9 +12,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/drone/autoscaler"
+
 	"docker.io/go-docker/api/types"
 	"docker.io/go-docker/api/types/container"
-	"github.com/drone/autoscaler"
 	"github.com/rs/zerolog/log"
 )
 

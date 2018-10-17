@@ -12,19 +12,20 @@ import (
 	"sync"
 	"time"
 
-	"github.com/drone/autoscaler"
-
 	"docker.io/go-docker/api/types"
 	"docker.io/go-docker/api/types/container"
+	"github.com/drone/autoscaler"
 	"github.com/rs/zerolog/log"
 )
 
 type installer struct {
 	wg sync.WaitGroup
 
-	image  string
-	secret string
-	server string
+	image            string
+	secret           string
+	server           string
+	keepaliveTime    time.Duration
+	keepaliveTimeout time.Duration
 
 	servers autoscaler.ServerStore
 	client  clientFunc
@@ -133,6 +134,8 @@ poller:
 				fmt.Sprintf("DRONE_SERVER=%s", i.server),
 				fmt.Sprintf("DRONE_MAX_PROCS=%v", instance.Capacity),
 				fmt.Sprintf("DRONE_HOSTNAME=%s", instance.Name),
+				fmt.Sprintf("DRONE_KEEPALIVE_TIME=%v", i.keepaliveTime),
+				fmt.Sprintf("DRONE_KEEPALIVE_TIMEOUT=%v", i.keepaliveTimeout),
 			},
 			Volumes: map[string]struct{}{
 				"/var/run/docker.sock": {},

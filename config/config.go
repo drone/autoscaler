@@ -38,10 +38,12 @@ type (
 		}
 
 		Agent struct {
-			Host        string
-			Token       string
-			Image       string `default:"drone/agent:0.8"`
-			Concurrency int    `default:"2"`
+			Host             string
+			Token            string
+			Image            string        `default:"drone/agent:0.8"`
+			Concurrency      int           `default:"2"`
+			KeepaliveTime    time.Duration `default:"6m" envconfig:"DRONE_KEEPALIVE_TIME"`
+			KeepaliveTimeout time.Duration `default:"30s" envconfig:"DRONE_KEEPALIVE_TIMEOUT"`
 		}
 
 		HTTP struct {

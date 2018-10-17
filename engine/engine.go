@@ -54,11 +54,13 @@ func New(
 			client:   newDockerClient,
 		},
 		installer: &installer{
-			servers: servers,
-			image:   config.Agent.Image,
-			secret:  config.Agent.Token,
-			server:  config.Agent.Host,
-			client:  newDockerClient,
+			servers:          servers,
+			image:            config.Agent.Image,
+			secret:           config.Agent.Token,
+			server:           config.Agent.Host,
+			keepaliveTime:    config.Agent.KeepaliveTime,
+			keepaliveTimeout: config.Agent.KeepaliveTimeout,
+			client:           newDockerClient,
 		},
 		pinger: &pinger{
 			servers: servers,

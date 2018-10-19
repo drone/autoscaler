@@ -129,6 +129,15 @@ func TestLoad(t *testing.T) {
 		"DRONE_PACKET_USERDATA_FILE":       "/path/to/cloud/init.yml",
 		"DRONE_PACKET_HOSTNAME":            "agent",
 		"DRONE_PACKET_TAGS":                "drone,agent,prod",
+		"DRONE_OPENSTACK_IP_POOL":          "ext-ips-1",
+		"DRONE_OPENSTACK_SSHKEY":           "drone-ci",
+		"DRONE_OPENSTACK_SECURITY_GROUP":   "secgrp-feedface",
+		"DRONE_OPENSTACK_FLAVOR":           "t1.medium",
+		"DRONE_OPENSTACK_IMAGE":            "ubuntu-16.04-server-latest",
+		"DRONE_OPENSTACK_METADATA":         "name:agent,owner:drone-ci",
+		"DRONE_OPENSTACK_USERDATA":         "#cloud-init",
+		"DRONE_OPENSTACK_USERDATA_FILE":    "/path/to/cloud/init.yml",
+		"OS_REGION_NAME":                    "sto-01",
 	}
 
 	defer func() {
@@ -281,5 +290,21 @@ var jsonConfig = []byte(`{
       "agent",
       "prod"
     ]
+  },
+  "OpenStack": {
+    "Region": "sto-01",
+    "Image": "ubuntu-16.04-server-latest",
+    "Flavor": "t1.medium",
+    "Pool": "ext-ips-1",
+    "SecurityGroup": [
+      "secgrp-feedface"
+    ],
+    "SSHKey": "drone-ci",
+    "Metadata": {
+      "name": "agent",
+      "owner": "drone-ci"
+    },
+    "UserData": "#cloud-init",
+    "UserDataFile": "/path/to/cloud/init.yml"
   }
 }`)

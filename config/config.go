@@ -85,6 +85,7 @@ type (
 			VolumeSize    int64  `envconfig:"DRONE_AMAZON_VOLUME_SIZE"`
 			VolumeType    string `envconfig:"DRONE_AMAZON_VOLUME_TYPE"`
 			IamProfileArn string `envconfig:"DRONE_AMAZON_IAM_PROFILE_ARN"`
+			MarketType    string `envconfig:"DRONE_AMAZON_MARKET_TYPE"`
 		}
 
 		DigitalOcean struct {

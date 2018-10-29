@@ -1,0 +1,224 @@
+{
+  "flavors": [
+    {
+      "name": "m1.tiny",
+      "links": [
+        {
+          "href": "http://ops.my.cloud/compute/v2.1/flavors/1",
+          "rel": "self"
+        },
+        {
+          "href": "http://ops.my.cloud/compute/flavors/1",
+          "rel": "bookmark"
+        }
+      ],
+      "ram": 512,
+      "OS-FLV-DISABLED:disabled": false,
+      "vcpus": 1,
+      "swap": "",
+      "os-flavor-access:is_public": true,
+      "rxtx_factor": 1.0,
+      "OS-FLV-EXT-DATA:ephemeral": 0,
+      "disk": 1,
+      "id": "1"
+    },
+    {
+      "name": "m1.small",
+      "links": [
+        {
+          "href": "http://ops.my.cloud/compute/v2.1/flavors/2",
+          "rel": "self"
+        },
+        {
+          "href": "http://ops.my.cloud/compute/flavors/2",
+          "rel": "bookmark"
+        }
+      ],
+      "ram": 2048,
+      "OS-FLV-DISABLED:disabled": false,
+      "vcpus": 1,
+      "swap": "",
+      "os-flavor-access:is_public": true,
+      "rxtx_factor": 1.0,
+      "OS-FLV-EXT-DATA:ephemeral": 0,
+      "disk": 20,
+      "id": "2"
+    },
+    {
+      "name": "m1.medium",
+      "links": [
+        {
+          "href": "http://ops.my.cloud/compute/v2.1/flavors/3",
+          "rel": "self"
+        },
+        {
+          "href": "http://ops.my.cloud/compute/flavors/3",
+          "rel": "bookmark"
+        }
+      ],
+      "ram": 4096,
+      "OS-FLV-DISABLED:disabled": false,
+      "vcpus": 2,
+      "swap": "",
+      "os-flavor-access:is_public": true,
+      "rxtx_factor": 1.0,
+      "OS-FLV-EXT-DATA:ephemeral": 0,
+      "disk": 40,
+      "id": "3"
+    },
+    {
+      "name": "m1.large",
+      "links": [
+        {
+          "href": "http://ops.my.cloud/compute/v2.1/flavors/4",
+          "rel": "self"
+        },
+        {
+          "href": "http://ops.my.cloud/compute/flavors/4",
+          "rel": "bookmark"
+        }
+      ],
+      "ram": 8192,
+      "OS-FLV-DISABLED:disabled": false,
+      "vcpus": 4,
+      "swap": "",
+      "os-flavor-access:is_public": true,
+      "rxtx_factor": 1.0,
+      "OS-FLV-EXT-DATA:ephemeral": 0,
+      "disk": 80,
+      "id": "4"
+    },
+    {
+      "name": "m1.xlarge",
+      "links": [
+        {
+          "href": "http://ops.my.cloud/compute/v2.1/flavors/5",
+          "rel": "self"
+        },
+        {
+          "href": "http://ops.my.cloud/compute/flavors/5",
+          "rel": "bookmark"
+        }
+      ],
+      "ram": 16384,
+      "OS-FLV-DISABLED:disabled": false,
+      "vcpus": 8,
+      "swap": "",
+      "os-flavor-access:is_public": true,
+      "rxtx_factor": 1.0,
+      "OS-FLV-EXT-DATA:ephemeral": 0,
+      "disk": 160,
+      "id": "5"
+    },
+    {
+      "name": "cirros256",
+      "links": [
+        {
+          "href": "http://ops.my.cloud/compute/v2.1/flavors/c1",
+          "rel": "self"
+        },
+        {
+          "href": "http://ops.my.cloud/compute/flavors/c1",
+          "rel": "bookmark"
+        }
+      ],
+      "ram": 256,
+      "OS-FLV-DISABLED:disabled": false,
+      "vcpus": 1,
+      "swap": "",
+      "os-flavor-access:is_public": true,
+      "rxtx_factor": 1.0,
+      "OS-FLV-EXT-DATA:ephemeral": 0,
+      "disk": 0,
+      "id": "c1"
+    },
+    {
+      "name": "ds512M",
+      "links": [
+        {
+          "href": "http://ops.my.cloud/compute/v2.1/flavors/d1",
+          "rel": "self"
+        },
+        {
+          "href": "http://ops.my.cloud/compute/flavors/d1",
+          "rel": "bookmark"
+        }
+      ],
+      "ram": 512,
+      "OS-FLV-DISABLED:disabled": false,
+      "vcpus": 1,
+      "swap": "",
+      "os-flavor-access:is_public": true,
+      "rxtx_factor": 1.0,
+      "OS-FLV-EXT-DATA:ephemeral": 0,
+      "disk": 5,
+      "id": "d1"
+    },
+    {
+      "name": "ds1G",
+      "links": [
+        {
+          "href": "http://ops.my.cloud/compute/v2.1/flavors/d2",
+          "rel": "self"
+        },
+        {
+          "href": "http://ops.my.cloud/compute/flavors/d2",
+          "rel": "bookmark"
+        }
+      ],
+      "ram": 1024,
+      "OS-FLV-DISABLED:disabled": false,
+      "vcpus": 1,
+      "swap": "",
+      "os-flavor-access:is_public": true,
+      "rxtx_factor": 1.0,
+      "OS-FLV-EXT-DATA:ephemeral": 0,
+      "disk": 10,
+      "id": "d2"
+    },
+    {
+      "name": "ds2G",
+      "links": [
+        {
+          "href": "http://ops.my.cloud/compute/v2.1/flavors/d3",
+          "rel": "self"
+        },
+        {
+          "href": "http://ops.my.cloud/compute/flavors/d3",
+          "rel": "bookmark"
+        }
+      ],
+      "ram": 2048,
+      "OS-FLV-DISABLED:disabled": false,
+      "vcpus": 2,
+      "swap": "",
+      "os-flavor-access:is_public": true,
+      "rxtx_factor": 1.0,
+      "OS-FLV-EXT-DATA:ephemeral": 0,
+      "disk": 10,
+      "id": "d3"
+    },
+    {
+      "name": "ds4G",
+      "links": [
+        {
+          "href": "http://ops.my.cloud/compute/v2.1/flavors/d4",
+          "rel": "self"
+        },
+        {
+          "href": "http://ops.my.cloud/compute/flavors/d4",
+          "rel": "bookmark"
+        }
+      ],
+      "ram": 4096,
+      "OS-FLV-DISABLED:disabled": false,
+      "vcpus": 4,
+      "swap": "",
+      "os-flavor-access:is_public": true,
+      "rxtx_factor": 1.0,
+      "OS-FLV-EXT-DATA:ephemeral": 0,
+      "disk": 20,
+      "id": "d4"
+    }
+  ]
+}

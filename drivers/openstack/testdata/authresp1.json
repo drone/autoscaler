@@ -1,0 +1,23 @@
+{
+  "versions": {
+    "values": [
+      {
+        "status": "stable",
+        "updated": "2018-10-15T00:00:00Z",
+        "media-types": [
+          {
+            "base": "application/json",
+            "type": "application/vnd.openstack.identity-v3+json"
+          }
+        ],
+        "id": "v3.11",
+        "links": [
+          {
+            "href": "http://ops.my.cloud/identity/v3/",
+            "rel": "self"
+          }
+        ]
+      }
+    ]
+  }
+}

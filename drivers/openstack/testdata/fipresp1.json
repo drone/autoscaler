@@ -1,0 +1,9 @@
+{
+  "floating_ip": {
+    "instance_id": null,
+    "ip": "172.24.4.5",
+    "fixed_ip": null,
+    "id": "0f013e62-42b1-461c-af7c-8aa3c705ff29",
+    "pool": "public"
+  }
+}

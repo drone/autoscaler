@@ -1,0 +1,137 @@
+{
+  "token": {
+    "is_domain": false,
+    "methods": [
+      "password"
+    ],
+    "roles": [
+      {
+        "id": "ed9e3145d25241579d09ee3aec891bb8",
+        "name": "reader"
+      },
+      {
+        "id": "74de3a0909ff455dbe3b4d3e8605c517",
+        "name": "admin"
+      },
+      {
+        "id": "702053a51c4543029dd6bc3a6141f5ae",
+        "name": "member"
+      }
+    ],
+    "expires_at": "2018-10-29T10:34:07.000000Z",
+    "project": {
+      "domain": {
+        "id": "default",
+        "name": "Default"
+      },
+      "id": "661f707340b0486caf878f9cc2bc1fab",
+      "name": "demo"
+    },
+    "catalog": [
+      {
+        "endpoints": [
+          {
+            "url": "http://ops.my.cloud/identity",
+            "interface": "admin",
+            "region": "RegionOne",
+            "region_id": "RegionOne",
+            "id": "4433d85dd7f64f74afdb920bc17d92b6"
+          },
+          {
+            "url": "http://ops.my.cloud/identity",
+            "interface": "public",
+            "region": "RegionOne",
+            "region_id": "RegionOne",
+            "id": "ad24909f182a46e78238ea2611ece548"
+          }
+        ],
+        "type": "identity",
+        "id": "092f43883e8944c6807ff71d59b52b94",
+        "name": "keystone"
+      },
+      {
+        "endpoints": [
+          {
+            "url": "http://ops.my.cloud/compute/v2.1",
+            "interface": "public",
+            "region": "RegionOne",
+            "region_id": "RegionOne",
+            "id": "2df37853876f471e9e65aaced4b5d799"
+          }
+        ],
+        "type": "compute",
+        "id": "0a8db85efccc4c59bb023c78a932b1fb",
+        "name": "nova"
+      },
+      {
+        "endpoints": [
+          {
+            "url": "http://ops.my.cloud:9696/",
+            "interface": "public",
+            "region": "RegionOne",
+            "region_id": "RegionOne",
+            "id": "c82f85c8599e4c379829d5d03245c3e1"
+          }
+        ],
+        "type": "network",
+        "id": "473577f6c81d4dccbaad596da46d9d23",
+        "name": "neutron"
+      },
+      {
+        "endpoints": [
+          {
+            "url": "http://ops.my.cloud/placement",
+            "interface": "public",
+            "region": "RegionOne",
+            "region_id": "RegionOne",
+            "id": "710613f4370f4985931621f746b2bdac"
+          }
+        ],
+        "type": "placement",
+        "id": "549aa251294d4b0d8e8e875b65fdb038",
+        "name": "placement"
+      },
+      {
+        "endpoints": [
+          {
+            "url": "http://ops.my.cloud/compute/v2/661f707340b0486caf878f9cc2bc1fab",
+            "interface": "public",
+            "region": "RegionOne",
+            "region_id": "RegionOne",
+            "id": "ad8fc82f56a543b7a45faa64642218f8"
+          }
+        ],
+        "type": "compute_legacy",
+        "id": "6ee1053e7751458280cd8312548ad788",
+        "name": "nova_legacy"
+      },
+      {
+        "endpoints": [
+          {
+            "url": "http://ops.my.cloud/image",
+            "interface": "public",
+            "region": "RegionOne",
+            "region_id": "RegionOne",
+            "id": "b9cb65ade0774693aad0ed409d5956bf"
+          }
+        ],
+        "type": "image",
+        "id": "ea4559f84b804a679aba2a165671bb5e",
+        "name": "glance"
+      }
+    ],
+    "user": {
+      "password_expires_at": null,
+      "domain": {
+        "id": "default",
+        "name": "Default"
+      },
+      "id": "898384bb1b5e4d5a9ff816f7ea911943",
+      "name": "admin"
+    },
+    "audit_ids": [
+      "Ga_Iq4XvQ26BMLL2k8Mk2Q"
+    ],
+    "issued_at": "2018-10-29T09:34:07.000000Z"
+  }
+}

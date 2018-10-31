@@ -1,0 +1,89 @@
+{
+  "images": [
+    {
+      "status": "ACTIVE",
+      "updated": "2018-10-26T14:29:41Z",
+      "links": [
+        {
+          "href": "http://ops.my.cloud/compute/v2.1/images/ee7d6850-0592-4036-bd6e-198b41df7381",
+          "rel": "self"
+        },
+        {
+          "href": "http://ops.my.cloud/compute/images/ee7d6850-0592-4036-bd6e-198b41df7381",
+          "rel": "bookmark"
+        },
+        {
+          "href": "http://ops.my.cloud/image/images/ee7d6850-0592-4036-bd6e-198b41df7381",
+          "type": "application/vnd.openstack.image",
+          "rel": "alternate"
+        }
+      ],
+      "id": "ee7d6850-0592-4036-bd6e-198b41df7381",
+      "OS-EXT-IMG-SIZE:size": 74448896,
+      "name": "rancheros-v1.4.1",
+      "created": "2018-10-26T14:29:39Z",
+      "minDisk": 0,
+      "progress": 100,
+      "minRam": 0,
+      "metadata": {
+        "description": "RancherOS v1.4.1"
+      }
+    },
+    {
+      "status": "ACTIVE",
+      "updated": "2018-10-23T13:20:03Z",
+      "links": [
+        {
+          "href": "http://ops.my.cloud/compute/v2.1/images/4ef19958-ee2d-44a7-a100-de0b8afdbc8e",
+          "rel": "self"
+        },
+        {
+          "href": "http://ops.my.cloud/compute/images/4ef19958-ee2d-44a7-a100-de0b8afdbc8e",
+          "rel": "bookmark"
+        },
+        {
+          "href": "http://ops.my.cloud/image/images/4ef19958-ee2d-44a7-a100-de0b8afdbc8e",
+          "type": "application/vnd.openstack.image",
+          "rel": "alternate"
+        }
+      ],
+      "id": "4ef19958-ee2d-44a7-a100-de0b8afdbc8e",
+      "OS-EXT-IMG-SIZE:size": 296943616,
+      "name": "ubuntu-16.04-server-latest",
+      "created": "2018-10-23T13:19:58Z",
+      "minDisk": 0,
+      "progress": 100,
+      "minRam": 0,
+      "metadata": {
+        "description": "Ubuntu 16.04 LTS"
+      }
+    },
+    {
+      "status": "ACTIVE",
+      "updated": "2018-10-22T12:03:52Z",
+      "links": [
+        {
+          "href": "http://ops.my.cloud/compute/v2.1/images/7fd93141-c387-4859-bc79-b92fac420473",
+          "rel": "self"
+        },
+        {
+          "href": "http://ops.my.cloud/compute/images/7fd93141-c387-4859-bc79-b92fac420473",
+          "rel": "bookmark"
+        },
+        {
+          "href": "http://ops.my.cloud/image/images/7fd93141-c387-4859-bc79-b92fac420473",
+          "type": "application/vnd.openstack.image",
+          "rel": "alternate"
+        }
+      ],
+      "id": "7fd93141-c387-4859-bc79-b92fac420473",
+      "OS-EXT-IMG-SIZE:size": 13267968,
+      "name": "cirros-0.3.5-x86_64-disk",
+      "created": "2018-10-22T12:03:51Z",
+      "minDisk": 0,
+      "progress": 100,
+      "minRam": 0,
+      "metadata": {}
+    }
+  ]
+}

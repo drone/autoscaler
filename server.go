@@ -69,6 +69,10 @@ type Server struct {
 	Region   string       `db:"server_region"   json:"region"`
 	Size     string       `db:"server_size"     json:"size"`
 	Platform string       `db:"server_platform" json:"platform"`
+	OS       string       `db:"server_os"       json:"os"`
+	Arch     string       `db:"server_arch"     json:"arch"`
+	Variant  string       `db:"server_variant"  json:"variant"`
+	Kernel   string       `db:"server_kernel"   json:"kernel"`
 	Address  string       `db:"server_address"  json:"address"`
 	Capacity int          `db:"server_capacity" json:"capacity"`
 	Secret   string       `db:"server_secret"   json:"secret"`

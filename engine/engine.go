@@ -27,8 +27,9 @@ type engine struct {
 	collector *collector
 	installer *installer
 	pinger    *pinger
-	planner   *planner
+	planner   []*planner
 	reaper    *reaper
+	servers   autoscaler.ServerStore
 
 	interval time.Duration
 	paused   bool
@@ -65,17 +66,19 @@ func New(
 			servers: servers,
 			client:  newDockerClient,
 		},
-		planner: &planner{
-			client:  client,
-			servers: servers,
-			os:      config.Agent.OS,
-			arch:    config.Agent.Arch,
-			version: config.Agent.Version,
-			kernel:  config.Agent.Kernel,
-			ttu:     config.Pool.MinAge,
-			min:     config.Pool.Min,
-			max:     config.Pool.Max,
-			cap:     config.Agent.Concurrency,
+		planner: []*planner{
+			{
+				client:  client,
+				servers: servers,
+				os:      config.Agent.OS,
+				arch:    config.Agent.Arch,
+				version: config.Agent.Version,
+				kernel:  config.Agent.Kernel,
+				ttu:     config.Pool.MinAge,
+				min:     config.Pool.Min,
+				max:     config.Pool.Max,
+				cap:     config.Agent.Concurrency,
+			},
 		},
 		reaper: &reaper{
 			servers:  servers,
@@ -198,7 +201,9 @@ func (e *engine) plan(ctx context.Context) {
 			return
 		case <-time.After(e.interval):
 			if !e.Paused() {
-				e.planner.Plan(ctx)
+				for _, planner := range e.planner {
+					planner.Plan(ctx)
+				}
 			}
 		}
 	}
@@ -231,7 +236,7 @@ func (e *engine) purge(ctx context.Context) {
 			logger.Debug().
 				Str("ttl", retain.String()).
 				Msg("clear stopped servers from database")
-			e.planner.servers.Purge(ctx, time.Now().Add(retain).Unix())
+			e.servers.Purge(ctx, time.Now().Add(retain).Unix())
 		}
 	}
 }

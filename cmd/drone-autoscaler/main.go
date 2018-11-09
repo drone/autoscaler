@@ -20,7 +20,6 @@ import (
 	"github.com/drone/autoscaler/drivers/openstack"
 	"github.com/drone/autoscaler/drivers/packet"
 	"github.com/drone/autoscaler/engine"
-	"github.com/drone/autoscaler/limiter"
 	"github.com/drone/autoscaler/metrics"
 	"github.com/drone/autoscaler/server"
 	"github.com/drone/autoscaler/slack"
@@ -73,7 +72,6 @@ func main() {
 	if conf.Slack.Webhook != "" {
 		servers = slack.New(conf, servers)
 	}
-	servers = limiter.Limit(servers, conf.License)
 	servers = metrics.ServerCount(servers)
 	defer db.Close()
 

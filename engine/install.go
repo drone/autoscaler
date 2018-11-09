@@ -132,7 +132,7 @@ poller:
 			AttachStdout: true,
 			AttachStderr: true,
 			Env: []string{
-				fmt.Sprintf("DRONE_RPC_SERVER=%s//%s", i.proto, i.host),
+				fmt.Sprintf("DRONE_RPC_SERVER=%s://%s", i.proto, i.host),
 				fmt.Sprintf("DRONE_RPC_SECRET=%s", i.secret),
 				fmt.Sprintf("DRONE_RUNNER_CAPACITY=%v", instance.Capacity),
 				fmt.Sprintf("DRONE_RUNNER_NAME=%s", instance.Name),

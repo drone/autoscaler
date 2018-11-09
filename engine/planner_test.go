@@ -6,7 +6,6 @@ package engine
 
 import (
 	"context"
-	"os"
 	"testing"
 	"time"
 
@@ -34,7 +33,7 @@ func TestPlan_Noop(t *testing.T) {
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
 
 	client := mocks.NewMockClient(controller)
-	client.EXPECT().BuildQueue().Return([]*drone.Activity{
+	client.EXPECT().Queue().Return([]*drone.Stage{
 		{Status: drone.StatusRunning},
 		{Status: drone.StatusPending},
 		{Status: drone.StatusPending},
@@ -71,7 +70,7 @@ func TestPlan_MaxCapacity(t *testing.T) {
 
 	// x4 running builds
 	// x3 pending builds
-	builds := []*drone.Activity{
+	builds := []*drone.Stage{
 		{Status: drone.StatusRunning},
 		{Status: drone.StatusRunning},
 		{Status: drone.StatusRunning},
@@ -85,7 +84,7 @@ func TestPlan_MaxCapacity(t *testing.T) {
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
 
 	client := mocks.NewMockClient(controller)
-	client.EXPECT().BuildQueue().Return(builds, nil)
+	client.EXPECT().Queue().Return(builds, nil)
 
 	config := config.Config{}
 	config.Pool.Min = 2
@@ -121,7 +120,7 @@ func TestPlan_MoreCapacity(t *testing.T) {
 
 	// x2 running builds
 	// x3 pending builds
-	builds := []*drone.Activity{
+	builds := []*drone.Stage{
 		{Status: drone.StatusRunning},
 		{Status: drone.StatusRunning},
 		{Status: drone.StatusPending},
@@ -141,7 +140,7 @@ func TestPlan_MoreCapacity(t *testing.T) {
 	store.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil)
 
 	client := mocks.NewMockClient(controller)
-	client.EXPECT().BuildQueue().Return(builds, nil)
+	client.EXPECT().Queue().Return(builds, nil)
 
 	p := planner{
 		cap:     2,
@@ -172,13 +171,13 @@ func TestPlan_MinPool(t *testing.T) {
 
 	// x0 running builds
 	// x0 pending builds
-	builds := []*drone.Activity{}
+	builds := []*drone.Stage{}
 
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
 
 	client := mocks.NewMockClient(controller)
-	client.EXPECT().BuildQueue().Return(builds, nil)
+	client.EXPECT().Queue().Return(builds, nil)
 
 	p := planner{
 		cap:     2,
@@ -208,9 +207,9 @@ func TestPlan_NoIdle(t *testing.T) {
 
 	// x2 running builds
 	// x0 pending builds
-	builds := []*drone.Activity{
-		{Status: drone.StatusRunning},
-		{Status: drone.StatusRunning},
+	builds := []*drone.Stage{
+		{Status: drone.StatusRunning, Machine: "server1"},
+		{Status: drone.StatusRunning, Machine: "server2"},
 	}
 
 	store := mocks.NewMockServerStore(controller)
@@ -218,10 +217,8 @@ func TestPlan_NoIdle(t *testing.T) {
 	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
 
 	client := mocks.NewMockClient(controller)
-	client.EXPECT().BuildQueue().Return(builds, nil)
-	client.EXPECT().BuildQueue().Return(builds, nil)
-	client.EXPECT().Build(gomock.Any(), gomock.Any(), gomock.Any()).Return(&drone.Build{Procs: []*drone.Proc{{Machine: "server1"}}}, nil)
-	client.EXPECT().Build(gomock.Any(), gomock.Any(), gomock.Any()).Return(&drone.Build{Procs: []*drone.Proc{{Machine: "server2"}}}, nil)
+	client.EXPECT().Queue().Return(builds, nil)
+	client.EXPECT().Queue().Return(builds, nil)
 
 	p := planner{
 		cap:     2,
@@ -251,15 +248,15 @@ func TestScale_MinAge(t *testing.T) {
 
 	// x0 running builds
 	// x0 pending builds
-	builds := []*drone.Activity{}
+	builds := []*drone.Stage{}
 
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
 	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
 
 	client := mocks.NewMockClient(controller)
-	client.EXPECT().BuildQueue().Return(builds, nil)
-	client.EXPECT().BuildQueue().Return(builds, nil)
+	client.EXPECT().Queue().Return(builds, nil)
+	client.EXPECT().Queue().Return(builds, nil)
 
 	p := planner{
 		cap:     2,
@@ -289,7 +286,7 @@ func TestPlan_ShutdownIdle(t *testing.T) {
 
 	// x0 running builds
 	// x0 pending builds
-	builds := []*drone.Activity{}
+	builds := []*drone.Stage{}
 
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
@@ -298,65 +295,12 @@ func TestPlan_ShutdownIdle(t *testing.T) {
 	store.EXPECT().Update(gomock.Any(), servers[1]).Return(nil)
 
 	client := mocks.NewMockClient(controller)
-	client.EXPECT().BuildQueue().Return(builds, nil)
-	client.EXPECT().BuildQueue().Return(builds, nil)
+	client.EXPECT().Queue().Return(builds, nil)
+	client.EXPECT().Queue().Return(builds, nil)
 
 	p := planner{
 		cap:     2,
 		min:     1,
-		max:     4,
-		client:  client,
-		servers: store,
-	}
-
-	err := p.Plan(context.TODO())
-	if err != nil {
-		t.Error(err)
-	}
-}
-
-// This test verifies that if the server capacity is
-// less than the pending count, including matrix builds,
-// and the server capacity is < the pool maximum,
-// additional servers are provisioned.
-func TestPlan_MatrixMoreCapacity(t *testing.T) {
-	os.Setenv("ENABLE_MATRIX_CALC", "true")
-	defer os.Unsetenv("ENABLE_MATRIX_CALC")
-
-	controller := gomock.NewController(t)
-	defer controller.Finish()
-
-	// x2 capacity
-	servers := []*autoscaler.Server{
-		{Name: "server1", Capacity: 1, State: autoscaler.StateRunning},
-		{Name: "server2", Capacity: 1, State: autoscaler.StateRunning},
-	}
-
-	// x0 running builds
-	// x1 pending builds
-	builds := []*drone.Activity{
-		{Status: drone.StatusPending, Owner: "foo", Name: "bar", Number: 42},
-	}
-
-	store := mocks.NewMockServerStore(controller)
-	store.EXPECT().List(gomock.Any()).Return(servers, nil)
-	store.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil)
-	store.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil)
-
-	client := mocks.NewMockClient(controller)
-	client.EXPECT().BuildQueue().Return(builds, nil)
-
-	// pending build has 4 processes
-	client.EXPECT().Build(gomock.Any(), gomock.Any(), gomock.Any()).Return(&drone.Build{Procs: []*drone.Proc{
-		{State: drone.StatusPending},
-		{State: drone.StatusPending},
-		{State: drone.StatusPending},
-		{State: drone.StatusPending},
-	}}, nil)
-
-	p := planner{
-		cap:     1,
-		min:     2,
 		max:     4,
 		client:  client,
 		servers: store,
@@ -455,3 +399,45 @@ func TestPlan_MatrixMoreCapacity(t *testing.T) {
 // 		t.Errorf("Want running count %d, got %d", want, got)
 // 	}
 // }
+
+func TestMatch(t *testing.T) {
+	tests := []struct {
+		match   bool
+		os      string
+		arch    string
+		version string
+		kernel  string
+		stage   *drone.Stage
+	}{
+		{
+			match: true,
+			os:    "linux",
+			arch:  "amd64",
+			stage: &drone.Stage{
+				OS:   "linux",
+				Arch: "amd64",
+			},
+		},
+		{
+			match: false,
+			os:    "linux",
+			arch:  "amd64",
+			stage: &drone.Stage{
+				OS:   "linux",
+				Arch: "arm",
+			},
+		},
+	}
+	for _, test := range tests {
+		p := &planner{
+			os:      test.os,
+			arch:    test.arch,
+			version: test.version,
+			kernel:  test.kernel,
+		}
+		if p.match(test.stage) != test.match {
+			t.Fail()
+			return
+		}
+	}
+}

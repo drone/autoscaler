@@ -46,7 +46,7 @@ func TestDefaults(t *testing.T) {
 	if got, want := conf.Agent.Concurrency, 2; got != want {
 		t.Errorf("Want default DRONE_AGENT_CONCURRENCY of %d, got %d", want, got)
 	}
-	if got, want := conf.Agent.Image, "drone/agent:0.8"; got != want {
+	if got, want := conf.Agent.Image, "drone/agent:1.0.0-rc.1"; got != want {
 		t.Errorf("Want default DRONE_AGENT_IMAGE of %s, got %s", want, got)
 	}
 }
@@ -69,7 +69,6 @@ func TestLoad(t *testing.T) {
 		"DRONE_HTTP_HOST":                  "autoscaler.drone.company.com",
 		"DRONE_HTTP_PORT":                  "633eb230f5",
 		"DRONE_HTTP_ROOT":                  "/autoscaler",
-		"DRONE_AGENT_HOST":                 "drone.company.com:9000",
 		"DRONE_AGENT_TOKEN":                "f5064039f5",
 		"DRONE_AGENT_IMAGE":                "drone/agent:0.8",
 		"DRONE_AGENT_CONCURRENCY":          "2",
@@ -137,7 +136,7 @@ func TestLoad(t *testing.T) {
 		"DRONE_OPENSTACK_METADATA":         "name:agent,owner:drone-ci",
 		"DRONE_OPENSTACK_USERDATA":         "#cloud-init",
 		"DRONE_OPENSTACK_USERDATA_FILE":    "/path/to/cloud/init.yml",
-		"OS_REGION_NAME":                    "sto-01",
+		"OS_REGION_NAME":                   "sto-01",
 	}
 
 	defer func() {
@@ -190,7 +189,6 @@ var jsonConfig = []byte(`{
     "Token": "633eb230f5"
   },
   "Agent": {
-    "Host": "drone.company.com:9000",
     "Token": "f5064039f5",
     "Image": "drone/agent:0.8",
     "Concurrency": 2,

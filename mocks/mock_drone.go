@@ -34,6 +34,18 @@ func (m *MockClient) EXPECT() *MockClientMockRecorder {
 	return m.recorder
 }
 
+// Approve mocks base method
+func (m *MockClient) Approve(arg0, arg1 string, arg2, arg3 int) error {
+	ret := m.ctrl.Call(m, "Approve", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Approve indicates an expected call of Approve
+func (mr *MockClientMockRecorder) Approve(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Approve", reflect.TypeOf((*MockClient)(nil).Approve), arg0, arg1, arg2, arg3)
+}
+
 // AutoscalePause mocks base method
 func (m *MockClient) AutoscalePause() error {
 	ret := m.ctrl.Call(m, "AutoscalePause")
@@ -84,42 +96,16 @@ func (mr *MockClientMockRecorder) Build(arg0, arg1, arg2 interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Build", reflect.TypeOf((*MockClient)(nil).Build), arg0, arg1, arg2)
 }
 
-// BuildApprove mocks base method
-func (m *MockClient) BuildApprove(arg0, arg1 string, arg2 int) (*drone.Build, error) {
-	ret := m.ctrl.Call(m, "BuildApprove", arg0, arg1, arg2)
-	ret0, _ := ret[0].(*drone.Build)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// BuildApprove indicates an expected call of BuildApprove
-func (mr *MockClientMockRecorder) BuildApprove(arg0, arg1, arg2 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuildApprove", reflect.TypeOf((*MockClient)(nil).BuildApprove), arg0, arg1, arg2)
-}
-
-// BuildDecline mocks base method
-func (m *MockClient) BuildDecline(arg0, arg1 string, arg2 int) (*drone.Build, error) {
-	ret := m.ctrl.Call(m, "BuildDecline", arg0, arg1, arg2)
-	ret0, _ := ret[0].(*drone.Build)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// BuildDecline indicates an expected call of BuildDecline
-func (mr *MockClientMockRecorder) BuildDecline(arg0, arg1, arg2 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuildDecline", reflect.TypeOf((*MockClient)(nil).BuildDecline), arg0, arg1, arg2)
-}
-
-// BuildKill mocks base method
-func (m *MockClient) BuildKill(arg0, arg1 string, arg2 int) error {
-	ret := m.ctrl.Call(m, "BuildKill", arg0, arg1, arg2)
+// BuildCancel mocks base method
+func (m *MockClient) BuildCancel(arg0, arg1 string, arg2 int) error {
+	ret := m.ctrl.Call(m, "BuildCancel", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// BuildKill indicates an expected call of BuildKill
-func (mr *MockClientMockRecorder) BuildKill(arg0, arg1, arg2 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuildKill", reflect.TypeOf((*MockClient)(nil).BuildKill), arg0, arg1, arg2)
+// BuildCancel indicates an expected call of BuildCancel
+func (mr *MockClientMockRecorder) BuildCancel(arg0, arg1, arg2 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuildCancel", reflect.TypeOf((*MockClient)(nil).BuildCancel), arg0, arg1, arg2)
 }
 
 // BuildLast mocks base method
@@ -148,131 +134,181 @@ func (mr *MockClientMockRecorder) BuildList(arg0, arg1 interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuildList", reflect.TypeOf((*MockClient)(nil).BuildList), arg0, arg1)
 }
 
-// BuildQueue mocks base method
-func (m *MockClient) BuildQueue() ([]*drone.Activity, error) {
-	ret := m.ctrl.Call(m, "BuildQueue")
-	ret0, _ := ret[0].([]*drone.Activity)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// BuildQueue indicates an expected call of BuildQueue
-func (mr *MockClientMockRecorder) BuildQueue() *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuildQueue", reflect.TypeOf((*MockClient)(nil).BuildQueue))
-}
-
-// BuildStart mocks base method
-func (m *MockClient) BuildStart(arg0, arg1 string, arg2 int, arg3 map[string]string) (*drone.Build, error) {
-	ret := m.ctrl.Call(m, "BuildStart", arg0, arg1, arg2, arg3)
+// BuildRestart mocks base method
+func (m *MockClient) BuildRestart(arg0, arg1 string, arg2 int, arg3 map[string]string) (*drone.Build, error) {
+	ret := m.ctrl.Call(m, "BuildRestart", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(*drone.Build)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// BuildStart indicates an expected call of BuildStart
-func (mr *MockClientMockRecorder) BuildStart(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuildStart", reflect.TypeOf((*MockClient)(nil).BuildStart), arg0, arg1, arg2, arg3)
+// BuildRestart indicates an expected call of BuildRestart
+func (mr *MockClientMockRecorder) BuildRestart(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuildRestart", reflect.TypeOf((*MockClient)(nil).BuildRestart), arg0, arg1, arg2, arg3)
 }
 
-// BuildStop mocks base method
-func (m *MockClient) BuildStop(arg0, arg1 string, arg2, arg3 int) error {
-	ret := m.ctrl.Call(m, "BuildStop", arg0, arg1, arg2, arg3)
+// Cron mocks base method
+func (m *MockClient) Cron(arg0, arg1, arg2 string) (*drone.Cron, error) {
+	ret := m.ctrl.Call(m, "Cron", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*drone.Cron)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Cron indicates an expected call of Cron
+func (mr *MockClientMockRecorder) Cron(arg0, arg1, arg2 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Cron", reflect.TypeOf((*MockClient)(nil).Cron), arg0, arg1, arg2)
+}
+
+// CronCreate mocks base method
+func (m *MockClient) CronCreate(arg0, arg1 string, arg2 *drone.Cron) (*drone.Cron, error) {
+	ret := m.ctrl.Call(m, "CronCreate", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*drone.Cron)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CronCreate indicates an expected call of CronCreate
+func (mr *MockClientMockRecorder) CronCreate(arg0, arg1, arg2 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CronCreate", reflect.TypeOf((*MockClient)(nil).CronCreate), arg0, arg1, arg2)
+}
+
+// CronDelete mocks base method
+func (m *MockClient) CronDelete(arg0, arg1, arg2 string) error {
+	ret := m.ctrl.Call(m, "CronDelete", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// BuildStop indicates an expected call of BuildStop
-func (mr *MockClientMockRecorder) BuildStop(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuildStop", reflect.TypeOf((*MockClient)(nil).BuildStop), arg0, arg1, arg2, arg3)
+// CronDelete indicates an expected call of CronDelete
+func (mr *MockClientMockRecorder) CronDelete(arg0, arg1, arg2 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CronDelete", reflect.TypeOf((*MockClient)(nil).CronDelete), arg0, arg1, arg2)
 }
 
-// Deploy mocks base method
-func (m *MockClient) Deploy(arg0, arg1 string, arg2 int, arg3 string, arg4 map[string]string) (*drone.Build, error) {
-	ret := m.ctrl.Call(m, "Deploy", arg0, arg1, arg2, arg3, arg4)
-	ret0, _ := ret[0].(*drone.Build)
+// CronList mocks base method
+func (m *MockClient) CronList(arg0, arg1 string) ([]*drone.Cron, error) {
+	ret := m.ctrl.Call(m, "CronList", arg0, arg1)
+	ret0, _ := ret[0].([]*drone.Cron)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Deploy indicates an expected call of Deploy
-func (mr *MockClientMockRecorder) Deploy(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Deploy", reflect.TypeOf((*MockClient)(nil).Deploy), arg0, arg1, arg2, arg3, arg4)
+// CronList indicates an expected call of CronList
+func (mr *MockClientMockRecorder) CronList(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CronList", reflect.TypeOf((*MockClient)(nil).CronList), arg0, arg1)
+}
+
+// CronUpdate mocks base method
+func (m *MockClient) CronUpdate(arg0, arg1, arg2 string, arg3 *drone.CronPatch) (*drone.Cron, error) {
+	ret := m.ctrl.Call(m, "CronUpdate", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(*drone.Cron)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CronUpdate indicates an expected call of CronUpdate
+func (mr *MockClientMockRecorder) CronUpdate(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CronUpdate", reflect.TypeOf((*MockClient)(nil).CronUpdate), arg0, arg1, arg2, arg3)
+}
+
+// Decline mocks base method
+func (m *MockClient) Decline(arg0, arg1 string, arg2, arg3 int) error {
+	ret := m.ctrl.Call(m, "Decline", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Decline indicates an expected call of Decline
+func (mr *MockClientMockRecorder) Decline(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Decline", reflect.TypeOf((*MockClient)(nil).Decline), arg0, arg1, arg2, arg3)
+}
+
+// Encrypt mocks base method
+func (m *MockClient) Encrypt(arg0, arg1 string, arg2 *drone.Secret) (string, error) {
+	ret := m.ctrl.Call(m, "Encrypt", arg0, arg1, arg2)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Encrypt indicates an expected call of Encrypt
+func (mr *MockClientMockRecorder) Encrypt(arg0, arg1, arg2 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Encrypt", reflect.TypeOf((*MockClient)(nil).Encrypt), arg0, arg1, arg2)
+}
+
+// Logs mocks base method
+func (m *MockClient) Logs(arg0, arg1 string, arg2, arg3, arg4 int) ([]*drone.Line, error) {
+	ret := m.ctrl.Call(m, "Logs", arg0, arg1, arg2, arg3, arg4)
+	ret0, _ := ret[0].([]*drone.Line)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Logs indicates an expected call of Logs
+func (mr *MockClientMockRecorder) Logs(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Logs", reflect.TypeOf((*MockClient)(nil).Logs), arg0, arg1, arg2, arg3, arg4)
 }
 
 // LogsPurge mocks base method
-func (m *MockClient) LogsPurge(arg0, arg1 string, arg2 int) error {
-	ret := m.ctrl.Call(m, "LogsPurge", arg0, arg1, arg2)
+func (m *MockClient) LogsPurge(arg0, arg1 string, arg2, arg3, arg4 int) error {
+	ret := m.ctrl.Call(m, "LogsPurge", arg0, arg1, arg2, arg3, arg4)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // LogsPurge indicates an expected call of LogsPurge
-func (mr *MockClientMockRecorder) LogsPurge(arg0, arg1, arg2 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LogsPurge", reflect.TypeOf((*MockClient)(nil).LogsPurge), arg0, arg1, arg2)
+func (mr *MockClientMockRecorder) LogsPurge(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LogsPurge", reflect.TypeOf((*MockClient)(nil).LogsPurge), arg0, arg1, arg2, arg3, arg4)
 }
 
-// Registry mocks base method
-func (m *MockClient) Registry(arg0, arg1, arg2 string) (*drone.Registry, error) {
-	ret := m.ctrl.Call(m, "Registry", arg0, arg1, arg2)
-	ret0, _ := ret[0].(*drone.Registry)
+// Promote mocks base method
+func (m *MockClient) Promote(arg0, arg1 string, arg2 int, arg3 string, arg4 map[string]string) (*drone.Build, error) {
+	ret := m.ctrl.Call(m, "Promote", arg0, arg1, arg2, arg3, arg4)
+	ret0, _ := ret[0].(*drone.Build)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Registry indicates an expected call of Registry
-func (mr *MockClientMockRecorder) Registry(arg0, arg1, arg2 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Registry", reflect.TypeOf((*MockClient)(nil).Registry), arg0, arg1, arg2)
+// Promote indicates an expected call of Promote
+func (mr *MockClientMockRecorder) Promote(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Promote", reflect.TypeOf((*MockClient)(nil).Promote), arg0, arg1, arg2, arg3, arg4)
 }
 
-// RegistryCreate mocks base method
-func (m *MockClient) RegistryCreate(arg0, arg1 string, arg2 *drone.Registry) (*drone.Registry, error) {
-	ret := m.ctrl.Call(m, "RegistryCreate", arg0, arg1, arg2)
-	ret0, _ := ret[0].(*drone.Registry)
+// Queue mocks base method
+func (m *MockClient) Queue() ([]*drone.Stage, error) {
+	ret := m.ctrl.Call(m, "Queue")
+	ret0, _ := ret[0].([]*drone.Stage)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// RegistryCreate indicates an expected call of RegistryCreate
-func (mr *MockClientMockRecorder) RegistryCreate(arg0, arg1, arg2 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegistryCreate", reflect.TypeOf((*MockClient)(nil).RegistryCreate), arg0, arg1, arg2)
+// Queue indicates an expected call of Queue
+func (mr *MockClientMockRecorder) Queue() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Queue", reflect.TypeOf((*MockClient)(nil).Queue))
 }
 
-// RegistryDelete mocks base method
-func (m *MockClient) RegistryDelete(arg0, arg1, arg2 string) error {
-	ret := m.ctrl.Call(m, "RegistryDelete", arg0, arg1, arg2)
+// QueuePause mocks base method
+func (m *MockClient) QueuePause() error {
+	ret := m.ctrl.Call(m, "QueuePause")
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// RegistryDelete indicates an expected call of RegistryDelete
-func (mr *MockClientMockRecorder) RegistryDelete(arg0, arg1, arg2 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegistryDelete", reflect.TypeOf((*MockClient)(nil).RegistryDelete), arg0, arg1, arg2)
+// QueuePause indicates an expected call of QueuePause
+func (mr *MockClientMockRecorder) QueuePause() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueuePause", reflect.TypeOf((*MockClient)(nil).QueuePause))
 }
 
-// RegistryList mocks base method
-func (m *MockClient) RegistryList(arg0, arg1 string) ([]*drone.Registry, error) {
-	ret := m.ctrl.Call(m, "RegistryList", arg0, arg1)
-	ret0, _ := ret[0].([]*drone.Registry)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+// QueueResume mocks base method
+func (m *MockClient) QueueResume() error {
+	ret := m.ctrl.Call(m, "QueueResume")
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
-// RegistryList indicates an expected call of RegistryList
-func (mr *MockClientMockRecorder) RegistryList(arg0, arg1 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegistryList", reflect.TypeOf((*MockClient)(nil).RegistryList), arg0, arg1)
-}
-
-// RegistryUpdate mocks base method
-func (m *MockClient) RegistryUpdate(arg0, arg1 string, arg2 *drone.Registry) (*drone.Registry, error) {
-	ret := m.ctrl.Call(m, "RegistryUpdate", arg0, arg1, arg2)
-	ret0, _ := ret[0].(*drone.Registry)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// RegistryUpdate indicates an expected call of RegistryUpdate
-func (mr *MockClientMockRecorder) RegistryUpdate(arg0, arg1, arg2 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegistryUpdate", reflect.TypeOf((*MockClient)(nil).RegistryUpdate), arg0, arg1, arg2)
+// QueueResume indicates an expected call of QueueResume
+func (mr *MockClientMockRecorder) QueueResume() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueueResume", reflect.TypeOf((*MockClient)(nil).QueueResume))
 }
 
 // Repo mocks base method
@@ -301,16 +337,29 @@ func (mr *MockClientMockRecorder) RepoChown(arg0, arg1 interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RepoChown", reflect.TypeOf((*MockClient)(nil).RepoChown), arg0, arg1)
 }
 
-// RepoDel mocks base method
-func (m *MockClient) RepoDel(arg0, arg1 string) error {
-	ret := m.ctrl.Call(m, "RepoDel", arg0, arg1)
+// RepoDisable mocks base method
+func (m *MockClient) RepoDisable(arg0, arg1 string) error {
+	ret := m.ctrl.Call(m, "RepoDisable", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// RepoDel indicates an expected call of RepoDel
-func (mr *MockClientMockRecorder) RepoDel(arg0, arg1 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RepoDel", reflect.TypeOf((*MockClient)(nil).RepoDel), arg0, arg1)
+// RepoDisable indicates an expected call of RepoDisable
+func (mr *MockClientMockRecorder) RepoDisable(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RepoDisable", reflect.TypeOf((*MockClient)(nil).RepoDisable), arg0, arg1)
+}
+
+// RepoEnable mocks base method
+func (m *MockClient) RepoEnable(arg0, arg1 string) (*drone.Repo, error) {
+	ret := m.ctrl.Call(m, "RepoEnable", arg0, arg1)
+	ret0, _ := ret[0].(*drone.Repo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RepoEnable indicates an expected call of RepoEnable
+func (mr *MockClientMockRecorder) RepoEnable(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RepoEnable", reflect.TypeOf((*MockClient)(nil).RepoEnable), arg0, arg1)
 }
 
 // RepoList mocks base method
@@ -326,42 +375,17 @@ func (mr *MockClientMockRecorder) RepoList() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RepoList", reflect.TypeOf((*MockClient)(nil).RepoList))
 }
 
-// RepoMove mocks base method
-func (m *MockClient) RepoMove(arg0, arg1, arg2 string) error {
-	ret := m.ctrl.Call(m, "RepoMove", arg0, arg1, arg2)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// RepoMove indicates an expected call of RepoMove
-func (mr *MockClientMockRecorder) RepoMove(arg0, arg1, arg2 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RepoMove", reflect.TypeOf((*MockClient)(nil).RepoMove), arg0, arg1, arg2)
-}
-
-// RepoPatch mocks base method
-func (m *MockClient) RepoPatch(arg0, arg1 string, arg2 *drone.RepoPatch) (*drone.Repo, error) {
-	ret := m.ctrl.Call(m, "RepoPatch", arg0, arg1, arg2)
-	ret0, _ := ret[0].(*drone.Repo)
+// RepoListSync mocks base method
+func (m *MockClient) RepoListSync() ([]*drone.Repo, error) {
+	ret := m.ctrl.Call(m, "RepoListSync")
+	ret0, _ := ret[0].([]*drone.Repo)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// RepoPatch indicates an expected call of RepoPatch
-func (mr *MockClientMockRecorder) RepoPatch(arg0, arg1, arg2 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RepoPatch", reflect.TypeOf((*MockClient)(nil).RepoPatch), arg0, arg1, arg2)
-}
-
-// RepoPost mocks base method
-func (m *MockClient) RepoPost(arg0, arg1 string) (*drone.Repo, error) {
-	ret := m.ctrl.Call(m, "RepoPost", arg0, arg1)
-	ret0, _ := ret[0].(*drone.Repo)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// RepoPost indicates an expected call of RepoPost
-func (mr *MockClientMockRecorder) RepoPost(arg0, arg1 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RepoPost", reflect.TypeOf((*MockClient)(nil).RepoPost), arg0, arg1)
+// RepoListSync indicates an expected call of RepoListSync
+func (mr *MockClientMockRecorder) RepoListSync() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RepoListSync", reflect.TypeOf((*MockClient)(nil).RepoListSync))
 }
 
 // RepoRepair mocks base method
@@ -374,6 +398,32 @@ func (m *MockClient) RepoRepair(arg0, arg1 string) error {
 // RepoRepair indicates an expected call of RepoRepair
 func (mr *MockClientMockRecorder) RepoRepair(arg0, arg1 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RepoRepair", reflect.TypeOf((*MockClient)(nil).RepoRepair), arg0, arg1)
+}
+
+// RepoUpdate mocks base method
+func (m *MockClient) RepoUpdate(arg0, arg1 string, arg2 *drone.RepoPatch) (*drone.Repo, error) {
+	ret := m.ctrl.Call(m, "RepoUpdate", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*drone.Repo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RepoUpdate indicates an expected call of RepoUpdate
+func (mr *MockClientMockRecorder) RepoUpdate(arg0, arg1, arg2 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RepoUpdate", reflect.TypeOf((*MockClient)(nil).RepoUpdate), arg0, arg1, arg2)
+}
+
+// Rollback mocks base method
+func (m *MockClient) Rollback(arg0, arg1 string, arg2 int, arg3 string, arg4 map[string]string) (*drone.Build, error) {
+	ret := m.ctrl.Call(m, "Rollback", arg0, arg1, arg2, arg3, arg4)
+	ret0, _ := ret[0].(*drone.Build)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Rollback indicates an expected call of Rollback
+func (mr *MockClientMockRecorder) Rollback(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Rollback", reflect.TypeOf((*MockClient)(nil).Rollback), arg0, arg1, arg2, arg3, arg4)
 }
 
 // Secret mocks base method
@@ -524,6 +574,19 @@ func (mr *MockClientMockRecorder) SetClient(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetClient", reflect.TypeOf((*MockClient)(nil).SetClient), arg0)
 }
 
+// Sign mocks base method
+func (m *MockClient) Sign(arg0, arg1, arg2 string) (string, error) {
+	ret := m.ctrl.Call(m, "Sign", arg0, arg1, arg2)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Sign indicates an expected call of Sign
+func (mr *MockClientMockRecorder) Sign(arg0, arg1, arg2 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Sign", reflect.TypeOf((*MockClient)(nil).Sign), arg0, arg1, arg2)
+}
+
 // User mocks base method
 func (m *MockClient) User(arg0 string) (*drone.User, error) {
 	ret := m.ctrl.Call(m, "User", arg0)
@@ -537,16 +600,29 @@ func (mr *MockClientMockRecorder) User(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "User", reflect.TypeOf((*MockClient)(nil).User), arg0)
 }
 
-// UserDel mocks base method
-func (m *MockClient) UserDel(arg0 string) error {
-	ret := m.ctrl.Call(m, "UserDel", arg0)
+// UserCreate mocks base method
+func (m *MockClient) UserCreate(arg0 *drone.User) (*drone.User, error) {
+	ret := m.ctrl.Call(m, "UserCreate", arg0)
+	ret0, _ := ret[0].(*drone.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UserCreate indicates an expected call of UserCreate
+func (mr *MockClientMockRecorder) UserCreate(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserCreate", reflect.TypeOf((*MockClient)(nil).UserCreate), arg0)
+}
+
+// UserDelete mocks base method
+func (m *MockClient) UserDelete(arg0 string) error {
+	ret := m.ctrl.Call(m, "UserDelete", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// UserDel indicates an expected call of UserDel
-func (mr *MockClientMockRecorder) UserDel(arg0 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserDel", reflect.TypeOf((*MockClient)(nil).UserDel), arg0)
+// UserDelete indicates an expected call of UserDelete
+func (mr *MockClientMockRecorder) UserDelete(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserDelete", reflect.TypeOf((*MockClient)(nil).UserDelete), arg0)
 }
 
 // UserList mocks base method
@@ -562,28 +638,27 @@ func (mr *MockClientMockRecorder) UserList() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserList", reflect.TypeOf((*MockClient)(nil).UserList))
 }
 
-// UserPatch mocks base method
-func (m *MockClient) UserPatch(arg0 *drone.User) (*drone.User, error) {
-	ret := m.ctrl.Call(m, "UserPatch", arg0)
+// UserUpdate mocks base method
+func (m *MockClient) UserUpdate(arg0 *drone.User) (*drone.User, error) {
+	ret := m.ctrl.Call(m, "UserUpdate", arg0)
 	ret0, _ := ret[0].(*drone.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// UserPatch indicates an expected call of UserPatch
-func (mr *MockClientMockRecorder) UserPatch(arg0 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserPatch", reflect.TypeOf((*MockClient)(nil).UserPatch), arg0)
+// UserUpdate indicates an expected call of UserUpdate
+func (mr *MockClientMockRecorder) UserUpdate(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserUpdate", reflect.TypeOf((*MockClient)(nil).UserUpdate), arg0)
 }
 
-// UserPost mocks base method
-func (m *MockClient) UserPost(arg0 *drone.User) (*drone.User, error) {
-	ret := m.ctrl.Call(m, "UserPost", arg0)
-	ret0, _ := ret[0].(*drone.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+// Verify mocks base method
+func (m *MockClient) Verify(arg0, arg1, arg2 string) error {
+	ret := m.ctrl.Call(m, "Verify", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
-// UserPost indicates an expected call of UserPost
-func (mr *MockClientMockRecorder) UserPost(arg0 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserPost", reflect.TypeOf((*MockClient)(nil).UserPost), arg0)
+// Verify indicates an expected call of Verify
+func (mr *MockClientMockRecorder) Verify(arg0, arg1, arg2 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Verify", reflect.TypeOf((*MockClient)(nil).Verify), arg0, arg1, arg2)
 }

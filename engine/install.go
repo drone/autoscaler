@@ -24,7 +24,8 @@ type installer struct {
 
 	image            string
 	secret           string
-	server           string
+	host             string
+	proto            string
 	keepaliveTime    time.Duration
 	keepaliveTimeout time.Duration
 
@@ -131,12 +132,10 @@ poller:
 			AttachStdout: true,
 			AttachStderr: true,
 			Env: []string{
-				fmt.Sprintf("DRONE_SECRET=%s", i.secret),
-				fmt.Sprintf("DRONE_SERVER=%s", i.server),
-				fmt.Sprintf("DRONE_MAX_PROCS=%v", instance.Capacity),
-				fmt.Sprintf("DRONE_HOSTNAME=%s", instance.Name),
-				fmt.Sprintf("DRONE_KEEPALIVE_TIME=%v", i.keepaliveTime),
-				fmt.Sprintf("DRONE_KEEPALIVE_TIMEOUT=%v", i.keepaliveTimeout),
+				fmt.Sprintf("DRONE_RPC_SERVER=%s//%s", i.proto, i.host),
+				fmt.Sprintf("DRONE_RPC_SECRET=%s", i.secret),
+				fmt.Sprintf("DRONE_RUNNER_CAPACITY=%v", instance.Capacity),
+				fmt.Sprintf("DRONE_RUNNER_NAME=%s", instance.Name),
 			},
 			Volumes: map[string]struct{}{
 				"/var/run/docker.sock": {},

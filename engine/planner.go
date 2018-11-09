@@ -6,7 +6,6 @@ package engine
 
 import (
 	"context"
-	"os"
 	"sort"
 	"time"
 
@@ -22,10 +21,14 @@ import (
 // current build volume and plan the creation or termination of
 // server resources accordingly.
 type planner struct {
-	min int           // min number of servers
-	max int           // max number of servers to allocate
-	cap int           // capacity per-server
-	ttu time.Duration // minimum server age
+	os      string
+	arch    string
+	version string
+	kernel  string
+	min     int           // min number of servers
+	max     int           // max number of servers to allocate
+	cap     int           // capacity per-server
+	ttu     time.Duration // minimum server age
 
 	client  drone.Client
 	servers autoscaler.ServerStore
@@ -208,41 +211,19 @@ func (p *planner) mark(ctx context.Context, n int) error {
 // helper function returns the number of pending and
 // running builds in the remote Drone installation.
 func (p *planner) count(ctx context.Context) (pending, running int, err error) {
-	if os.Getenv("ENABLE_MATRIX_CALC") == "true" {
-		return p.countMatrix(ctx)
-	}
-	activity, err := p.client.BuildQueue()
+	stages, err := p.client.Queue()
 	if err != nil {
 		return pending, running, err
 	}
-	for _, activity := range activity {
-		if activity.Status == drone.StatusPending {
+	for _, stage := range stages {
+		if p.match(stage) == false {
+			continue
+		}
+		switch stage.Status {
+		case drone.StatusPending:
 			pending++
-		} else {
+		case drone.StatusRunning:
 			running++
-		}
-	}
-	return
-}
-
-func (p *planner) countMatrix(ctx context.Context) (pending, running int, err error) {
-	activity, err := p.client.BuildQueue()
-	if err != nil {
-		return pending, running, err
-	}
-	for _, activity := range activity {
-		build, err := p.client.Build(activity.Owner, activity.Name, activity.Number)
-		if err != nil {
-			return pending, running, err
-		}
-
-		for _, process := range build.Procs {
-			switch process.State {
-			case drone.StatusPending:
-				pending++
-			case drone.StatusRunning:
-				running++
-			}
 		}
 	}
 	return
@@ -269,21 +250,26 @@ func (p *planner) capacity(ctx context.Context) (capacity, count int, err error)
 // helper function returns a list of busy servers.
 func (p *planner) listBusy(ctx context.Context) (map[string]struct{}, error) {
 	busy := map[string]struct{}{}
-	builds, err := p.client.BuildQueue()
+	stages, err := p.client.Queue()
 	if err != nil {
 		return busy, err
 	}
-	for _, build := range builds {
-		if build.Status != drone.StatusRunning {
+	for _, stage := range stages {
+		if p.match(stage) == false {
 			continue
 		}
-		build, err := p.client.Build(build.Owner, build.Name, build.Number)
-		if err != nil {
-			return busy, err
-		}
-		for _, proc := range build.Procs {
-			busy[proc.Machine] = struct{}{}
+		if stage.Status == drone.StatusRunning {
+			busy[stage.Machine] = struct{}{}
 		}
 	}
 	return busy, nil
+}
+
+// helper function returns true if the os, arch, variant
+// and kernel match the stage.
+func (p *planner) match(stage *drone.Stage) bool {
+	return stage.OS == p.os &&
+		stage.Arch == p.arch &&
+		stage.Variant == p.version &&
+		stage.Kernel == p.kernel
 }

@@ -103,7 +103,6 @@ func main() {
 
 			api.Post("/pause", server.HandleEnginePause(enginex))
 			api.Post("/resume", server.HandleEngineResume(enginex))
-			api.Get("/queue", server.HandleQueueList(client))
 			api.Get("/servers", server.HandleServerList(servers))
 			api.Post("/servers", server.HandleServerCreate(servers, conf))
 			api.Get("/servers/{name}", server.HandleServerFind(servers))

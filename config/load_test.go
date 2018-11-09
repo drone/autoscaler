@@ -189,6 +189,8 @@ var jsonConfig = []byte(`{
     "Token": "633eb230f5"
   },
   "Agent": {
+		"OS": "linux",
+		"Arch": "amd64",
     "Token": "f5064039f5",
     "Image": "drone/agent:0.8",
     "Concurrency": 2,

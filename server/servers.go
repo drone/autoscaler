@@ -6,6 +6,7 @@ package server
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/dchest/uniuri"
 	"github.com/drone/autoscaler"
@@ -61,6 +62,8 @@ func HandleServerDelete(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		name := chi.URLParam(r, "name")
+		force, _ := strconv.ParseBool(r.FormValue("force"))
+
 		server, err := servers.Find(ctx, name)
 		if err != nil {
 			hlog.FromRequest(r).
@@ -75,7 +78,7 @@ func HandleServerDelete(
 		// in some cases the server fails to create and is stuck
 		// in an error state. In this case we force-delete from
 		// the database.
-		if server.State == autoscaler.StateError && server.ID == "" {
+		if server.State == autoscaler.StateError && (server.ID == "" || force) {
 			err = servers.Delete(ctx, server)
 			if err != nil {
 				hlog.FromRequest(r).

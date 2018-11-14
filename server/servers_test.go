@@ -258,3 +258,61 @@ func TestHandleServerDeleteFailure(t *testing.T) {
 		t.Errorf("Want error message %s, got %s", want, got)
 	}
 }
+
+func TestHandleServerDeleteErrorState(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("DELETE", "/api/servers/i-5203422c", nil)
+
+	server := &autoscaler.Server{
+		ID:     "",
+		State:  autoscaler.StateError,
+		Name:   "i-5203422c",
+		Image:  "docker-16-04",
+		Region: "nyc1",
+		Size:   "s-1vcpu-1gb",
+	}
+
+	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().Find(gomock.Any(), server.Name).Return(server, nil)
+	store.EXPECT().Delete(gomock.Any(), server).Return(nil)
+
+	router := chi.NewRouter()
+	router.Delete("/api/servers/{name}", HandleServerDelete(store))
+	router.ServeHTTP(w, r)
+
+	if got, want := w.Code, 204; want != got {
+		t.Errorf("Want response code %d, got %d", want, got)
+	}
+}
+
+func TestHandleServerForceDeleteErrorState(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("DELETE", "/api/servers/i-5203422c?force=true", nil)
+
+	server := &autoscaler.Server{
+		ID:     "i-5203422c",
+		State:  autoscaler.StateError,
+		Name:   "i-5203422c",
+		Image:  "docker-16-04",
+		Region: "nyc1",
+		Size:   "s-1vcpu-1gb",
+	}
+
+	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().Find(gomock.Any(), server.Name).Return(server, nil)
+	store.EXPECT().Delete(gomock.Any(), server).Return(nil)
+
+	router := chi.NewRouter()
+	router.Delete("/api/servers/{name}", HandleServerDelete(store))
+	router.ServeHTTP(w, r)
+
+	if got, want := w.Code, 204; want != got {
+		t.Errorf("Want response code %d, got %d", want, got)
+	}
+}

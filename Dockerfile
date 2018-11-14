@@ -7,8 +7,8 @@ VOLUME /data
 
 ENV GODEBUG netdns=go
 ENV XDG_CACHE_HOME /data
-ENV DATABASE_DRIVER sqlite3
-ENV DATABASE_DATASOURCE /data/database.sqlite?cache=shared&mode=rwc&_busy_timeout=9999999
+ENV DRONE_DATABASE_DRIVER sqlite3
+ENV DRONE_DATABASE_DATASOURCE /data/database.sqlite?cache=shared&mode=rwc&_busy_timeout=9999999
 
 COPY --from=alpine /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 

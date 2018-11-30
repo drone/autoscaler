@@ -302,7 +302,7 @@ func (i *installer) setupGarbageCollectoer(ctx context.Context, client docker.AP
 
 func (i *installer) errorUpdate(ctx context.Context, server *autoscaler.Server, err error) error {
 	if err != nil {
-		server.State = autoscaler.StateError
+		server.State = autoscaler.StateShutdown
 		server.Error = err.Error()
 		i.servers.Update(ctx, server)
 	}

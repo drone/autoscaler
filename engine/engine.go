@@ -57,6 +57,7 @@ func New(
 			servers: servers,
 			image:   config.Agent.Image,
 			secret:  config.Agent.Token,
+			volumes: config.Agent.Volumes,
 			proto:   config.Server.Proto,
 			host:    config.Server.Host,
 			client:  newDockerClient,

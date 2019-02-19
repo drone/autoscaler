@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"sync"
 	"time"
+	"strings"
 
 	"github.com/drone/autoscaler"
 
@@ -24,6 +25,7 @@ type installer struct {
 
 	image            string
 	secret           string
+	volumes          []string
 	host             string
 	proto            string
 	keepaliveTime    time.Duration
@@ -126,6 +128,20 @@ poller:
 		Str("image", i.image).
 		Msg("create agent container")
 
+	volumes := map[string]struct{}{
+		"/var/run/docker.sock": {},
+	}
+
+	binds := []string{
+		"/var/run/docker.sock:/var/run/docker.sock",
+	}
+
+	for _, volume := range i.volumes {
+		splitted := strings.Split(volume, ":")
+		volumes[splitted[1]] = struct{}{}
+		binds = append(binds, volume)
+	}
+
 	res, err := client.ContainerCreate(ctx,
 		&container.Config{
 			Image:        i.image,
@@ -137,9 +153,7 @@ poller:
 				fmt.Sprintf("DRONE_RUNNER_CAPACITY=%v", instance.Capacity),
 				fmt.Sprintf("DRONE_RUNNER_NAME=%s", instance.Name),
 			},
-			Volumes: map[string]struct{}{
-				"/var/run/docker.sock": {},
-			},
+			Volumes: volumes,
 			Labels: map[string]string{
 				"com.centurylinklabs.watchtower.enable":      "true",
 				"com.centurylinklabs.watchtower.stop-signal": "SIGHUP",
@@ -151,9 +165,7 @@ poller:
 			},
 		},
 		&container.HostConfig{
-			Binds: []string{
-				"/var/run/docker.sock:/var/run/docker.sock",
-			},
+			Binds: binds,
 			RestartPolicy: container.RestartPolicy{
 				Name: "always",
 			},

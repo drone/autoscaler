@@ -47,6 +47,7 @@ type (
 			Arch        string `default:"amd64"`
 			Version     string
 			Kernel      string
+			Volumes	    []string
 		}
 
 		HTTP struct {

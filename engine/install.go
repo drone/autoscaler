@@ -7,6 +7,7 @@ package engine
 import (
 	"context"
 	"fmt"
+	"github.com/drone/autoscaler/config"
 	"io"
 	"io/ioutil"
 	"sync"
@@ -31,6 +32,7 @@ type installer struct {
 	proto            string
 	keepaliveTime    time.Duration
 	keepaliveTimeout time.Duration
+	runner 	         config.Runner
 
 	servers autoscaler.ServerStore
 	client  clientFunc
@@ -140,6 +142,9 @@ poller:
 				fmt.Sprintf("DRONE_RPC_SECRET=%s", i.secret),
 				fmt.Sprintf("DRONE_RUNNER_CAPACITY=%v", instance.Capacity),
 				fmt.Sprintf("DRONE_RUNNER_NAME=%s", instance.Name),
+				fmt.Sprintf("DRONE_RUNNER_VOLUMES=%s", i.runner.Volumes),
+				fmt.Sprintf("DRONE_RUNNER_DEVICES=%s", i.runner.Devices),
+				fmt.Sprintf("DRONE_RUNNER_PRIVILEGED_IMAGES=%s", i.runner.Privileged),
 			},
 			Volumes: toVol(i.volumes),
 			Labels: map[string]string{

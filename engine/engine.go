@@ -61,6 +61,7 @@ func New(
 			proto:   config.Server.Proto,
 			host:    config.Server.Host,
 			client:  newDockerClient,
+			runner:  config.Runner,
 		},
 		pinger: &pinger{
 			servers: servers,

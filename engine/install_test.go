@@ -5,8 +5,8 @@
 package engine
 
 import (
-"reflect"
-"testing"
+	"reflect"
+	"testing"
 )
 
 func TestSplitVolumeParts(t *testing.T) {

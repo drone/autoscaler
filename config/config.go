@@ -50,6 +50,8 @@ type (
 			Volumes	    []string
 		}
 
+		Runner Runner
+
 		HTTP struct {
 			Host string
 			Port string `default:":8080"`
@@ -150,5 +152,11 @@ type (
 			UserData      string `envconfig:"DRONE_OPENSTACK_USERDATA"`
 			UserDataFile  string `envconfig:"DRONE_OPENSTACK_USERDATA_FILE"`
 		}
+	}
+
+	Runner struct {
+		Volumes	    string
+		Devices     string
+		Privileged  string
 	}
 )

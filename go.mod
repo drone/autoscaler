@@ -15,6 +15,7 @@ require (
 	github.com/go-chi/chi v4.0.1+incompatible
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/gogo/protobuf v1.2.1 // indirect
+	github.com/golang/mock v1.1.1
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/gophercloud/gophercloud v0.0.0-20190221014423-d6801284f5e8
 	github.com/hetznercloud/hcloud-go v1.12.0
@@ -32,6 +33,7 @@ require (
 	github.com/tent/http-link-go v0.0.0-20130702225549-ac974c61c2f9 // indirect
 	github.com/zenazn/goji v0.9.0 // indirect
 	golang.org/x/crypto v0.0.0-20190219172222-a4c6cb3142f2
+	golang.org/x/net v0.0.0-20190108225652-1e06a53dbb7e
 	golang.org/x/oauth2 v0.0.0-20190220154721-9b3c75971fc9
 	golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4
 	google.golang.org/api v0.1.0

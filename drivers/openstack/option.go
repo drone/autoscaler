@@ -39,6 +39,7 @@ func WithSecurityGroup(group ...string) Option {
 		p.groups = group
 	}
 }
+
 // WithComputeClient returns an option to set the
 // GopherCloud ServiceClient.
 func WithComputeClient(computeClient *gophercloud.ServiceClient) Option {

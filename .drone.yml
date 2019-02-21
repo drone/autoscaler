@@ -1,55 +1,78 @@
+---
+kind: pipeline
+name: default
+
+platform:
+  os: linux
+  arch: amd64
+
 workspace:
   base: /go
   path: src/github.com/drone/autoscaler
 
-pipeline:
-  test:
-    image: golang
-    environment:
-    commands:
-      - go get -u github.com/golang/dep/cmd/dep
-      - dep ensure
-      - go test -v -cover ./...
+steps:
+- name: test
+  pull: default
+  image: golang
+  commands:
+  - go get -u github.com/golang/dep/cmd/dep
+  - dep ensure
+  - go test -v -cover ./...
 
-  test_postgres:
-    image: golang
-    environment:
-      - DATABASE_DRIVER=postgres
-      - DATABASE_CONFIG=host=postgres user=postgres password=password dbname=test sslmode=disable
-    commands:
-      - cd store
-      - go test -v
+- name: test_postgres
+  pull: default
+  image: golang
+  commands:
+  - cd store
+  - go test -v
+  environment:
+    DATABASE_CONFIG: host=postgres user=postgres password=password dbname=test sslmode=disable
+    DATABASE_DRIVER: postgres
 
-  test_mysql:
-    image: golang
-    environment:
-      - DATABASE_DRIVER=mysql
-      - DATABASE_CONFIG=root:password@tcp(mysql:3306)/test?parseTime=true
-    commands:
-      - cd store
-      - go test -v
+- name: test_mysql
+  pull: default
+  image: golang
+  commands:
+  - cd store
+  - go test -v
+  environment:
+    DATABASE_CONFIG: "root:password@tcp(mysql:3306)/test?parseTime=true"
+    DATABASE_DRIVER: mysql
 
-  build:
-    image: golang
-    commands: sh .drone.sh
+- name: build
+  pull: default
+  image: golang
+  commands:
+  - sh .drone.sh
 
-  publish:
-    image: plugins/docker
-    repo: drone/autoscaler
+- name: publish
+  pull: default
+  image: plugins/docker
+  settings:
     auto_tag: true
-    secrets: [ docker_username, docker_password ]
-    when:
-      event: [ push, tag ]
+    repo: drone/autoscaler
+    password:
+      from_secret: docker_password
+    username:
+      from_secret: docker_username
+  when:
+    event:
+    - push
+    - tag
 
 services:
-  postgres:
-    image: postgres:9
-    environment:
-      - POSTGRES_DB=test
-      - POSTGRES_PASSWORD=password
+- name: postgres
+  pull: default
+  image: postgres:9
+  environment:
+    POSTGRES_DB: test
+    POSTGRES_PASSWORD: password
 
-  mysql:
-    image: mysql:5
-    environment:
-      - MYSQL_DATABASE=test
-      - MYSQL_ROOT_PASSWORD=password
+- name: mysql
+  pull: default
+  image: mysql:5
+  environment:
+    MYSQL_DATABASE: test
+    MYSQL_ROOT_PASSWORD: password
+
+...

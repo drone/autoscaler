@@ -209,6 +209,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 	case c.DigitalOcean.Token != "":
 		return digitalocean.New(
 			digitalocean.WithSSHKey(c.DigitalOcean.SSHKey),
+			digitalocean.WithImage(c.DigitalOcean.Image),
 			digitalocean.WithRegion(c.DigitalOcean.Region),
 			digitalocean.WithSize(c.DigitalOcean.Size),
 			digitalocean.WithUserDataFile(c.DigitalOcean.UserDataFile),

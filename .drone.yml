@@ -1,78 +1,469 @@
 ---
 kind: pipeline
-name: default
+name: testing
 
 platform:
   os: linux
   arch: amd64
 
-workspace:
-  base: /go
-  path: src/github.com/drone/autoscaler
-
 steps:
-- name: test
-  pull: default
-  image: golang
+- name: vet
+  pull: always
+  image: golang:1.11
   commands:
-  - go get -u github.com/golang/dep/cmd/dep
-  - dep ensure
-  - go test -v -cover ./...
+  - go vet ./...
+  environment:
+    GO111MODULE: on
+  volumes:
+  - name: gopath
+    path: /go
 
-- name: test_postgres
-  pull: default
-  image: golang
+- name: test
+  pull: always
+  image: golang:1.11
   commands:
-  - cd store
-  - go test -v
+  - go test -cover ./...
+  environment:
+    GO111MODULE: on
+  volumes:
+  - name: gopath
+    path: /go
+
+- name: test-postgres
+  pull: always
+  image: golang:1.11
+  commands:
+  - go test -cover ./store
   environment:
     DATABASE_CONFIG: host=postgres user=postgres password=password dbname=test sslmode=disable
     DATABASE_DRIVER: postgres
+    GO111MODULE: on
+  volumes:
+  - name: gopath
+    path: /go
 
-- name: test_mysql
-  pull: default
-  image: golang
+- name: test-mysql
+  pull: always
+  image: golang:1.11
   commands:
-  - cd store
-  - go test -v
+  - go test -cover ./store
   environment:
     DATABASE_CONFIG: "root:password@tcp(mysql:3306)/test?parseTime=true"
     DATABASE_DRIVER: mysql
-
-- name: build
-  pull: default
-  image: golang
-  commands:
-  - sh .drone.sh
-
-- name: publish
-  pull: default
-  image: plugins/docker
-  settings:
-    auto_tag: true
-    repo: drone/autoscaler
-    password:
-      from_secret: docker_password
-    username:
-      from_secret: docker_username
-  when:
-    event:
-    - push
-    - tag
+    GO111MODULE: on
+  volumes:
+  - name: gopath
+    path: /go
 
 services:
 - name: postgres
-  pull: default
   image: postgres:9
   environment:
     POSTGRES_DB: test
     POSTGRES_PASSWORD: password
 
 - name: mysql
-  pull: default
   image: mysql:5
   environment:
     MYSQL_DATABASE: test
     MYSQL_ROOT_PASSWORD: password
+
+volumes:
+- name: gopath
+  temp: {}
+
+trigger:
+  ref:
+  - refs/heads/master
+  - "refs/tags/**"
+  - "refs/pull/**"
+
+---
+kind: pipeline
+name: linux-amd64
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: build-push
+  pull: always
+  image: golang:1.11
+  commands:
+  - "go build -v -ldflags \"-X main.version=${DRONE_COMMIT_SHA:0:8}\" -a -tags netgo -o release/linux/amd64/autoscaler ./cmd/autoscaler"
+  environment:
+    CGO_ENABLED: 0
+    GO111MODULE: on
+  when:
+    event:
+      exclude:
+      - tag
+
+- name: build-tag
+  pull: always
+  image: golang:1.11
+  commands:
+  - "go build -v -ldflags \"-X main.version=${DRONE_TAG##v}\" -a -tags netgo -o release/linux/amd64/autoscaler ./cmd/autoscaler"
+  environment:
+    CGO_ENABLED: 0
+    GO111MODULE: on
+  when:
+    event:
+    - tag
+
+- name: dryrun
+  pull: always
+  image: plugins/docker:linux-amd64
+  settings:
+    daemon_off: false
+    dockerfile: docker/Dockerfile.linux.amd64
+    dry_run: true
+    password:
+      from_secret: docker_password
+    repo: drone/autoscaler
+    tags: linux-amd64
+    username:
+      from_secret: docker_username
+  when:
+    event:
+    - pull_request
+
+- name: publish
+  pull: always
+  image: plugins/docker:linux-amd64
+  settings:
+    auto_tag: true
+    auto_tag_suffix: linux-amd64
+    daemon_off: false
+    dockerfile: docker/Dockerfile.linux.amd64
+    password:
+      from_secret: docker_password
+    repo: drone/autoscaler
+    username:
+      from_secret: docker_username
+  when:
+    event:
+      exclude:
+      - pull_request
+
+- name: tarball
+  pull: always
+  image: golang:1.11
+  commands:
+  - tar -cvzf release/autoscaler_linux_amd64.tar.gz -C release/linux/amd64 autoscaler
+  - "sha256sum release/autoscaler_linux_amd64.tar.gz > release/autoscaler_linux_amd64.tar.gz.sha256"
+  when:
+    event:
+    - tag
+
+- name: gpgsign
+  pull: always
+  image: plugins/gpgsign
+  settings:
+    files:
+    - "release/*.tar.gz"
+    - "release/*.tar.gz.sha256"
+    key:
+      from_secret: gpgsign_key
+    passphrase:
+      from_secret: gpgkey_passphrase
+  when:
+    event:
+    - tag
+
+- name: github
+  pull: always
+  image: plugins/github-release
+  settings:
+    files:
+    - "release/*.tar.gz"
+    - "release/*.tar.gz.sha256"
+    - "release/*.tar.gz.asc"
+    token:
+      from_secret: github_token
+  when:
+    event:
+    - tag
+
+trigger:
+  ref:
+  - refs/heads/master
+  - "refs/tags/**"
+  - "refs/pull/**"
+
+depends_on:
+- testing
+
+---
+kind: pipeline
+name: linux-arm64
+
+platform:
+  os: linux
+  arch: arm64
+
+steps:
+- name: build-push
+  pull: always
+  image: golang:1.11
+  commands:
+  - "go build -v -ldflags \"-X main.version=${DRONE_COMMIT_SHA:0:8}\" -a -tags netgo -o release/linux/arm64/autoscaler ./cmd/autoscaler"
+  environment:
+    CGO_ENABLED: 0
+    GO111MODULE: on
+  when:
+    event:
+      exclude:
+      - tag
+
+- name: build-tag
+  pull: always
+  image: golang:1.11
+  commands:
+  - "go build -v -ldflags \"-X main.version=${DRONE_TAG##v}\" -a -tags netgo -o release/linux/arm64/autoscaler ./cmd/autoscaler"
+  environment:
+    CGO_ENABLED: 0
+    GO111MODULE: on
+  when:
+    event:
+    - tag
+
+- name: dryrun
+  pull: always
+  image: plugins/docker:linux-arm64
+  settings:
+    daemon_off: false
+    dockerfile: docker/Dockerfile.linux.arm64
+    dry_run: true
+    password:
+      from_secret: docker_password
+    repo: drone/autoscaler
+    tags: linux-arm64
+    username:
+      from_secret: docker_username
+  when:
+    event:
+    - pull_request
+
+- name: publish
+  pull: always
+  image: plugins/docker:linux-arm64
+  settings:
+    auto_tag: true
+    auto_tag_suffix: linux-arm64
+    daemon_off: false
+    dockerfile: docker/Dockerfile.linux.arm64
+    password:
+      from_secret: docker_password
+    repo: drone/autoscaler
+    username:
+      from_secret: docker_username
+  when:
+    event:
+      exclude:
+      - pull_request
+
+- name: tarball
+  pull: always
+  image: golang:1.11
+  commands:
+  - tar -cvzf release/autoscaler_linux_arm64.tar.gz -C release/linux/arm64 autoscaler
+  - "sha256sum release/autoscaler_linux_arm64.tar.gz > release/autoscaler_linux_arm64.tar.gz.sha256"
+  when:
+    event:
+    - tag
+
+- name: gpgsign
+  pull: always
+  image: plugins/gpgsign
+  settings:
+    files:
+    - "release/*.tar.gz"
+    - "release/*.tar.gz.sha256"
+    key:
+      from_secret: gpgsign_key
+    passphrase:
+      from_secret: gpgkey_passphrase
+  when:
+    event:
+    - tag
+
+- name: github
+  pull: always
+  image: plugins/github-release
+  settings:
+    files:
+    - "release/*.tar.gz"
+    - "release/*.tar.gz.sha256"
+    - "release/*.tar.gz.asc"
+    token:
+      from_secret: github_token
+  when:
+    event:
+    - tag
+
+trigger:
+  ref:
+  - refs/heads/master
+  - "refs/tags/**"
+  - "refs/pull/**"
+
+depends_on:
+- testing
+
+---
+kind: pipeline
+name: linux-arm
+
+platform:
+  os: linux
+  arch: arm
+
+steps:
+- name: build-push
+  pull: always
+  image: golang:1.11
+  commands:
+  - "go build -v -ldflags \"-X main.version=${DRONE_COMMIT_SHA:0:8}\" -a -tags netgo -o release/linux/arm/autoscaler ./cmd/autoscaler"
+  environment:
+    CGO_ENABLED: 0
+    GO111MODULE: on
+  when:
+    event:
+      exclude:
+      - tag
+
+- name: build-tag
+  pull: always
+  image: golang:1.11
+  commands:
+  - "go build -v -ldflags \"-X main.version=${DRONE_TAG##v}\" -a -tags netgo -o release/linux/arm/autoscaler ./cmd/autoscaler"
+  environment:
+    CGO_ENABLED: 0
+    GO111MODULE: on
+  when:
+    event:
+    - tag
+
+- name: dryrun
+  pull: always
+  image: plugins/docker:linux-arm
+  settings:
+    daemon_off: false
+    dockerfile: docker/Dockerfile.linux.arm
+    dry_run: true
+    password:
+      from_secret: docker_password
+    repo: drone/autoscaler
+    tags: linux-arm
+    username:
+      from_secret: docker_username
+  when:
+    event:
+    - pull_request
+
+- name: publish
+  pull: always
+  image: plugins/docker:linux-arm
+  settings:
+    auto_tag: true
+    auto_tag_suffix: linux-arm
+    daemon_off: false
+    dockerfile: docker/Dockerfile.linux.arm
+    password:
+      from_secret: docker_password
+    repo: drone/autoscaler
+    username:
+      from_secret: docker_username
+  when:
+    event:
+      exclude:
+      - pull_request
+
+- name: tarball
+  pull: always
+  image: golang:1.11
+  commands:
+  - tar -cvzf release/autoscaler_linux_arm.tar.gz -C release/linux/arm autoscaler
+  - "sha256sum release/autoscaler_linux_arm.tar.gz > release/autoscaler_linux_arm.tar.gz.sha256"
+  when:
+    event:
+    - tag
+
+- name: gpgsign
+  pull: always
+  image: plugins/gpgsign
+  settings:
+    files:
+    - "release/*.tar.gz"
+    - "release/*.tar.gz.sha256"
+    key:
+      from_secret: gpgsign_key
+    passphrase:
+      from_secret: gpgkey_passphrase
+  when:
+    event:
+    - tag
+
+- name: github
+  pull: always
+  image: plugins/github-release
+  settings:
+    files:
+    - "release/*.tar.gz"
+    - "release/*.tar.gz.sha256"
+    - "release/*.tar.gz.asc"
+    token:
+      from_secret: github_token
+  when:
+    event:
+    - tag
+
+trigger:
+  ref:
+  - refs/heads/master
+  - "refs/tags/**"
+  - "refs/pull/**"
+
+depends_on:
+- testing
+
+---
+kind: pipeline
+name: notifications
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: manifest
+  pull: always
+  image: plugins/manifest
+  settings:
+    ignore_missing: true
+    password:
+      from_secret: docker_password
+    spec: docker/manifest.tmpl
+    username:
+      from_secret: docker_username
+
+- name: microbadger
+  pull: always
+  image: plugins/webhook
+  settings:
+    url:
+      from_secret: microbadger_url
+
+trigger:
+  ref:
+  - refs/heads/master
+  - "refs/tags/**"
+
+depends_on:
+- linux-amd64
+- linux-arm64
+- linux-arm
 
 ...

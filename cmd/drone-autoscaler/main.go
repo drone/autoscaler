@@ -43,7 +43,6 @@ import (
 var (
 	source  = "https://github.com/drone/autoscaler.git"
 	version string
-	commit  string
 )
 
 func main() {
@@ -93,7 +92,7 @@ func main() {
 
 	r.Route(conf.HTTP.Root, func(root chi.Router) {
 		root.Get("/metrics", server.HandleMetrics(conf.Prometheus.AuthToken))
-		root.Get("/version", server.HandleVersion(source, version, commit))
+		root.Get("/version", server.HandleVersion(source, version))
 		root.Get("/healthz", server.HandleHealthz())
 		root.Get("/varz", server.HandleVarz(enginex))
 		root.Route("/api", func(api chi.Router) {

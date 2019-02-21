@@ -128,7 +128,7 @@ local golang_image(os, version) =
             GO111MODULE: 'on',
           },
           commands: [
-            'go build -v -ldflags "-X main.version=${DRONE_COMMIT_SHA:0:8}" -a -tags netgo -o release/' + os + '/' + arch + '/' + name + extension + ' ./cmd/' + name,
+            'go build -v -ldflags "-X main.version=${DRONE_COMMIT_SHA:0:8}" -a -tags netgo -o release/' + os + '/' + arch + '/drone-' + name + extension + ' ./cmd/drone-' + name,
           ],
           when: {
             event: {
@@ -145,7 +145,7 @@ local golang_image(os, version) =
             GO111MODULE: 'on',
           },
           commands: [
-            'go build -v -ldflags "-X main.version=${DRONE_TAG##v}" -a -tags netgo -o release/' + os + '/' + arch + '/' + name + extension + ' ./cmd/' + name,
+            'go build -v -ldflags "-X main.version=${DRONE_TAG##v}" -a -tags netgo -o release/' + os + '/' + arch + '/drone-' + name + extension + ' ./cmd/drone-' + name,
           ],
           when: {
             event: ['tag'],

@@ -131,7 +131,7 @@ poller:
 		Str("image", i.image).
 		Msg("create agent container")
 
-	i.volumes = append(i.volumes, "/var/run/docker.sock:/var/run/docker.sock")
+	var volumes = append(i.volumes, "/var/run/docker.sock:/var/run/docker.sock")
 	res, err := client.ContainerCreate(ctx,
 		&container.Config{
 			Image:        i.image,
@@ -146,7 +146,7 @@ poller:
 				fmt.Sprintf("DRONE_RUNNER_DEVICES=%s", i.runner.Devices),
 				fmt.Sprintf("DRONE_RUNNER_PRIVILEGED_IMAGES=%s", i.runner.Privileged),
 			},
-			Volumes: toVol(i.volumes),
+			Volumes: toVol(volumes),
 			Labels: map[string]string{
 				"com.centurylinklabs.watchtower.enable":      "true",
 				"com.centurylinklabs.watchtower.stop-signal": "SIGHUP",
@@ -158,7 +158,7 @@ poller:
 			},
 		},
 		&container.HostConfig{
-			Binds: i.volumes,
+			Binds: volumes,
 			RestartPolicy: container.RestartPolicy{
 				Name: "always",
 			},

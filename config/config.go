@@ -53,6 +53,22 @@ type (
 
 		Runner Runner
 
+		GC struct {
+			Enabled  bool          `envconfig:"DRONE_GC_ENABLED"`
+			Image    string        `envconfig:"DRONE_GC_IMAGE" default:"drone/gc"`
+			Debug    bool          `envconfig:"DRONE_GC_DEBUG"`
+			Images   []string      `envconfig:"DRONE_GC_IGNORE_IMAGES"`
+			Interval time.Duration `envconfig:"DRONE_GC_INTERVAL" default:"30m"`
+			Cache    string        `envconfig:"DRONE_GC_CACHE" default:"10gb"`
+		}
+
+		Watchtower struct {
+			Enabled  bool          `envconfig:"DRONE_WATCHTOWER_ENABLED"`
+			Image    string        `envconfig:"DRONE_WATCHTOWER_IMAGE" default:"webhippie/watchtower"`
+			Interval int           `envconfig:"DRONE_WATCHTWOER_INTERVAL" default:"300"`
+			Timeout  time.Duration `envconfig:"DRONE_WATCHTWOER_TIMEOUT" default:"120m"`
+		}
+
 		HTTP struct {
 			Host string
 			Port string `default:":8080"`

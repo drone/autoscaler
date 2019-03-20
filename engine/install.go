@@ -18,6 +18,7 @@ import (
 
 	"github.com/drone/autoscaler"
 
+	docker "docker.io/go-docker"
 	"docker.io/go-docker/api/types"
 	"docker.io/go-docker/api/types/container"
 	"github.com/rs/zerolog/log"
@@ -35,6 +36,18 @@ type installer struct {
 	keepaliveTime    time.Duration
 	keepaliveTimeout time.Duration
 	runner           config.Runner
+
+	gcEnabled  bool
+	gcDebug    bool
+	gcImage    string
+	gcIgnore   []string
+	gcInterval time.Duration
+	gcCache    string
+
+	watchtowerEnabled  bool
+	watchtowerImage    string
+	watchtowerInterval int
+	watchtowerTimeout  time.Duration
 
 	servers autoscaler.ServerStore
 	client  clientFunc
@@ -196,8 +209,95 @@ poller:
 		Str("image", i.image).
 		Msg("agent container started")
 
+	if i.gcEnabled {
+		logger.Debug().
+			Str("image", i.image).
+			Msg("setup the garbage collector")
+		err = i.setupGarbageCollectoer(ctx, client)
+		if err != nil {
+			logger.Warn().
+				Err(err).
+				Str("image", i.image).
+				Msg("cannot setup the garbage collector")
+		}
+	}
+
+	if i.watchtowerEnabled {
+		logger.Debug().
+			Str("image", i.image).
+			Msg("setup watchtower")
+		err = i.setupWatchtower(ctx, client)
+		if err != nil {
+			logger.Warn().
+				Err(err).
+				Str("image", i.image).
+				Msg("cannot setup watchtwoer")
+		}
+	}
+
 	instance.State = autoscaler.StateRunning
 	return i.servers.Update(ctx, instance)
+}
+
+func (i *installer) setupWatchtower(ctx context.Context, client docker.APIClient) error {
+	vols := []string{"/var/run/docker.sock:/var/run/docker.sock"}
+	res, err := client.ContainerCreate(ctx,
+		&container.Config{
+			Image:        i.watchtowerImage,
+			AttachStdout: true,
+			AttachStderr: true,
+			Volumes:      toVol(vols),
+			Env: []string{
+				fmt.Sprintf("WATCHTOWER_POLL_INTERVAL=%d", i.watchtowerInterval),
+				fmt.Sprintf("WATCHTOWER_TIMEOUT=%s", i.watchtowerTimeout),
+				fmt.Sprintf("WATCHTOWER_CLEANUP=true"),
+			},
+		},
+		&container.HostConfig{
+			Binds: vols,
+			RestartPolicy: container.RestartPolicy{
+				Name: "always",
+			},
+		}, nil, "watchtower")
+	if err != nil {
+		return err
+	}
+	return client.ContainerStart(ctx, res.ID, types.ContainerStartOptions{})
+}
+
+func (i *installer) setupGarbageCollectoer(ctx context.Context, client docker.APIClient) error {
+	vols := []string{"/var/run/docker.sock:/var/run/docker.sock"}
+	envs := []string{
+		fmt.Sprintf("GC_CACHE=%s", i.gcCache),
+		fmt.Sprintf("GC_DEBUG=%v", i.gcDebug),
+		fmt.Sprintf("GC_INTERVAL=%s", i.gcInterval),
+	}
+	if len(i.gcIgnore) > 0 {
+		envs = append(envs,
+			fmt.Sprintf("GC_IGNORE=%s", strings.Join(i.gcIgnore, ",")),
+		)
+	}
+	res, err := client.ContainerCreate(ctx,
+		&container.Config{
+			Image:        i.gcImage,
+			AttachStdout: true,
+			AttachStderr: true,
+			Volumes:      toVol(vols),
+			Env:          envs,
+			Labels: map[string]string{
+				"com.centurylinklabs.watchtower.enable": "true",
+			},
+		},
+		&container.HostConfig{
+			Binds: vols,
+			RestartPolicy: container.RestartPolicy{
+				Name: "always",
+			},
+		}, nil, "drone-gc")
+	if err != nil {
+		return err
+	}
+	return client.ContainerStart(ctx, res.ID, types.ContainerStartOptions{})
 }
 
 func (i *installer) errorUpdate(ctx context.Context, server *autoscaler.Server, err error) error {

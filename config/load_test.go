@@ -46,7 +46,7 @@ func TestDefaults(t *testing.T) {
 	if got, want := conf.Agent.Concurrency, 2; got != want {
 		t.Errorf("Want default DRONE_AGENT_CONCURRENCY of %d, got %d", want, got)
 	}
-	if got, want := conf.Agent.Image, "drone/agent:1.0.0-rc.1"; got != want {
+	if got, want := conf.Agent.Image, "drone/agent:1"; got != want {
 		t.Errorf("Want default DRONE_AGENT_IMAGE of %s, got %s", want, got)
 	}
 }
@@ -306,5 +306,15 @@ var jsonConfig = []byte(`{
     },
     "UserData": "#cloud-init",
     "UserDataFile": "/path/to/cloud/init.yml"
-  }
+	},
+	"Watchtower": {
+		"Image": "webhippie/watchtower",
+		"Interval": 300,
+		"Timeout": 7200000000000
+	},
+	"GC": {
+		"Image": "drone/gc",
+		"Interval": 1800000000000,
+		"Cache": "10gb"
+	}
 }`)

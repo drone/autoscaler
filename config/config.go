@@ -41,12 +41,13 @@ type (
 
 		Agent struct {
 			Token       string
-			Image       string `default:"drone/agent:1.0.0-rc.1"`
+			Image       string `default:"drone/agent:1"`
 			Concurrency int    `default:"2"`
 			OS          string `default:"linux"`
 			Arch        string `default:"amd64"`
 			Version     string
 			Kernel      string
+			Environ     []string
 		}
 
 		HTTP struct {

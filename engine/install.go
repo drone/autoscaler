@@ -26,6 +26,7 @@ type installer struct {
 	secret           string
 	host             string
 	proto            string
+	envs             []string
 	keepaliveTime    time.Duration
 	keepaliveTimeout time.Duration
 
@@ -126,17 +127,19 @@ poller:
 		Str("image", i.image).
 		Msg("create agent container")
 
+	envs := append(i.envs,
+		fmt.Sprintf("DRONE_RPC_SERVER=%s://%s", i.proto, i.host),
+		fmt.Sprintf("DRONE_RPC_SECRET=%s", i.secret),
+		fmt.Sprintf("DRONE_RUNNER_CAPACITY=%v", instance.Capacity),
+		fmt.Sprintf("DRONE_RUNNER_NAME=%s", instance.Name),
+	)
+
 	res, err := client.ContainerCreate(ctx,
 		&container.Config{
 			Image:        i.image,
 			AttachStdout: true,
 			AttachStderr: true,
-			Env: []string{
-				fmt.Sprintf("DRONE_RPC_SERVER=%s://%s", i.proto, i.host),
-				fmt.Sprintf("DRONE_RPC_SECRET=%s", i.secret),
-				fmt.Sprintf("DRONE_RUNNER_CAPACITY=%v", instance.Capacity),
-				fmt.Sprintf("DRONE_RUNNER_NAME=%s", instance.Name),
-			},
+			Env:          envs,
 			Volumes: map[string]struct{}{
 				"/var/run/docker.sock": {},
 			},

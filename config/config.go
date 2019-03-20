@@ -48,7 +48,10 @@ type (
 			Version     string
 			Kernel      string
 			Environ     []string
+			Volumes     []string
 		}
+
+		Runner Runner
 
 		HTTP struct {
 			Host string
@@ -150,5 +153,11 @@ type (
 			UserData      string `envconfig:"DRONE_OPENSTACK_USERDATA"`
 			UserDataFile  string `envconfig:"DRONE_OPENSTACK_USERDATA_FILE"`
 		}
+	}
+
+	Runner struct {
+		Volumes    string
+		Devices    string
+		Privileged string
 	}
 )

@@ -58,9 +58,11 @@ func New(
 			image:   config.Agent.Image,
 			secret:  config.Agent.Token,
 			envs:    config.Agent.Environ,
+			volumes: config.Agent.Volumes,
 			proto:   config.Server.Proto,
 			host:    config.Server.Host,
 			client:  newDockerClient,
+			runner:  config.Runner,
 		},
 		pinger: &pinger{
 			servers: servers,

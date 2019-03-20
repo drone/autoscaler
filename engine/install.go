@@ -9,8 +9,12 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"regexp"
+	"strings"
 	"sync"
 	"time"
+
+	"github.com/drone/autoscaler/config"
 
 	"github.com/drone/autoscaler"
 
@@ -24,11 +28,13 @@ type installer struct {
 
 	image            string
 	secret           string
+	volumes          []string
 	host             string
 	proto            string
 	envs             []string
 	keepaliveTime    time.Duration
 	keepaliveTimeout time.Duration
+	runner           config.Runner
 
 	servers autoscaler.ServerStore
 	client  clientFunc
@@ -128,10 +134,19 @@ poller:
 		Msg("create agent container")
 
 	envs := append(i.envs,
+		fmt.Sprintf("DRONE_RPC_HOST=%s", i.host),
+		fmt.Sprintf("DRONE_RPC_PROTO=%s", i.proto),
 		fmt.Sprintf("DRONE_RPC_SERVER=%s://%s", i.proto, i.host),
 		fmt.Sprintf("DRONE_RPC_SECRET=%s", i.secret),
 		fmt.Sprintf("DRONE_RUNNER_CAPACITY=%v", instance.Capacity),
 		fmt.Sprintf("DRONE_RUNNER_NAME=%s", instance.Name),
+		fmt.Sprintf("DRONE_RUNNER_VOLUMES=%s", i.runner.Volumes),
+		fmt.Sprintf("DRONE_RUNNER_DEVICES=%s", i.runner.Devices),
+		fmt.Sprintf("DRONE_RUNNER_PRIVILEGED_IMAGES=%s", i.runner.Privileged),
+	)
+
+	volumes := append(i.volumes,
+		"/var/run/docker.sock:/var/run/docker.sock",
 	)
 
 	res, err := client.ContainerCreate(ctx,
@@ -140,9 +155,7 @@ poller:
 			AttachStdout: true,
 			AttachStderr: true,
 			Env:          envs,
-			Volumes: map[string]struct{}{
-				"/var/run/docker.sock": {},
-			},
+			Volumes:      toVol(volumes),
 			Labels: map[string]string{
 				"com.centurylinklabs.watchtower.enable":      "true",
 				"com.centurylinklabs.watchtower.stop-signal": "SIGHUP",
@@ -154,9 +167,7 @@ poller:
 			},
 		},
 		&container.HostConfig{
-			Binds: []string{
-				"/var/run/docker.sock:/var/run/docker.sock",
-			},
+			Binds: volumes,
 			RestartPolicy: container.RestartPolicy{
 				Name: "always",
 			},
@@ -196,4 +207,42 @@ func (i *installer) errorUpdate(ctx context.Context, server *autoscaler.Server, 
 		i.servers.Update(ctx, server)
 	}
 	return err
+}
+
+// helper function that converts a slice of volume paths to a set of
+// unique volume names.
+func toVol(paths []string) map[string]struct{} {
+	set := map[string]struct{}{}
+	for _, path := range paths {
+		parts, err := splitVolumeParts(path)
+		if err != nil {
+			continue
+		}
+		if len(parts) < 2 {
+			continue
+		}
+		set[parts[1]] = struct{}{}
+	}
+	return set
+}
+
+// helper function that split volume path
+func splitVolumeParts(volumeParts string) ([]string, error) {
+	pattern := `^((?:[\w]\:)?[^\:]*)\:((?:[\w]\:)?[^\:]*)(?:\:([rwom]*))?`
+	r, err := regexp.Compile(pattern)
+	if err != nil {
+		return []string{}, err
+	}
+	if r.MatchString(volumeParts) {
+		results := r.FindStringSubmatch(volumeParts)[1:]
+		cleanResults := []string{}
+		for _, item := range results {
+			if item != "" {
+				cleanResults = append(cleanResults, item)
+			}
+		}
+		return cleanResults, nil
+	} else {
+		return strings.Split(volumeParts, ":"), nil
+	}
 }

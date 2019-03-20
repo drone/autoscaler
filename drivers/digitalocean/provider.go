@@ -41,7 +41,7 @@ func New(opts ...Option) autoscaler.Provider {
 		p.size = "s-2vcpu-4gb"
 	}
 	if p.image == "" {
-		p.image = "docker-16-04"
+		p.image = "docker-18-04"
 	}
 	if p.userdata == nil {
 		p.userdata = userdataT

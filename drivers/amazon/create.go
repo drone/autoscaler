@@ -46,6 +46,9 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		}
 	}
 
+	tags := createCopy(p.tags)
+	tags["Name"] = opts.Name
+
 	in := &ec2.RunInstancesInput{
 		KeyName:               aws.String(p.key),
 		ImageId:               aws.String(p.image),
@@ -66,7 +69,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		TagSpecifications: []*ec2.TagSpecification{
 			{
 				ResourceType: aws.String("instance"),
-				Tags:         convertTags(p.tags),
+				Tags:         convertTags(tags),
 			},
 		},
 		BlockDeviceMappings: []*ec2.BlockDeviceMapping{

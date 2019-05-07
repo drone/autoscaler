@@ -22,6 +22,15 @@ func convertTags(in map[string]string) []*ec2.Tag {
 	return out
 }
 
+// helper function creates a copy of map[string]string
+func createCopy(in map[string]string) map[string]string {
+	out := map[string]string{}
+	for k, v := range in {
+		out[k] = v
+	}
+	return out
+}
+
 // helper function returns the default image based on the
 // selected region.
 func defaultImage(region string) string {

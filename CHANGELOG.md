@@ -4,10 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [1.1.0] - 2019-05-29
 ### Added
 
 - Create AWS instances with Name tag set to agent unique id, from [@bradrydzewski](https://github.com/bradrydzewski).
+- Handle AWS instance not found errors, from [@andy-trimble](https://github.com/andy-trimble).
+- Remove hard-coded DNS servers from the default Docker configuration, from [jones2026](https://github.com/jones2026).
 
 ## [1.0.0] - 2019-05-06
 ### Added

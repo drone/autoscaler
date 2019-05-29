@@ -96,7 +96,6 @@ func (r *reaper) reap(ctx context.Context, server *autoscaler.Server) error {
 
 		err := r.provider.Destroy(ctx, in)
 		// TODO implement ErrInstanceNotFound in Google driver
-		// TODO implement ErrInstanceNotFound in Amazon driver
 		// TODO implement ErrInstanceNotFound in Hetzner driver
 		// TODO implement ErrInstanceNotFound in Packet driver
 		if err == autoscaler.ErrInstanceNotFound {

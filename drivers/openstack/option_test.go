@@ -20,7 +20,7 @@ func TestOptions(t *testing.T) {
 		WithImage("ubuntu-16.04-server-latest"),
 		WithMetadata(map[string]string{"foo": "bar", "baz": "qux"}),
 		WithSubnet("subnet-feedface"),
-		)
+	)
 	if err != nil {
 		t.Error(err)
 		return

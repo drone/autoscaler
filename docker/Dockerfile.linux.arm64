@@ -1,0 +1,18 @@
+FROM alpine:3.9
+
+LABEL maintainer="Drone.IO Community <drone-dev@googlegroups.com>" \
+  org.label-schema.name="Drone Autoscaler" \
+  org.label-schema.vendor="Drone.IO Community" \
+  org.label-schema.schema-version="1.0"
+
+EXPOSE 8080 80 443
+VOLUME /data
+ENV GODEBUG netdns=go
+ENV XDG_CACHE_HOME /data
+ENV DRONE_DATABASE_DRIVER sqlite3
+ENV DRONE_DATABASE_DATASOURCE /data/database.sqlite?cache=shared&mode=rwc&_busy_timeout=9999999
+
+RUN apk add --no-cache ca-certificates
+
+ADD release/linux/arm64/drone-autoscaler /bin/
+ENTRYPOINT ["/bin/drone-autoscaler"]

@@ -56,7 +56,6 @@ write_files:
   - path: /etc/docker/daemon.json
     content: |
       {
-        "dns": [ "8.8.8.8", "8.8.4.4" ],
         "hosts": [ "0.0.0.0:2376", "unix:///var/run/docker.sock" ],
         "tls": true,
         "tlsverify": true,

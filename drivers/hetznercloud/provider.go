@@ -34,9 +34,6 @@ func New(opts ...Option) autoscaler.Provider {
 	for _, opt := range opts {
 		opt(p)
 	}
-	if p.datacenter == "" {
-		p.datacenter = "nbg1-dc3"
-	}
 	if p.serverType == "" {
 		p.serverType = "cx11"
 	}

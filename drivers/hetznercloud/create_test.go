@@ -66,7 +66,7 @@ func testInstance(instance *autoscaler.Instance) func(t *testing.T) {
 		if got, want := instance.Name, "test"; got != want {
 			t.Errorf("Want instance Name %v, got %v", want, got)
 		}
-		if got, want := instance.Region, "nbg1-dc3"; got != want {
+		if got, want := instance.Region, "unknown"; got != want {
 			t.Errorf("Want instance Region %v, got %v", want, got)
 		}
 		if got, want := instance.Provider, autoscaler.ProviderHetznerCloud; got != want {

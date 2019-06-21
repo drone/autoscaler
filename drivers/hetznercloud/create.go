@@ -35,9 +35,6 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		Image: &hcloud.Image{
 			Name: p.image,
 		},
-		Datacenter: &hcloud.Datacenter{
-			Name: p.datacenter,
-		},
 		SSHKeys: []*hcloud.SSHKey{
 			{
 				ID: p.key,
@@ -45,8 +42,18 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		},
 	}
 
+	datacenter := "unknown"
+
+	if p.datacenter != "" {
+		req.Datacenter = &hcloud.Datacenter{
+			Name: p.datacenter,
+		}
+
+		datacenter = p.datacenter
+	}
+
 	logger := log.Ctx(ctx).With().
-		Str("datacenter", req.Datacenter.Name).
+		Str("datacenter", datacenter).
 		Str("image", req.Image.Name).
 		Str("serverType", req.ServerType.Name).
 		Str("name", req.Name).
@@ -73,7 +80,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		Name:     resp.Server.Name,
 		Address:  resp.Server.PublicNet.IPv4.IP.String(),
 		Size:     req.ServerType.Name,
-		Region:   req.Datacenter.Name,
+		Region:   datacenter,
 		Image:    req.Image.Name,
 	}, nil
 }

@@ -11,7 +11,7 @@ func TestDefaults(t *testing.T) {
 	if got, want := p.image, "ubuntu-16.04"; got != want {
 		t.Errorf("Want image %q, got %q", want, got)
 	}
-	if got, want := p.datacenter, "nbg1-dc3"; got != want {
+	if got, want := p.datacenter, ""; got != want {
 		t.Errorf("Want datacenter %q, got %q", want, got)
 	}
 	if got, want := p.serverType, "cx11"; got != want {

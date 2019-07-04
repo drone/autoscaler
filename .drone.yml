@@ -36,7 +36,7 @@ steps:
   - cd store
   - go test -v
   environment:
-    DATABASE_CONFIG: root:password@tcp(mysql:3306)/test?parseTime=true
+    DATABASE_CONFIG: "root:password@tcp(mysql:3306)/test?parseTime=true"
     DATABASE_DRIVER: mysql
 
 - name: build
@@ -50,9 +50,9 @@ steps:
   image: plugins/docker
   settings:
     auto_tag: true
+    repo: drone/autoscaler
     password:
       from_secret: docker_password
-    repo: drone/autoscaler
     username:
       from_secret: docker_username
   when:

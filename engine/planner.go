@@ -9,12 +9,14 @@ import (
 	"sort"
 	"time"
 
-	"github.com/dchest/uniuri"
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/limiter"
 	"github.com/drone/drone-go/drone"
+
+	"github.com/dchest/uniuri"
 	"github.com/rs/zerolog/log"
 )
+
 
 // a planner is responsible for capacity planning. It will assess
 // current build volume and plan the creation or termination of

@@ -45,21 +45,6 @@ steps:
   commands:
   - sh .drone.sh
 
-- name: publish
-  pull: default
-  image: plugins/docker
-  settings:
-    auto_tag: true
-    repo: drone/autoscaler
-    password:
-      from_secret: docker_password
-    username:
-      from_secret: docker_username
-  when:
-    event:
-    - push
-    - tag
-
 services:
 - name: postgres
   pull: default

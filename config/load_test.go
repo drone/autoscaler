@@ -170,6 +170,7 @@ func TestLoad(t *testing.T) {
 
 var jsonConfig = []byte(`{
   "Interval": 60000000000,
+  "Standby": 3,
   "Slack": {
     "Webhook": "https://hooks.slack.com/services/XXX/YYY/ZZZ",
     "Create": false,

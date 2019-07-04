@@ -57,6 +57,7 @@ func TestDefaults(t *testing.T) {
 func TestLoad(t *testing.T) {
 	environ := map[string]string{
 		"DRONE_INTERVAL":                   "1m",
+		"DRONE_STANDBY_CAPACITY":           "3",
 		"DRONE_SLACK_WEBHOOK":              "https://hooks.slack.com/services/XXX/YYY/ZZZ",
 		"DRONE_SLACK_CREATE":               "false",
 		"DRONE_SLACK_DESTROY":              "false",

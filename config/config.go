@@ -13,6 +13,7 @@ type (
 	Config struct {
 		License  string
 		Interval time.Duration `default:"5m"`
+		Standby     int    `default:"0"`
 
 		Slack struct {
 			Webhook string
@@ -43,7 +44,6 @@ type (
 			Token       string
 			Image       string `default:"drone/agent:1"`
 			Concurrency int    `default:"2"`
-			Standby     int    `default:"0"`
 			OS          string `default:"linux"`
 			Arch        string `default:"amd64"`
 			Version     string

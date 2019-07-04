@@ -22,6 +22,9 @@ func TestDefaults(t *testing.T) {
 	if got, want := conf.Interval, time.Minute*5; got != want {
 		t.Errorf("Want default DRONE_INTERVAL of %s, got %s", want, got)
 	}
+	if got, want := conf.Standby, 0; got != want {
+		t.Errorf("Want default DRONE_STANDBY_CAPACITY of %s, got %s", want, got)
+	}
 	if got, want := conf.Pool.Max, 4; got != want {
 		t.Errorf("Want default DRONE_POOL_MIN of %d, got %d", want, got)
 	}

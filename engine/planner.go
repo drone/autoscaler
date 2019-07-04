@@ -27,7 +27,7 @@ type planner struct {
 	min     int           // min number of servers
 	max     int           // max number of servers to allocate
 	cap     int           // capacity per-server
-	standby int           // capacity per-server
+	standby int           // standby capacity to reserve
 	ttu     time.Duration // minimum server age
 
 	client  drone.Client

@@ -22,7 +22,7 @@ func TestDefaults(t *testing.T) {
 	if got, want := conf.Interval, time.Minute*5; got != want {
 		t.Errorf("Want default DRONE_INTERVAL of %s, got %s", want, got)
 	}
-	if got, want := conf.Standby, 0; got != want {
+	if got, want := conf.Pool.Standby, 0; got != want {
 		t.Errorf("Want default DRONE_STANDBY_CAPACITY of %d, got %d", want, got)
 	}
 	if got, want := conf.Pool.Max, 4; got != want {
@@ -57,13 +57,13 @@ func TestDefaults(t *testing.T) {
 func TestLoad(t *testing.T) {
 	environ := map[string]string{
 		"DRONE_INTERVAL":                   "1m",
-		"DRONE_STANDBY_CAPACITY":           "3",
 		"DRONE_SLACK_WEBHOOK":              "https://hooks.slack.com/services/XXX/YYY/ZZZ",
 		"DRONE_SLACK_CREATE":               "false",
 		"DRONE_SLACK_DESTROY":              "false",
 		"DRONE_LOGS_DEBUG":                 "true",
 		"DRONE_LOGS_COLOR":                 "true",
 		"DRONE_LOGS_PRETTY":                "true",
+		"DRONE_POOL_STANDBY_CAPACITY":      "3",
 		"DRONE_POOL_MIN_AGE":               "1h",
 		"DRONE_POOL_MIN":                   "1",
 		"DRONE_POOL_MAX":                   "5",
@@ -171,7 +171,6 @@ func TestLoad(t *testing.T) {
 
 var jsonConfig = []byte(`{
   "Interval": 60000000000,
-  "Standby": 3,
   "Slack": {
     "Webhook": "https://hooks.slack.com/services/XXX/YYY/ZZZ",
     "Create": false,
@@ -186,7 +185,8 @@ var jsonConfig = []byte(`{
   "Pool": {
     "Min": 1,
     "Max": 5,
-    "MinAge": 3600000000000
+    "MinAge": 3600000000000,
+	"Standby": 3
   },
   "Server": {
     "Host": "drone.company.com",

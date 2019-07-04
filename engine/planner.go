@@ -9,11 +9,10 @@ import (
 	"sort"
 	"time"
 
+	"github.com/dchest/uniuri"
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/limiter"
 	"github.com/drone/drone-go/drone"
-
-	"github.com/dchest/uniuri"
 	"github.com/rs/zerolog/log"
 )
 
@@ -72,7 +71,7 @@ func (p *planner) Plan(ctx context.Context) error {
 
 	ctx = logger.WithContext(ctx)
 
-	free := max(capacity-running, 0)
+	free := max(capacity-running-p.standby, 0)
 	diff := serverDiff(pending, free, p.cap)
 
 	// if the server differential to handle the build volume

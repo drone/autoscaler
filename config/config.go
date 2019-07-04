@@ -43,6 +43,7 @@ type (
 			Token       string
 			Image       string `default:"drone/agent:1"`
 			Concurrency int    `default:"2"`
+			Standby     int    `default:"0"`
 			OS          string `default:"linux"`
 			Arch        string `default:"amd64"`
 			Version     string

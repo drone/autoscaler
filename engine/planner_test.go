@@ -13,7 +13,6 @@ import (
 	"github.com/drone/autoscaler/config"
 	"github.com/drone/autoscaler/mocks"
 	"github.com/drone/drone-go/drone"
-
 	"github.com/golang/mock/gomock"
 )
 
@@ -41,6 +40,43 @@ func TestPlan_Noop(t *testing.T) {
 
 	p := planner{
 		cap:     2,
+		min:     2,
+		max:     10,
+		client:  client,
+		servers: store,
+	}
+
+	err := p.Plan(context.TODO())
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+// This test verifies that if the server capacity is
+// >= the pending count, and the server capacity is
+// <= the pool minimum size, no actions are taken.
+func TestPlan_StandbyCapacity(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	servers := []*autoscaler.Server{
+		{Name: "server1", Capacity: 2, State: autoscaler.StateRunning},
+		{Name: "server2", Capacity: 2, State: autoscaler.StateRunning},
+	}
+
+	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().List(gomock.Any()).Return(servers, nil)
+
+	client := mocks.NewMockClient(controller)
+	client.EXPECT().Queue().Return([]*drone.Stage{
+		{Status: drone.StatusRunning},
+		{Status: drone.StatusPending},
+		{Status: drone.StatusPending},
+	}, nil)
+
+	p := planner{
+		cap:     2,
+		standby: 2,
 		min:     2,
 		max:     10,
 		client:  client,

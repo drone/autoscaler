@@ -13,7 +13,7 @@ type (
 	Config struct {
 		License  string
 		Interval time.Duration `default:"5m"`
-		Standby  int           `default:"0"`
+		Standby  int           `envconfig:"DRONE_STANDBY_CAPACITY" default:"0"`
 
 		Slack struct {
 			Webhook string

@@ -13,7 +13,7 @@ type (
 	Config struct {
 		License  string
 		Interval time.Duration `default:"5m"`
-		Standby     int    `default:"0"`
+		Standby  int           `default:"0"`
 
 		Slack struct {
 			Webhook string

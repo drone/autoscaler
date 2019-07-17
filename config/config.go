@@ -65,8 +65,8 @@ type (
 		Watchtower struct {
 			Enabled  bool          `envconfig:"DRONE_WATCHTOWER_ENABLED"`
 			Image    string        `envconfig:"DRONE_WATCHTOWER_IMAGE" default:"webhippie/watchtower"`
-			Interval int           `envconfig:"DRONE_WATCHTWOER_INTERVAL" default:"300"`
-			Timeout  time.Duration `envconfig:"DRONE_WATCHTWOER_TIMEOUT" default:"120m"`
+			Interval int           `envconfig:"DRONE_WATCHTOWER_INTERVAL" default:"300"`
+			Timeout  time.Duration `envconfig:"DRONE_WATCHTOWER_TIMEOUT" default:"120m"`
 		}
 
 		HTTP struct {

@@ -7,6 +7,7 @@ package engine
 import (
 	"context"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/drone/autoscaler"
@@ -29,6 +30,7 @@ type planner struct {
 	max     int           // max number of servers to allocate
 	cap     int           // capacity per-server
 	ttu     time.Duration // minimum server age
+	labels  []string
 
 	client  drone.Client
 	servers autoscaler.ServerStore
@@ -268,8 +270,29 @@ func (p *planner) listBusy(ctx context.Context) (map[string]struct{}, error) {
 // helper function returns true if the os, arch, variant
 // and kernel match the stage.
 func (p *planner) match(stage *drone.Stage) bool {
+	labelMatch := true
+
+	if len(p.labels) > 0 || len(stage.Labels) > 0 {
+		labelMatch = p.matchLabel(stage)
+	}
+
 	return stage.OS == p.os &&
 		stage.Arch == p.arch &&
 		stage.Variant == p.version &&
-		stage.Kernel == p.kernel
+		stage.Kernel == p.kernel &&
+		labelMatch
+}
+
+func (p *planner) matchLabel(stage *drone.Stage) bool {
+	plannerLabels := formatLabels(p.labels)
+
+	for key, val := range stage.Labels {
+		if plannerVal, ok := plannerLabels[key]; ok {
+			if strings.EqualFold(plannerVal, val) {
+				return true
+			}
+		}
+	}
+
+	return false
 }

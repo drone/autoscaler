@@ -7,7 +7,6 @@ package engine
 import (
 	"context"
 	"sort"
-	"strings"
 	"time"
 
 	"github.com/drone/autoscaler"
@@ -30,7 +29,7 @@ type planner struct {
 	max     int           // max number of servers to allocate
 	cap     int           // capacity per-server
 	ttu     time.Duration // minimum server age
-	labels  []string
+	labels  map[string]string
 
 	client  drone.Client
 	servers autoscaler.ServerStore
@@ -273,7 +272,7 @@ func (p *planner) match(stage *drone.Stage) bool {
 	labelMatch := true
 
 	if len(p.labels) > 0 || len(stage.Labels) > 0 {
-		labelMatch = p.matchLabel(stage)
+		labelMatch = checkLabels(p.labels, stage.Labels)
 	}
 
 	return stage.OS == p.os &&
@@ -283,16 +282,14 @@ func (p *planner) match(stage *drone.Stage) bool {
 		labelMatch
 }
 
-func (p *planner) matchLabel(stage *drone.Stage) bool {
-	plannerLabels := formatLabels(p.labels)
-
-	for key, val := range stage.Labels {
-		if plannerVal, ok := plannerLabels[key]; ok {
-			if strings.EqualFold(plannerVal, val) {
-				return true
-			}
+func checkLabels(a, b map[string]string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for k, v := range a {
+		if w, ok := b[k]; !ok || v != w {
+			return false
 		}
 	}
-
-	return false
+	return true
 }

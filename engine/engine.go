@@ -59,6 +59,7 @@ func New(
 			secret:             config.Agent.Token,
 			envs:               config.Agent.Environ,
 			volumes:            config.Agent.Volumes,
+			labels:             config.Agent.Labels,
 			proto:              config.Server.Proto,
 			host:               config.Server.Host,
 			client:             newDockerClient,
@@ -89,6 +90,7 @@ func New(
 			min:     config.Pool.Min,
 			max:     config.Pool.Max,
 			cap:     config.Agent.Concurrency,
+			labels:  config.Agent.Labels,
 		},
 		reaper: &reaper{
 			servers:  servers,

@@ -49,6 +49,7 @@ type (
 			Kernel      string
 			Environ     []string
 			Volumes     []string
+			Labels      map[string]string `envconfig:"DRONE_AGENT_LABELS"`
 		}
 
 		Runner Runner

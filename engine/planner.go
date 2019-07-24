@@ -30,6 +30,7 @@ type planner struct {
 	cap     int           // capacity per-server
 	standby int           // standby capacity to reserve
 	ttu     time.Duration // minimum server age
+	labels  map[string]string
 
 	client  drone.Client
 	servers autoscaler.ServerStore
@@ -269,8 +270,27 @@ func (p *planner) listBusy(ctx context.Context) (map[string]struct{}, error) {
 // helper function returns true if the os, arch, variant
 // and kernel match the stage.
 func (p *planner) match(stage *drone.Stage) bool {
+	labelMatch := true
+
+	if len(p.labels) > 0 || len(stage.Labels) > 0 {
+		labelMatch = checkLabels(p.labels, stage.Labels)
+	}
+
 	return stage.OS == p.os &&
 		stage.Arch == p.arch &&
 		stage.Variant == p.version &&
-		stage.Kernel == p.kernel
+		stage.Kernel == p.kernel &&
+		labelMatch
+}
+
+func checkLabels(a, b map[string]string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for k, v := range a {
+		if w, ok := b[k]; !ok || v != w {
+			return false
+		}
+	}
+	return true
 }

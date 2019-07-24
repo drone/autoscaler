@@ -36,6 +36,7 @@ type installer struct {
 	keepaliveTime    time.Duration
 	keepaliveTimeout time.Duration
 	runner           config.Runner
+	labels           map[string]string
 
 	gcEnabled  bool
 	gcDebug    bool
@@ -157,6 +158,18 @@ poller:
 		fmt.Sprintf("DRONE_RUNNER_DEVICES=%s", i.runner.Devices),
 		fmt.Sprintf("DRONE_RUNNER_PRIVILEGED_IMAGES=%s", i.runner.Privileged),
 	)
+
+	if len(i.labels) > 0 {
+		var stringLabels []string
+
+		for key, val := range i.labels {
+			stringLabels = append(stringLabels, fmt.Sprintf("%s:%s", key, val))
+		}
+
+		envs = append(envs,
+			fmt.Sprintf("DRONE_RUNNER_LABELS=%s", strings.Join(stringLabels, ",")),
+		)
+	}
 
 	volumes := append(i.volumes,
 		"/var/run/docker.sock:/var/run/docker.sock",

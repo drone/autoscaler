@@ -450,6 +450,7 @@ func TestMatch(t *testing.T) {
 		arch    string
 		version string
 		kernel  string
+		labels  map[string]string
 		stage   *drone.Stage
 	}{
 		{
@@ -470,6 +471,93 @@ func TestMatch(t *testing.T) {
 				Arch: "arm",
 			},
 		},
+		{
+			match: false,
+			os:    "linux",
+			arch:  "amd64",
+			stage: &drone.Stage{
+				OS:   "linux",
+				Arch: "amd64",
+				Labels: map[string]string{
+					"region": "us-west-2",
+				},
+			},
+		},
+		{
+			match: false,
+			os:    "linux",
+			arch:  "amd64",
+			labels: map[string]string{
+				"region": "us-west-2",
+			},
+			stage: &drone.Stage{
+				OS:   "linux",
+				Arch: "amd64",
+			},
+		},
+		{
+			match: true,
+			os:    "linux",
+			arch:  "amd64",
+			labels: map[string]string{
+				"region": "us-west-2",
+			},
+			stage: &drone.Stage{
+				OS:   "linux",
+				Arch: "amd64",
+				Labels: map[string]string{
+					"region": "us-west-2",
+				},
+			},
+		},
+		{
+			match: true,
+			os:    "linux",
+			arch:  "amd64",
+			labels: map[string]string{
+				"region": "us-west-2",
+				"mem":    "high",
+			},
+			stage: &drone.Stage{
+				OS:   "linux",
+				Arch: "amd64",
+				Labels: map[string]string{
+					"region": "us-west-2",
+					"mem":    "high",
+				},
+			},
+		},
+		{
+			match: false,
+			os:    "linux",
+			arch:  "amd64",
+			labels: map[string]string{
+				"region": "us-east-2",
+			},
+			stage: &drone.Stage{
+				OS:   "linux",
+				Arch: "amd64",
+				Labels: map[string]string{
+					"region": "us-west-2",
+				},
+			},
+		},
+		{
+			match: false,
+			os:    "linux",
+			arch:  "amd64",
+			labels: map[string]string{
+				"region": "us-east-2",
+				"mem":    "high",
+			},
+			stage: &drone.Stage{
+				OS:   "linux",
+				Arch: "amd64",
+				Labels: map[string]string{
+					"region": "us-west-2",
+				},
+			},
+		},
 	}
 	for _, test := range tests {
 		p := &planner{
@@ -477,6 +565,7 @@ func TestMatch(t *testing.T) {
 			arch:    test.arch,
 			version: test.version,
 			kernel:  test.kernel,
+			labels:  test.labels,
 		}
 		if p.match(test.stage) != test.match {
 			t.Fail()

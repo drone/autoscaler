@@ -11,8 +11,9 @@ import (
 type (
 	// Config stores the configuration settings.
 	Config struct {
-		License  string
-		Interval time.Duration `default:"5m"`
+		License        string
+		Interval       time.Duration `default:"5m"`
+		CapacityBuffer int           `default:"0" split_words:"true"`
 
 		Slack struct {
 			Webhook string
@@ -28,10 +29,9 @@ type (
 		}
 
 		Pool struct {
-			Min     int           `default:"2"`
-			Max     int           `default:"4"`
-			MinAge  time.Duration `default:"55m" split_words:"true"`
-			Standby int           `envconfig:"DRONE_POOL_STANDBY_CAPACITY" default:"0"`
+			Min    int           `default:"2"`
+			Max    int           `default:"4"`
+			MinAge time.Duration `default:"55m" split_words:"true"`
 		}
 
 		Server struct {

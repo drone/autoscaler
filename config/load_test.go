@@ -22,8 +22,8 @@ func TestDefaults(t *testing.T) {
 	if got, want := conf.Interval, time.Minute*5; got != want {
 		t.Errorf("Want default DRONE_INTERVAL of %s, got %s", want, got)
 	}
-	if got, want := conf.Pool.Standby, 0; got != want {
-		t.Errorf("Want default DRONE_STANDBY_CAPACITY of %d, got %d", want, got)
+	if got, want := conf.CapacityBuffer, 0; got != want {
+		t.Errorf("Want default DRONE_CAPACITY_BUFFER of %d, got %d", want, got)
 	}
 	if got, want := conf.Pool.Max, 4; got != want {
 		t.Errorf("Want default DRONE_POOL_MIN of %d, got %d", want, got)
@@ -63,7 +63,7 @@ func TestLoad(t *testing.T) {
 		"DRONE_LOGS_DEBUG":                 "true",
 		"DRONE_LOGS_COLOR":                 "true",
 		"DRONE_LOGS_PRETTY":                "true",
-		"DRONE_POOL_STANDBY_CAPACITY":      "3",
+		"DRONE_CAPACITY_BUFFER":            "3",
 		"DRONE_POOL_MIN_AGE":               "1h",
 		"DRONE_POOL_MIN":                   "1",
 		"DRONE_POOL_MAX":                   "5",
@@ -171,6 +171,7 @@ func TestLoad(t *testing.T) {
 
 var jsonConfig = []byte(`{
   "Interval": 60000000000,
+  "CapacityBuffer": 3,
   "Slack": {
     "Webhook": "https://hooks.slack.com/services/XXX/YYY/ZZZ",
     "Create": false,
@@ -185,8 +186,7 @@ var jsonConfig = []byte(`{
   "Pool": {
     "Min": 1,
     "Max": 5,
-    "MinAge": 3600000000000,
-	"Standby": 3
+	"MinAge": 3600000000000
   },
   "Server": {
     "Host": "drone.company.com",

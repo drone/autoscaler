@@ -11,8 +11,9 @@ import (
 type (
 	// Config stores the configuration settings.
 	Config struct {
-		License  string
-		Interval time.Duration `default:"5m"`
+		License        string
+		Interval       time.Duration `default:"5m"`
+		CapacityBuffer int           `default:"0" split_words:"true"`
 
 		Slack struct {
 			Webhook string

@@ -28,6 +28,7 @@ type planner struct {
 	min     int           // min number of servers
 	max     int           // max number of servers to allocate
 	cap     int           // capacity per-server
+	buffer  int           // buffer capacity to have warm and ready
 	ttu     time.Duration // minimum server age
 	labels  map[string]string
 
@@ -59,6 +60,7 @@ func (p *planner) Plan(ctx context.Context) error {
 	logger.Debug().
 		Int("min-pool", p.min).
 		Int("max-pool", p.max).
+		Int("server-buffer", p.buffer).
 		Int("server-capacity", capacity).
 		Int("server-count", servers).
 		Int("pending-builds", pending).
@@ -72,7 +74,7 @@ func (p *planner) Plan(ctx context.Context) error {
 
 	ctx = logger.WithContext(ctx)
 
-	free := max(capacity-running, 0)
+	free := max(capacity-running-p.buffer, 0)
 	diff := serverDiff(pending, free, p.cap)
 
 	// if the server differential to handle the build volume

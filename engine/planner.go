@@ -60,6 +60,7 @@ func (p *planner) Plan(ctx context.Context) error {
 	logger.Debug().
 		Int("min-pool", p.min).
 		Int("max-pool", p.max).
+		Int("server-buffer", p.buffer).
 		Int("server-capacity", capacity).
 		Int("server-count", servers).
 		Int("pending-builds", pending).

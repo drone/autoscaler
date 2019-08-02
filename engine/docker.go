@@ -18,11 +18,11 @@ import (
 // clientFunc defines a builder funciton used to build and return
 // the docker client from a Server. This is primarily used for
 // mock unit testing.
-type clientFunc func(*autoscaler.Server) (docker.APIClient, error)
+type clientFunc func(*autoscaler.Server) (*docker.Client, error)
 
 // newDockerClient returns a new Docker client configured for the
 // Server host and certificate chain.
-func newDockerClient(server *autoscaler.Server) (docker.APIClient, error) {
+func newDockerClient(server *autoscaler.Server) (*docker.Client, error) {
 	tlsCert, err := tls.X509KeyPair(server.TLSCert, server.TLSKey)
 	if err != nil {
 		return nil, err

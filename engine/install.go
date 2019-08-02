@@ -90,6 +90,7 @@ func (i *installer) install(ctx context.Context, instance *autoscaler.Server) er
 		Logger()
 
 	client, err := i.client(instance)
+	defer client.Close()
 	if err != nil {
 		logger.Error().Err(err).
 			Msg("cannot create docker client")
@@ -252,7 +253,7 @@ poller:
 	return i.servers.Update(ctx, instance)
 }
 
-func (i *installer) setupWatchtower(ctx context.Context, client docker.APIClient) error {
+func (i *installer) setupWatchtower(ctx context.Context, client *docker.Client) error {
 	vols := []string{"/var/run/docker.sock:/var/run/docker.sock"}
 	res, err := client.ContainerCreate(ctx,
 		&container.Config{
@@ -278,7 +279,7 @@ func (i *installer) setupWatchtower(ctx context.Context, client docker.APIClient
 	return client.ContainerStart(ctx, res.ID, types.ContainerStartOptions{})
 }
 
-func (i *installer) setupGarbageCollectoer(ctx context.Context, client docker.APIClient) error {
+func (i *installer) setupGarbageCollectoer(ctx context.Context, client *docker.Client) error {
 	vols := []string{"/var/run/docker.sock:/var/run/docker.sock"}
 	envs := []string{
 		fmt.Sprintf("GC_CACHE=%s", i.gcCache),

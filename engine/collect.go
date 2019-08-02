@@ -80,10 +80,10 @@ func (c *collector) collect(ctx context.Context, server *autoscaler.Server) erro
 	}
 
 	client, err := c.client(server)
+	defer client.Close()
 	if err != nil {
 		return err
 	}
-
 	timeout := time.Hour * 60
 	err = client.ContainerStop(ctx, "agent", &timeout)
 	if err != nil {

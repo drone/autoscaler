@@ -39,7 +39,7 @@ func TestCollect(t *testing.T) {
 	c := collector{
 		servers:  store,
 		provider: provider,
-		client: func(*autoscaler.Server) (docker.APIClient, error) {
+		client: func(*autoscaler.Server) (*docker.Client, error) {
 			return client, nil
 		},
 	}
@@ -78,7 +78,7 @@ func TestCollect_DockerStopError(t *testing.T) {
 	c := collector{
 		servers:  store,
 		provider: provider,
-		client: func(*autoscaler.Server) (docker.APIClient, error) {
+		client: func(*autoscaler.Server) (*docker.Client, error) {
 			return client, nil
 		},
 	}
@@ -120,7 +120,7 @@ func TestCollect_ServerDestroyError(t *testing.T) {
 	c := collector{
 		servers:  store,
 		provider: provider,
-		client: func(*autoscaler.Server) (docker.APIClient, error) {
+		client: func(*autoscaler.Server) (*docker.Client, error) {
 			return client, nil
 		},
 	}

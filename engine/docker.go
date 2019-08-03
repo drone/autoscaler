@@ -26,7 +26,7 @@ type clientFunc func(*autoscaler.Server) (docker.APIClient, io.Closer, error)
 func newDockerClient(server *autoscaler.Server) (docker.APIClient, io.Closer, error) {
 	tlsCert, err := tls.X509KeyPair(server.TLSCert, server.TLSKey)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	tlsConfig := &tls.Config{
 		ServerName:   server.Name,

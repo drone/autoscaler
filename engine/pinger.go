@@ -60,7 +60,9 @@ func (p *pinger) ping(ctx context.Context, server *autoscaler.Server) error {
 		Logger()
 
 	client, closer, err := p.client(server)
-	defer closer.Close()
+	if closer != nil {
+		defer closer.Close()
+	}
 	if err != nil {
 		logger.Error().Err(err).
 			Msg("cannot create docker client")

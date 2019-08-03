@@ -90,7 +90,9 @@ func (i *installer) install(ctx context.Context, instance *autoscaler.Server) er
 		Logger()
 
 	client, closer, err := i.client(instance)
-	defer closer.Close()
+	if closer != nil {
+		defer closer.Close()
+	}
 	if err != nil {
 		logger.Error().Err(err).
 			Msg("cannot create docker client")

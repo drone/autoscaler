@@ -80,7 +80,9 @@ func (c *collector) collect(ctx context.Context, server *autoscaler.Server) erro
 	}
 
 	client, closer, err := c.client(server)
-	defer closer.Close()
+	if closer != nil {
+		defer closer.Close()
+	}
 	if err != nil {
 		return err
 	}

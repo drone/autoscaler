@@ -86,6 +86,7 @@ func New(
 			arch:    config.Agent.Arch,
 			version: config.Agent.Version,
 			kernel:  config.Agent.Kernel,
+			buffer:  config.CapacityBuffer,
 			ttu:     config.Pool.MinAge,
 			min:     config.Pool.Min,
 			max:     config.Pool.Max,

@@ -98,5 +98,6 @@ func (p *pinger) ping(ctx context.Context, server *autoscaler.Server) error {
 
 	server.Error = "Failed to ping the server"
 	server.Stopped = time.Now().Unix()
+	server.State = autoscaler.StateError
 	return p.servers.Update(ctx, server)
 }

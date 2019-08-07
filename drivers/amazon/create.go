@@ -144,10 +144,10 @@ poller:
 				},
 			)
 			if err != nil {
-				logger.Error().
+				logger.Warn().
 					Err(err).
 					Msg("instance details failed")
-				return nil, err
+				continue
 			}
 			amazonInstance = desc.Reservations[0].Instances[0]
 

@@ -4,8 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [1.2.1] - 2019-08-14
 ### Added
+
+- Added postgres driver, by [@mmuehlberger](https://github.com/mmuehlberger).
+- Support for capacity buffer, by [@jones2026](https://github.com/jones2026). [#39](https://github.com/drone/autoscaler/pull/39).
+
+### Fixed
+
+- Close docker client after server ping, by [@msaizar](https://github.com/msaizar), [#42](https://github.com/drone/autoscaler/pull/42).
 
 ## [1.2.0] - 2019-07-29
 ### Added

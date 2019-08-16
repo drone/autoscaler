@@ -55,6 +55,8 @@ func New(
 		},
 		installer: &installer{
 			servers:            servers,
+			os:                 config.Agent.OS,
+			arch:               config.Agent.Arch,
 			image:              config.Agent.Image,
 			secret:             config.Agent.Token,
 			envs:               config.Agent.Environ,

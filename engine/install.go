@@ -21,12 +21,15 @@ import (
 	docker "docker.io/go-docker"
 	"docker.io/go-docker/api/types"
 	"docker.io/go-docker/api/types/container"
+	"docker.io/go-docker/api/types/mount"
 	"github.com/rs/zerolog/log"
 )
 
 type installer struct {
 	wg sync.WaitGroup
 
+	os               string
+	arch             string
 	image            string
 	secret           string
 	volumes          []string
@@ -171,9 +174,26 @@ poller:
 		)
 	}
 
-	volumes := append(i.volumes,
-		"/var/run/docker.sock:/var/run/docker.sock",
-	)
+	var mounts []mount.Mount
+	var volumes []string
+	switch i.os {
+	case "windows":
+		mounts = append(mounts, mount.Mount{
+			Source: `//./pipe/docker_engine`,
+			Target: `//./pipe/docker_engine`,
+			Type:   mount.TypeNamedPipe,
+		})
+	default:
+		volumes = append(i.volumes,
+			"/var/run/docker.sock:/var/run/docker.sock",
+		)
+
+		// if memory serves me correctly, we need to explicitly
+		// set this to nil to ensure the json representation
+		// of this value is null. but I could be wrong in which
+		// case this can be removed. ‾\_(ツ)_/‾
+		mounts = nil
+	}
 
 	res, err := client.ContainerCreate(ctx,
 		&container.Config{
@@ -193,7 +213,8 @@ poller:
 			},
 		},
 		&container.HostConfig{
-			Binds: volumes,
+			Binds:  volumes,
+			Mounts: mounts,
 			RestartPolicy: container.RestartPolicy{
 				Name: "always",
 			},

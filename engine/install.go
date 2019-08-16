@@ -179,8 +179,8 @@ poller:
 	switch i.os {
 	case "windows":
 		mounts = append(mounts, mount.Mount{
-			Source: `//./pipe/docker_engine`,
-			Target: `//./pipe/docker_engine`,
+			Source: `\\.\pipe\docker_engine`,
+			Target: `\\.\pipe\docker_engine`,
 			Type:   mount.TypeNamedPipe,
 		})
 	default:

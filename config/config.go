@@ -48,6 +48,7 @@ type (
 			Arch        string `default:"amd64"`
 			Version     string
 			Kernel      string
+			EnvironFile string `envconfig:"DRONE_AGENT_ENV_FILE"`
 			Environ     []string
 			Volumes     []string
 			Labels      map[string]string `envconfig:"DRONE_AGENT_LABELS"`

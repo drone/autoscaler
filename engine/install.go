@@ -250,7 +250,7 @@ poller:
 		logger.Debug().
 			Str("image", i.image).
 			Msg("setup the garbage collector")
-		err = i.setupGarbageCollectoer(ctx, client)
+		err = i.setupGarbageCollector(ctx, client)
 		if err != nil {
 			logger.Warn().
 				Err(err).
@@ -302,7 +302,7 @@ func (i *installer) setupWatchtower(ctx context.Context, client docker.APIClient
 	return client.ContainerStart(ctx, res.ID, types.ContainerStartOptions{})
 }
 
-func (i *installer) setupGarbageCollectoer(ctx context.Context, client docker.APIClient) error {
+func (i *installer) setupGarbageCollector(ctx context.Context, client docker.APIClient) error {
 	vols := []string{"/var/run/docker.sock:/var/run/docker.sock"}
 	envs := []string{
 		fmt.Sprintf("GC_CACHE=%s", i.gcCache),
@@ -314,6 +314,21 @@ func (i *installer) setupGarbageCollectoer(ctx context.Context, client docker.AP
 			fmt.Sprintf("GC_IGNORE=%s", strings.Join(i.gcIgnore, ",")),
 		)
 	}
+
+	logger.Debug().
+		Str("image", i.gcImage).
+		Msg("pull gc image")
+
+	rc, err := client.ImagePull(ctx, i.gcImage, types.ImagePullOptions{})
+	if err != nil {
+		logger.Error().Err(err).
+			Str("image", i.gcImage).
+			Msg("cannot pull gc image")
+		return err
+	}
+	io.Copy(ioutil.Discard, rc)
+	rc.Close()
+
 	res, err := client.ContainerCreate(ctx,
 		&container.Config{
 			Image:        i.gcImage,

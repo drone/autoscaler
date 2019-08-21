@@ -303,6 +303,7 @@ func (i *installer) setupWatchtower(ctx context.Context, client docker.APIClient
 }
 
 func (i *installer) setupGarbageCollector(ctx context.Context, client docker.APIClient) error {
+	logger := log.Ctx(ctx)
 	vols := []string{"/var/run/docker.sock:/var/run/docker.sock"}
 	envs := []string{
 		fmt.Sprintf("GC_CACHE=%s", i.gcCache),

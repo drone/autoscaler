@@ -149,6 +149,16 @@ poller:
 					Msg("instance details failed")
 				continue
 			}
+
+			if len(desc.Reservations) == 0 {
+				logger.Warn().Msg("empty reservations in details")
+				continue
+			}
+			if len(desc.Reservations[0].Instances) == 0 {
+				logger.Warn().Msg("empty instances in reservations")
+				continue
+			}
+
 			amazonInstance = desc.Reservations[0].Instances[0]
 
 			if p.privateIP {

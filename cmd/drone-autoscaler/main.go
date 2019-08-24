@@ -19,6 +19,7 @@ import (
 	"github.com/drone/autoscaler/drivers/hetznercloud"
 	"github.com/drone/autoscaler/drivers/openstack"
 	"github.com/drone/autoscaler/drivers/packet"
+	"github.com/drone/autoscaler/drivers/scaleway"
 	"github.com/drone/autoscaler/engine"
 	"github.com/drone/autoscaler/metrics"
 	"github.com/drone/autoscaler/server"
@@ -218,6 +219,18 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			digitalocean.WithToken(c.DigitalOcean.Token),
 			digitalocean.WithTags(c.DigitalOcean.Tags...),
 		), nil
+	case c.Scaleway.AccessKey != "":
+		return scaleway.New(
+			scaleway.WithAccessKey(c.Scaleway.AccessKey),
+			scaleway.WithSecretKey(c.Scaleway.SecretKey),
+			scaleway.WithOrganisationID(c.Scaleway.OrganisationID),
+			scaleway.WithZone(c.Scaleway.Zone),
+			scaleway.WithSize(c.Scaleway.Size),
+			scaleway.WithImage(c.Scaleway.Image),
+			scaleway.WithTags(c.Scaleway.Tags...),
+			scaleway.WithUserData(c.Scaleway.UserData),
+			scaleway.WithUserDataFile(c.Scaleway.UserDataFile),
+		)
 	case c.HetznerCloud.Token != "":
 		return hetznercloud.New(
 			hetznercloud.WithDatacenter(c.HetznerCloud.Datacenter),

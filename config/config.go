@@ -172,6 +172,18 @@ type (
 			UserData      string `envconfig:"DRONE_OPENSTACK_USERDATA"`
 			UserDataFile  string `envconfig:"DRONE_OPENSTACK_USERDATA_FILE"`
 		}
+
+		Scaleway struct {
+			AccessKey      string `split_words:"true"`
+			SecretKey      string `split_words:"true"`
+			OrganisationID string `split_words:"true"`
+			Zone           string
+			Size           string
+			Image          string
+			Tags           []string
+			UserData       string `envconfig:"DRONE_SCALEWAY_USERDATA"`
+			UserDataFile   string `envconfig:"DRONE_SCALEWAY_USERDATA_FILE"`
+		}
 	}
 
 	Runner struct {

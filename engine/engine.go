@@ -98,6 +98,7 @@ func New(
 		reaper: &reaper{
 			servers:  servers,
 			provider: provider,
+			interval: config.Reaper.Interval,
 		},
 	}
 }
@@ -256,9 +257,9 @@ func (e *engine) purge(ctx context.Context) {
 
 // runs the reaper process.
 func (e *engine) reap(ctx context.Context) {
-	// the reaper is run hourly since in general this
+	// by default, the reaper is run hourly since in general this
 	// should happen infrequently.
-	const interval = time.Hour
+	const interval = e.reaper.interval
 	for {
 		select {
 		case <-ctx.Done():

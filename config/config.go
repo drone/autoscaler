@@ -65,6 +65,11 @@ type (
 			Cache    string        `envconfig:"DRONE_GC_CACHE" default:"10gb"`
 		}
 
+		Reaper struct {
+			Enabled  bool          `envconfig:"DRONE_ENABLE_REAPER" default:"false"`
+			Interval time.Duration `envconfig:"DRONE_REAPER_INTERVAL" default:"1h"`
+		}
+
 		Watchtower struct {
 			Enabled  bool          `envconfig:"DRONE_WATCHTOWER_ENABLED"`
 			Image    string        `envconfig:"DRONE_WATCHTOWER_IMAGE" default:"webhippie/watchtower"`

@@ -40,6 +40,7 @@ type reaper struct {
 
 	servers  autoscaler.ServerStore
 	provider autoscaler.Provider
+	interval time.Duration
 }
 
 func (r *reaper) Reap(ctx context.Context) error {

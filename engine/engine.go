@@ -259,12 +259,11 @@ func (e *engine) purge(ctx context.Context) {
 func (e *engine) reap(ctx context.Context) {
 	// by default, the reaper is run hourly since in general this
 	// should happen infrequently.
-	const interval = e.reaper.interval
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		case <-time.After(interval):
+		case <-time.After(e.reaper.interval):
 			e.reaper.Reap(ctx)
 		}
 	}

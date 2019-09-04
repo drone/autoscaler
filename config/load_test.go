@@ -323,7 +323,6 @@ var jsonConfig = []byte(`{
 		"Cache": "10gb"
 	},
 	"Reaper": {
-		"Enabled": false,
 		"Interval": 3600000000000
 	}
 }`)

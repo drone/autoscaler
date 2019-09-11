@@ -106,11 +106,14 @@ func (i *installer) install(ctx context.Context, instance *autoscaler.Server) er
 		Str("name", instance.Name).
 		Msg("check docker connectivity")
 
+	timeout, cancel := context.WithTimeout(ctx, time.Hour)
+	defer cancel()
+
 	interval := time.Duration(0)
 poller:
 	for {
 		select {
-		case <-ctx.Done():
+		case <-timeout.Done():
 			logger.Debug().
 				Str("name", instance.Name).
 				Msg("connection timeout")

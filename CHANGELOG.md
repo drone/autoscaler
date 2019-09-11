@@ -5,7 +5,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [1.3.0] - 2019-09-11
 ### Added
+
+- Added support for Scaleway, by [@frebib](https://github.com/frebib). [#45](https://github.com/drone/autoscaler/pull/45).
+
+### Fixed
+
+- Fixed issue where non-existing instance could not be destroyed, by [@jlesage](https://github.com/jlesage). [#50](https://github.com/drone/autoscaler/pull/50).
+- Added timeout when attempting to ping the instance, by [@bradrydzewski](https://github.com/bradrydzewski).
+
+## [1.2.2] - 2019-08-29
+### Added
+
+- Support for loading runner environment variables from file, by [@bradrydzewski](https://github.com/bradrydzewski).
+- Basic support for configuring windows agents, by [@bradrydzewski](https://github.com/bradrydzewski).
+
+### Fixed
+
+- Pull garbage collector image before creating the container, by [@msaizar](https://github.com/msaizar).
+- Handle nil pointer caused by empty or missing interface in AWS driver, by [@bradrydzewski](https://github.com/bradrydzewski).
 
 ## [1.2.1] - 2019-08-14
 ### Added

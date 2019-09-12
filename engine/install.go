@@ -118,7 +118,7 @@ poller:
 				Str("name", instance.Name).
 				Msg("connection timeout")
 
-			return i.errorUpdate(ctx, instance, ctx.Err())
+			return i.errorUpdate(ctx, instance, timeout.Err())
 		case <-time.After(interval):
 			interval = time.Minute
 

@@ -4,13 +4,30 @@
 
 package config
 
-import "github.com/kelseyhightower/envconfig"
+import (
+	"fmt"
+
+	"github.com/joho/godotenv"
+	"github.com/kelseyhightower/envconfig"
+)
 
 // Load loads the configuration from the environment.
 func Load() (Config, error) {
 	config := Config{}
-	err := envconfig.Process("DRONE", &config)
-	return config, err
+	if err := envconfig.Process("DRONE", &config); err != nil {
+		return config, err
+	}
+	if path := config.Agent.EnvironFile; path != "" {
+		envs, _ := godotenv.Read(path)
+		for k, v := range envs {
+			config.Agent.Environ = append(
+				config.Agent.Environ,
+				fmt.Sprintf("%s=%s", k, v),
+			)
+		}
+	}
+	godotenv.Load()
+	return config, nil
 }
 
 // MustLoad loads the configuration from the environmnet

@@ -79,7 +79,10 @@ func (c *collector) collect(ctx context.Context, server *autoscaler.Server) erro
 		Size:     server.Size,
 	}
 
-	client, err := c.client(server)
+	client, closer, err := c.client(server)
+	if closer != nil {
+		defer closer.Close()
+	}
 	if err != nil {
 		return err
 	}
@@ -93,7 +96,15 @@ func (c *collector) collect(ctx context.Context, server *autoscaler.Server) erro
 	}
 
 	err = c.provider.Destroy(ctx, in)
-	if err != nil {
+        if err == autoscaler.ErrInstanceNotFound {
+		logger.Info().
+			Str("state", "error").
+			Str("server", server.Name).
+			Msg("server no longer exists. nothing to destroy")
+
+		server.Stopped = time.Now().Unix()
+		server.State = autoscaler.StateStopped
+        } else if err != nil {
 		logger.Error().
 			Str("server", server.Name).
 			Msg("failed to destroy server")

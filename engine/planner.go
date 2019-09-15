@@ -28,7 +28,9 @@ type planner struct {
 	min     int           // min number of servers
 	max     int           // max number of servers to allocate
 	cap     int           // capacity per-server
+	buffer  int           // buffer capacity to have warm and ready
 	ttu     time.Duration // minimum server age
+	labels  map[string]string
 
 	client  drone.Client
 	servers autoscaler.ServerStore
@@ -58,6 +60,7 @@ func (p *planner) Plan(ctx context.Context) error {
 	logger.Debug().
 		Int("min-pool", p.min).
 		Int("max-pool", p.max).
+		Int("server-buffer", p.buffer).
 		Int("server-capacity", capacity).
 		Int("server-count", servers).
 		Int("pending-builds", pending).
@@ -71,7 +74,7 @@ func (p *planner) Plan(ctx context.Context) error {
 
 	ctx = logger.WithContext(ctx)
 
-	free := max(capacity-running, 0)
+	free := max(capacity-running-p.buffer, 0)
 	diff := serverDiff(pending, free, p.cap)
 
 	// if the server differential to handle the build volume
@@ -274,8 +277,27 @@ func (p *planner) listBusy(ctx context.Context) (map[string]struct{}, error) {
 // helper function returns true if the os, arch, variant
 // and kernel match the stage.
 func (p *planner) match(stage *drone.Stage) bool {
+	labelMatch := true
+
+	if len(p.labels) > 0 || len(stage.Labels) > 0 {
+		labelMatch = checkLabels(p.labels, stage.Labels)
+	}
+
 	return stage.OS == p.os &&
 		stage.Arch == p.arch &&
 		stage.Variant == p.version &&
-		stage.Kernel == p.kernel
+		stage.Kernel == p.kernel &&
+		labelMatch
+}
+
+func checkLabels(a, b map[string]string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for k, v := range a {
+		if w, ok := b[k]; !ok || v != w {
+			return false
+		}
+	}
+	return true
 }

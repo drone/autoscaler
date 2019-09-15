@@ -53,6 +53,132 @@ func TestPlan_Noop(t *testing.T) {
 	}
 }
 
+// This test verifies that if that no servers are
+// destroyed if there is excess capacity and the
+// the server count <= the min pool size.
+func TestPlan_MinBufferCapacity(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	// x2 capacity
+	servers := []*autoscaler.Server{
+		{Name: "server1", Capacity: 1, State: autoscaler.StateRunning},
+		{Name: "server2", Capacity: 1, State: autoscaler.StateRunning},
+	}
+
+	// x0 running builds
+	// x0 pending builds
+	builds := []*drone.Stage{}
+
+	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().List(gomock.Any()).Return(servers, nil)
+
+	client := mocks.NewMockClient(controller)
+	client.EXPECT().Queue().Return(builds, nil)
+
+	p := planner{
+		cap:     2,
+		buffer:  1,
+		min:     2,
+		max:     4,
+		client:  client,
+		servers: store,
+	}
+
+	err := p.Plan(context.TODO())
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+// This test verifies that if the server capacity minus buffer is
+// less than the pending count, and the server capacity is
+// >= the pool maximum, no actions are taken.
+func TestPlan_MaxBufferCapacity(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	// x4 capacity
+	servers := []*autoscaler.Server{
+		{Name: "server1", Capacity: 1, State: autoscaler.StateRunning},
+		{Name: "server2", Capacity: 1, State: autoscaler.StateRunning},
+		{Name: "server3", Capacity: 1, State: autoscaler.StateRunning},
+		{Name: "server4", Capacity: 1, State: autoscaler.StateRunning},
+	}
+
+	// x3 running builds
+	// x1 pending builds
+	builds := []*drone.Stage{
+		{Status: drone.StatusRunning},
+		{Status: drone.StatusRunning},
+		{Status: drone.StatusRunning},
+		{Status: drone.StatusPending},
+	}
+
+	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().List(gomock.Any()).Return(servers, nil)
+
+	client := mocks.NewMockClient(controller)
+	client.EXPECT().Queue().Return(builds, nil)
+
+	p := planner{
+		cap:     1,
+		buffer:  2,
+		min:     2,
+		max:     4,
+		client:  client,
+		servers: store,
+	}
+
+	err := p.Plan(context.TODO())
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+// This test verifies that if the server capacity minus buffer is
+// less than the pending count, and the server capacity is
+// < the pool maximum, additional servers are provisioned.
+func TestPlan_MoreBufferCapacity(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	// x4 capacity
+	servers := []*autoscaler.Server{
+		{Name: "server1", Capacity: 2, State: autoscaler.StateRunning},
+		{Name: "server2", Capacity: 2, State: autoscaler.StateRunning},
+	}
+
+	// x2 running builds
+	// x1 pending builds
+	builds := []*drone.Stage{
+		{Status: drone.StatusRunning},
+		{Status: drone.StatusRunning},
+		{Status: drone.StatusPending},
+	}
+
+	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().List(gomock.Any()).Return(servers, nil)
+	store.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil)
+
+	client := mocks.NewMockClient(controller)
+	client.EXPECT().Queue().Return(builds, nil)
+
+	p := planner{
+		cap:     2,
+		buffer:  2,
+		min:     2,
+		max:     4,
+		client:  client,
+		servers: store,
+	}
+
+	err := p.Plan(context.TODO())
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 // This test verifies that if the server capacity is
 // < than the pending count, and the server capacity is
 // >= the pool maximum, no actions are taken.
@@ -407,6 +533,7 @@ func TestMatch(t *testing.T) {
 		arch    string
 		version string
 		kernel  string
+		labels  map[string]string
 		stage   *drone.Stage
 	}{
 		{
@@ -427,6 +554,93 @@ func TestMatch(t *testing.T) {
 				Arch: "arm",
 			},
 		},
+		{
+			match: false,
+			os:    "linux",
+			arch:  "amd64",
+			stage: &drone.Stage{
+				OS:   "linux",
+				Arch: "amd64",
+				Labels: map[string]string{
+					"region": "us-west-2",
+				},
+			},
+		},
+		{
+			match: false,
+			os:    "linux",
+			arch:  "amd64",
+			labels: map[string]string{
+				"region": "us-west-2",
+			},
+			stage: &drone.Stage{
+				OS:   "linux",
+				Arch: "amd64",
+			},
+		},
+		{
+			match: true,
+			os:    "linux",
+			arch:  "amd64",
+			labels: map[string]string{
+				"region": "us-west-2",
+			},
+			stage: &drone.Stage{
+				OS:   "linux",
+				Arch: "amd64",
+				Labels: map[string]string{
+					"region": "us-west-2",
+				},
+			},
+		},
+		{
+			match: true,
+			os:    "linux",
+			arch:  "amd64",
+			labels: map[string]string{
+				"region": "us-west-2",
+				"mem":    "high",
+			},
+			stage: &drone.Stage{
+				OS:   "linux",
+				Arch: "amd64",
+				Labels: map[string]string{
+					"region": "us-west-2",
+					"mem":    "high",
+				},
+			},
+		},
+		{
+			match: false,
+			os:    "linux",
+			arch:  "amd64",
+			labels: map[string]string{
+				"region": "us-east-2",
+			},
+			stage: &drone.Stage{
+				OS:   "linux",
+				Arch: "amd64",
+				Labels: map[string]string{
+					"region": "us-west-2",
+				},
+			},
+		},
+		{
+			match: false,
+			os:    "linux",
+			arch:  "amd64",
+			labels: map[string]string{
+				"region": "us-east-2",
+				"mem":    "high",
+			},
+			stage: &drone.Stage{
+				OS:   "linux",
+				Arch: "amd64",
+				Labels: map[string]string{
+					"region": "us-west-2",
+				},
+			},
+		},
 	}
 	for _, test := range tests {
 		p := &planner{
@@ -434,6 +648,7 @@ func TestMatch(t *testing.T) {
 			arch:    test.arch,
 			version: test.version,
 			kernel:  test.kernel,
+			labels:  test.labels,
 		}
 		if p.match(test.stage) != test.match {
 			t.Fail()

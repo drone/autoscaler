@@ -11,8 +11,9 @@ import (
 type (
 	// Config stores the configuration settings.
 	Config struct {
-		License  string
-		Interval time.Duration `default:"5m"`
+		License        string
+		Interval       time.Duration `default:"5m"`
+		CapacityBuffer int           `default:"0" split_words:"true"`
 
 		Slack struct {
 			Webhook string
@@ -47,8 +48,10 @@ type (
 			Arch        string `default:"amd64"`
 			Version     string
 			Kernel      string
+			EnvironFile string `envconfig:"DRONE_AGENT_ENV_FILE"`
 			Environ     []string
 			Volumes     []string
+			Labels      map[string]string `envconfig:"DRONE_AGENT_LABELS"`
 		}
 
 		Runner Runner
@@ -168,6 +171,18 @@ type (
 			Metadata      map[string]string
 			UserData      string `envconfig:"DRONE_OPENSTACK_USERDATA"`
 			UserDataFile  string `envconfig:"DRONE_OPENSTACK_USERDATA_FILE"`
+		}
+
+		Scaleway struct {
+			AccessKey      string `split_words:"true"`
+			SecretKey      string `split_words:"true"`
+			OrganisationID string `split_words:"true"`
+			Zone           string
+			Size           string
+			Image          string
+			Tags           []string
+			UserData       string `envconfig:"DRONE_SCALEWAY_USERDATA"`
+			UserDataFile   string `envconfig:"DRONE_SCALEWAY_USERDATA_FILE"`
 		}
 	}
 

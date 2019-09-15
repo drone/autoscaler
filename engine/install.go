@@ -21,12 +21,15 @@ import (
 	docker "docker.io/go-docker"
 	"docker.io/go-docker/api/types"
 	"docker.io/go-docker/api/types/container"
+	"docker.io/go-docker/api/types/mount"
 	"github.com/rs/zerolog/log"
 )
 
 type installer struct {
 	wg sync.WaitGroup
 
+	os               string
+	arch             string
 	image            string
 	secret           string
 	volumes          []string
@@ -36,6 +39,7 @@ type installer struct {
 	keepaliveTime    time.Duration
 	keepaliveTimeout time.Duration
 	runner           config.Runner
+	labels           map[string]string
 
 	gcEnabled  bool
 	gcDebug    bool
@@ -88,7 +92,10 @@ func (i *installer) install(ctx context.Context, instance *autoscaler.Server) er
 		Str("name", instance.Name).
 		Logger()
 
-	client, err := i.client(instance)
+	client, closer, err := i.client(instance)
+	if closer != nil {
+		defer closer.Close()
+	}
 	if err != nil {
 		logger.Error().Err(err).
 			Msg("cannot create docker client")
@@ -99,16 +106,19 @@ func (i *installer) install(ctx context.Context, instance *autoscaler.Server) er
 		Str("name", instance.Name).
 		Msg("check docker connectivity")
 
+	timeout, cancel := context.WithTimeout(ctx, time.Hour)
+	defer cancel()
+
 	interval := time.Duration(0)
 poller:
 	for {
 		select {
-		case <-ctx.Done():
+		case <-timeout.Done():
 			logger.Debug().
 				Str("name", instance.Name).
 				Msg("connection timeout")
 
-			return i.errorUpdate(ctx, instance, ctx.Err())
+			return i.errorUpdate(ctx, instance, timeout.Err())
 		case <-time.After(interval):
 			interval = time.Minute
 
@@ -158,9 +168,38 @@ poller:
 		fmt.Sprintf("DRONE_RUNNER_PRIVILEGED_IMAGES=%s", i.runner.Privileged),
 	)
 
-	volumes := append(i.volumes,
-		"/var/run/docker.sock:/var/run/docker.sock",
-	)
+	if len(i.labels) > 0 {
+		var stringLabels []string
+
+		for key, val := range i.labels {
+			stringLabels = append(stringLabels, fmt.Sprintf("%s:%s", key, val))
+		}
+
+		envs = append(envs,
+			fmt.Sprintf("DRONE_RUNNER_LABELS=%s", strings.Join(stringLabels, ",")),
+		)
+	}
+
+	var mounts []mount.Mount
+	var volumes []string
+	switch i.os {
+	case "windows":
+		mounts = append(mounts, mount.Mount{
+			Source: `\\.\pipe\docker_engine`,
+			Target: `\\.\pipe\docker_engine`,
+			Type:   mount.TypeNamedPipe,
+		})
+	default:
+		volumes = append(i.volumes,
+			"/var/run/docker.sock:/var/run/docker.sock",
+		)
+
+		// if memory serves me correctly, we need to explicitly
+		// set this to nil to ensure the json representation
+		// of this value is null. but I could be wrong in which
+		// case this can be removed. ‾\_(ツ)_/‾
+		mounts = nil
+	}
 
 	res, err := client.ContainerCreate(ctx,
 		&container.Config{
@@ -180,7 +219,8 @@ poller:
 			},
 		},
 		&container.HostConfig{
-			Binds: volumes,
+			Binds:  volumes,
+			Mounts: mounts,
 			RestartPolicy: container.RestartPolicy{
 				Name: "always",
 			},
@@ -213,7 +253,7 @@ poller:
 		logger.Debug().
 			Str("image", i.image).
 			Msg("setup the garbage collector")
-		err = i.setupGarbageCollectoer(ctx, client)
+		err = i.setupGarbageCollector(ctx, client)
 		if err != nil {
 			logger.Warn().
 				Err(err).
@@ -265,7 +305,8 @@ func (i *installer) setupWatchtower(ctx context.Context, client docker.APIClient
 	return client.ContainerStart(ctx, res.ID, types.ContainerStartOptions{})
 }
 
-func (i *installer) setupGarbageCollectoer(ctx context.Context, client docker.APIClient) error {
+func (i *installer) setupGarbageCollector(ctx context.Context, client docker.APIClient) error {
+	logger := log.Ctx(ctx)
 	vols := []string{"/var/run/docker.sock:/var/run/docker.sock"}
 	envs := []string{
 		fmt.Sprintf("GC_CACHE=%s", i.gcCache),
@@ -277,6 +318,21 @@ func (i *installer) setupGarbageCollectoer(ctx context.Context, client docker.AP
 			fmt.Sprintf("GC_IGNORE=%s", strings.Join(i.gcIgnore, ",")),
 		)
 	}
+
+	logger.Debug().
+		Str("image", i.gcImage).
+		Msg("pull gc image")
+
+	rc, err := client.ImagePull(ctx, i.gcImage, types.ImagePullOptions{})
+	if err != nil {
+		logger.Error().Err(err).
+			Str("image", i.gcImage).
+			Msg("cannot pull gc image")
+		return err
+	}
+	io.Copy(ioutil.Discard, rc)
+	rc.Close()
+
 	res, err := client.ContainerCreate(ctx,
 		&container.Config{
 			Image:        i.gcImage,

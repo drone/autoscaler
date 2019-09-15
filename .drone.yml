@@ -6,22 +6,23 @@ platform:
   os: linux
   arch: amd64
 
-workspace:
-  base: /go
-  path: src/github.com/drone/autoscaler
-
 steps:
 - name: test
   pull: default
   image: golang
+  volumes:
+  - name: deps
+    path: /go
   commands:
-  - go get -u github.com/golang/dep/cmd/dep
-  - dep ensure
+  - go get
   - go test -v -cover ./...
 
 - name: test_postgres
   pull: default
   image: golang
+  volumes:
+  - name: deps
+    path: /go
   commands:
   - cd store
   - go test -v
@@ -32,6 +33,9 @@ steps:
 - name: test_mysql
   pull: default
   image: golang
+  volumes:
+  - name: deps
+    path: /go
   commands:
   - cd store
   - go test -v
@@ -42,6 +46,9 @@ steps:
 - name: build
   pull: default
   image: golang
+  volumes:
+  - name: deps
+    path: /go
   commands:
   - sh .drone.sh
 
@@ -59,6 +66,10 @@ steps:
     event:
     - push
     - tag
+
+volumes:
+- name: deps
+  temp: {}
 
 services:
 - name: postgres

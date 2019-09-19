@@ -34,6 +34,11 @@ type (
 			MinAge time.Duration `default:"55m" split_words:"true"`
 		}
 
+		Check struct {
+			Interval time.Duration `envconfig:"DRONE_INSTALL_CHECK_INTERVAL" default:"1m"`
+			Deadline time.Duration `envconfig:"DRONE_INSTALL_CHECK_DEADLINE" default:"30m"`
+		}
+
 		Server struct {
 			Host  string
 			Proto string
@@ -66,6 +71,7 @@ type (
 		}
 
 		Reaper struct {
+			Enabled  bool          `envconfig:"DRONE_REAPER_ENABLED"`
 			Interval time.Duration `envconfig:"DRONE_REAPER_INTERVAL" default:"1h"`
 		}
 

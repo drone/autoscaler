@@ -66,6 +66,8 @@ func New(
 			host:               config.Server.Host,
 			client:             newDockerClient,
 			runner:             config.Runner,
+			checkInterval:      config.Check.Interval,
+			checkDeadline:      config.Check.Deadline,
 			gcEnabled:          config.GC.Enabled,
 			gcDebug:            config.GC.Debug,
 			gcImage:            config.GC.Image,

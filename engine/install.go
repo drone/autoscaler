@@ -41,6 +41,9 @@ type installer struct {
 	runner           config.Runner
 	labels           map[string]string
 
+	checkInterval time.Duration
+	checkDeadline time.Duration
+
 	gcEnabled  bool
 	gcDebug    bool
 	gcImage    string
@@ -106,7 +109,7 @@ func (i *installer) install(ctx context.Context, instance *autoscaler.Server) er
 		Str("name", instance.Name).
 		Msg("check docker connectivity")
 
-	timeout, cancel := context.WithTimeout(ctx, time.Hour)
+	timeout, cancel := context.WithTimeout(ctx, i.checkDeadline)
 	defer cancel()
 
 	interval := time.Duration(0)
@@ -120,7 +123,7 @@ poller:
 
 			return i.errorUpdate(ctx, instance, timeout.Err())
 		case <-time.After(interval):
-			interval = time.Minute
+			interval = i.checkInterval
 
 			logger.Debug().
 				Str("name", instance.Name).

@@ -321,5 +321,8 @@ var jsonConfig = []byte(`{
 		"Image": "drone/gc",
 		"Interval": 1800000000000,
 		"Cache": "10gb"
+	},
+	"Reaper": {
+		"Interval": 3600000000000
 	}
 }`)

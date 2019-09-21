@@ -57,6 +57,8 @@ type (
 			Environ     []string
 			Volumes     []string
 			Labels      map[string]string `envconfig:"DRONE_AGENT_LABELS"`
+			Dockerusername string         `envconfig:"DRONE_AGENT_DOCKER_USERNAME"`
+			Dockerpassword string         `envconfig:"DRONE_AGENT_DOCKER_PASSWORD"`
 		}
 
 		Runner Runner

@@ -24,7 +24,7 @@ func (p *provider) Destroy(ctx context.Context, instance *autoscaler.Instance) e
 		Logger()
 
 	logger.Debug().
-		Msg("terminate instsance")
+		Msg("terminate instance")
 
 	input := &ec2.TerminateInstancesInput{
 		InstanceIds: []*string{

@@ -52,6 +52,8 @@ type (
 			Environ     []string
 			Volumes     []string
 			Labels      map[string]string `envconfig:"DRONE_AGENT_LABELS"`
+			DockerUsername string         `envconfig:"DRONE_AGENT_DOCKER_USERNAME"`
+			DockerPassword string         `envconfig:"DRONE_AGENT_DOCKER_PASSWORD"`
 		}
 
 		Runner Runner
@@ -91,6 +93,26 @@ type (
 		Database struct {
 			Driver     string `default:"sqlite3"`
 			Datasource string `default:"database.sqlite?cache=shared&mode=rwc&_busy_timeout=9999999"`
+		}
+
+		Azure struct {
+			Subscription  string `envconfig:"DRONE_AZURE_SUBSCRIPTION_ID"`
+			ResourceGroup string `envconfig:"DRONE_AZURE_RESOURCE_GROUP"`
+			Image         string `envconfig:"DRONE_AZURE_IMAGE"`
+			Location      string `envconfig:"DRONE_AZURE_LOCATION"`
+			AdminUsername string `envconfig:"DRONE_AZURE_ADMIN_USERNAME"`
+			AdminPassword string `envconfig:"DRONE_AZURE_ADMIN_PASSWORD"`
+			VMName        string `envconfig:"DRONE_AZURE_VMNAME"`
+			SSHKey        string `envconfig:"DRONE_AZURE_SSHKey"`
+			VolumeSize    int32  `envconfig:"DRONE_AZURE_VOLUMESIZE"`
+			VMSize        string `envconfig:"DRONE_AZURE_VMSIZE"`
+			VNet          string `envconfig:"DRONE_AZURE_VNET"`             // Virtual network
+			Subnet        string `envconfig:"DRONE_AZURE_SUBNET"`		        // Subnetwork
+			NSG           string `envconfig:"DRONE_AZURE_NSG"`			        // Network security Group
+			ImageOffer    string `envconfig:"DRONE_AZURE_IMAGE_OFFER" default:"UbuntuServer"`
+			ImagePub      string `envconfig:"DRONE_AZURE_IMAGE_PUBLISHER" default:"Canonical"`
+			ImageSKU      string `envconfig:"DRONE_AZURE_IMAGE_SKU" default:"18.04-LTS"`
+			ImageVer      string `envconfig:"DRONE_AZURE_IMAGE_VERSION" default:"latest"`
 		}
 
 		Amazon struct {

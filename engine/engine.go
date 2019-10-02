@@ -76,6 +76,8 @@ func New(
 			watchtowerImage:    config.Watchtower.Image,
 			watchtowerTimeout:  config.Watchtower.Timeout,
 			watchtowerInterval: config.Watchtower.Interval,
+			dockerUsername:     config.Agent.DockerUsername,
+			dockerPassword:     config.Agent.DockerPassword,
 		},
 		pinger: &pinger{
 			servers: servers,

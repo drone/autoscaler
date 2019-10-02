@@ -108,3 +108,11 @@
 [[constraint]]
   name = "github.com/lib/pq"
   version = "1.0.0"
+
+[[constraint]]
+  name = "github.com/Azure/azure-sdk-for-go"
+  version = "32.5.0"
+
+[[override]]
+  name = "github.com/Azure/go-autorest"
+  version = "13.0.0"

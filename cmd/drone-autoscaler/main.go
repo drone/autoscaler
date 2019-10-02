@@ -14,6 +14,7 @@ import (
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/config"
 	"github.com/drone/autoscaler/drivers/amazon"
+	"github.com/drone/autoscaler/drivers/azure"
 	"github.com/drone/autoscaler/drivers/digitalocean"
 	"github.com/drone/autoscaler/drivers/google"
 	"github.com/drone/autoscaler/drivers/hetznercloud"
@@ -259,6 +260,26 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			amazon.WithVolumeType(c.Amazon.VolumeType),
 			amazon.WithIamProfileArn(c.Amazon.IamProfileArn),
 			amazon.WithMarketType(c.Amazon.MarketType),
+		), nil
+	case os.Getenv("AZURE_CLIENT_ID") != "":
+		return azure.New(
+			azure.WithVMSize(c.Azure.VMSize),
+			azure.WithSubscriptionId(c.Azure.Subscription),
+			azure.WithResourceGroup(c.Azure.ResourceGroup),
+			azure.WithImage(c.Azure.Image),
+			azure.WithLocation(c.Azure.Location),
+			azure.WithAdminUsername(c.Azure.AdminUsername),
+			azure.WithAdminPassword(c.Azure.AdminPassword),
+			azure.WithVMName(c.Azure.VMName),
+			azure.WithSSHKey(c.Azure.SSHKey),
+			azure.WithVNet(c.Azure.VNet),
+			azure.WithNSG(c.Azure.NSG),
+			azure.WithSubnet(c.Azure.Subnet),
+			azure.WithVolumeSize(c.Azure.VolumeSize),
+			azure.WithImageOffer(c.Azure.ImageOffer),
+			azure.WithImagePublisher(c.Azure.ImagePub),
+			azure.WithImageSKU(c.Azure.ImageSKU),
+			azure.WithImageVersion(c.Azure.ImageVer),
 		), nil
 	case os.Getenv("OS_USERNAME") != "":
 		return openstack.New(

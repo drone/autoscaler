@@ -36,6 +36,37 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:d98bb15320a88c3cf55c93fc9b78b6e9b3e0ec314cf9bae71231dbb101c1bfef"
+  name = "github.com/Azure/azure-sdk-for-go"
+  packages = [
+    "services/compute/mgmt/2019-07-01/compute",
+    "services/network/mgmt/2019-06-01/network",
+    "version",
+  ]
+  pruneopts = "UT"
+  revision = "7a4bf9c092dec78d5d2e5615b2b1980cd9445e4b"
+  version = "v32.6.0"
+
+[[projects]]
+  digest = "1:c39603b93cda6859fa04dc23bffee64dc5db6f6f4fec93539ddef9d7e628a5da"
+  name = "github.com/Azure/go-autorest"
+  packages = [
+    "autorest",
+    "autorest/adal",
+    "autorest/azure",
+    "autorest/azure/auth",
+    "autorest/azure/cli",
+    "autorest/date",
+    "autorest/to",
+    "autorest/validation",
+    "logger",
+    "tracing",
+  ]
+  pruneopts = "UT"
+  revision = "5e7a399d8bbf4953ab0c8e3167d7fd535fd74ce1"
+  version = "v13.0.0"
+
+[[projects]]
   digest = "1:bf42be3cb1519bf8018dfd99720b1005ee028d947124cab3ccf965da59381df6"
   name = "github.com/Microsoft/go-winio"
   packages = ["."]
@@ -127,6 +158,14 @@
   revision = "8902c56451e9b58ff940bbe5fec35d5f9c04584a"
 
 [[projects]]
+  digest = "1:76dc72490af7174349349838f2fe118996381b31ea83243812a97e5a0fd5ed55"
+  name = "github.com/dgrijalva/jwt-go"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
+  version = "v3.2.0"
+
+[[projects]]
   digest = "1:00a495f7f252222ed239ec5a751cbd2ec680203bd512ab180bc1bfa151d370b3"
   name = "github.com/digitalocean/godo"
   packages = [
@@ -136,6 +175,14 @@
   pruneopts = "UT"
   revision = "77ea48de76a7b31b234d854f15d003c68bb2fb90"
   version = "v1.1.1"
+
+[[projects]]
+  digest = "1:cf0d2e435fd4ce45b789e93ef24b5f08e86be0e9807a16beb3694e2d8c9af965"
+  name = "github.com/dimchansky/utfbom"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "d2133a1ce379ef6fa992b0514a77146c60db9d1c"
+  version = "v1.1.0"
 
 [[projects]]
   digest = "1:4189ee6a3844f555124d9d2656fe7af02fca961c2a9bad9074789df13a0c62e0"
@@ -231,12 +278,12 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:ffc060c551980d37ee9e428ef528ee2813137249ccebb0bfc412ef83071cac91"
+  digest = "1:573ca21d3669500ff845bdebee890eb7fc7f0f50c59f2132f2a0c6b03d85086a"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
   pruneopts = "UT"
-  revision = "925541529c1fa6821df4e44ce2723319eb2be768"
-  version = "v1.0.0"
+  revision = "6c65a5562fc06764971b7c5d05c76c75e84bdbf7"
+  version = "v1.3.2"
 
 [[projects]]
   branch = "master"
@@ -367,6 +414,14 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:5d231480e1c64a726869bc4142d270184c419749d34f167646baa21008eb0a79"
+  name = "github.com/mitchellh/go-homedir"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "af06845cf3004701891bf4fdb884bfe4920b3727"
+  version = "v1.1.0"
+
+[[projects]]
   digest = "1:93a54837eaeed8ae82e170bf8fa79554498f4562058f1b33198b70657bcca612"
   name = "github.com/o1egl/paseto"
   packages = ["."]
@@ -493,7 +548,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:6b042839b7d7f83211f2234dd2efaa6e0815a057a24a1738fd8166e6c8dbe358"
+  digest = "1:9ea222b6493f231f41ea2928f7ff09cb11809eeb115df19edbc07ce0e828b386"
   name = "golang.org/x/crypto"
   packages = [
     "acme",
@@ -502,6 +557,8 @@
     "ed25519",
     "ed25519/internal/edwards25519",
     "hkdf",
+    "pkcs12",
+    "pkcs12/internal/rc2",
   ]
   pruneopts = "UT"
   revision = "0e37d006457bf46f9e6692014ba72ef82c33022c"
@@ -594,10 +651,15 @@
     "docker.io/go-docker/api/types/events",
     "docker.io/go-docker/api/types/filters",
     "docker.io/go-docker/api/types/image",
+    "docker.io/go-docker/api/types/mount",
     "docker.io/go-docker/api/types/network",
     "docker.io/go-docker/api/types/registry",
     "docker.io/go-docker/api/types/swarm",
     "docker.io/go-docker/api/types/volume",
+    "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2019-07-01/compute",
+    "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2019-06-01/network",
+    "github.com/Azure/go-autorest/autorest/azure/auth",
+    "github.com/Azure/go-autorest/autorest/to",
     "github.com/aws/aws-sdk-go/aws",
     "github.com/aws/aws-sdk-go/aws/awserr",
     "github.com/aws/aws-sdk-go/aws/session",
@@ -619,6 +681,7 @@
     "github.com/h2non/gock",
     "github.com/hetznercloud/hcloud-go/hcloud",
     "github.com/jmoiron/sqlx",
+    "github.com/joho/godotenv",
     "github.com/joho/godotenv/autoload",
     "github.com/kelseyhightower/envconfig",
     "github.com/kr/pretty",

@@ -46,6 +46,14 @@ func WithImage(image string) Option {
 	}
 }
 
+// WithDynamicIP returns an option to enable a dynamic IP.
+func WithDynamicIP(dynamicIP bool) Option {
+	return func(p *provider) error {
+		p.dynamicIP = dynamicIP
+		return nil
+	}
+}
+
 // WithTags returns an option to set the server tags.
 func WithTags(tags ...string) Option {
 	return func(p *provider) error {

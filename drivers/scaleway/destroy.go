@@ -28,7 +28,6 @@ func (p *provider) Destroy(ctx context.Context, inst *autoscaler.Instance) error
 	api := instance.NewAPI(p.client)
 
 	srvReq := &instance.GetServerRequest{
-		Zone:     p.zone,
 		ServerID: inst.ID,
 	}
 	_, err := api.GetServer(srvReq, scw.WithContext(ctx))
@@ -48,7 +47,6 @@ func (p *provider) Destroy(ctx context.Context, inst *autoscaler.Instance) error
 	// cleans up volumes and IP addresses attached, too
 	req := &instance.ServerActionRequest{
 		ServerID: inst.ID,
-		Zone:     p.zone,
 		Action:   instance.ServerActionTerminate,
 	}
 

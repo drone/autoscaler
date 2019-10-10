@@ -22,12 +22,12 @@ type provider struct {
 	secretKey     string
 	orgID         string
 	securityGroup string
-
-	zone     scw.Zone // fr-par-1 or nl-ams-1
-	size     string
-	image    string
-	tags     []string
-	userdata *template.Template
+	dynamicIP     bool
+	zone          scw.Zone // fr-par-1 or nl-ams-1
+	size          string
+	image         string
+	tags          []string
+	userdata      *template.Template
 
 	client *scw.Client
 }
@@ -49,8 +49,7 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 		p.size = "dev1-l"
 	}
 	if p.image == "" {
-		// Ubuntu  for dev1-m in fra-par-1
-		p.image = "f974feac-abae-4365-b988-8ec7d1cec10d"
+		p.image = "ubuntu-bionic"
 	}
 	if p.userdata == nil {
 		p.userdata = userdata.T

@@ -23,22 +23,17 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 
 	api := instance.NewAPI(p.client)
 
-	boolFalse := false
 	req := &instance.CreateServerRequest{
-		Zone:              p.zone,
 		Name:              opts.Name,
-		DynamicIPRequired: &boolFalse,
+		DynamicIPRequired: scw.BoolPtr(p.dynamicIP),
 		CommercialType:    p.size,
 		Image:             p.image,
-		Volumes:           nil,
-		EnableIPv6:        true,
-		BootType:          instance.ServerBootTypeLocal,
 		Tags:              p.tags,
 		SecurityGroup:     p.securityGroup,
 	}
 
 	logger := log.Ctx(ctx).With().
-		Str("datacenter", string(req.Zone)).
+		Str("datacenter", string(p.zone)).
 		Str("image", req.Image).
 		Str("size", req.CommercialType).
 		Str("name", req.Name).
@@ -77,7 +72,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		Str("name", req.Name).
 		Msg("powering instance on")
 
-	server, err := serverPowerAction(api, ctx, instance.ServerActionPoweron, resp.Server.ID, req.Zone)
+	server, err := serverPowerAction(api, ctx, instance.ServerActionPoweron, resp.Server.ID)
 	if err != nil {
 		logger.Error().
 			Err(err).
@@ -108,18 +103,15 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	}, nil
 }
 
-func serverPowerAction(api *instance.API, ctx context.Context,
-	action instance.ServerAction, serverID string, zone scw.Zone) (*instance.Server, error) {
+func serverPowerAction(api *instance.API, ctx context.Context, action instance.ServerAction, serverID string) (*instance.Server, error) {
 
 	saReq := &instance.ServerActionRequest{
 		ServerID: serverID,
-		Zone:     zone,
 		Action:   action,
 	}
 
 	gsReq := &instance.GetServerRequest{
 		ServerID: serverID,
-		Zone:     zone,
 	}
 
 	terminal := map[instance.ServerState]struct{}{

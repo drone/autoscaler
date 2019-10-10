@@ -190,6 +190,7 @@ type (
 			Zone           string
 			Size           string
 			Image          string
+			DynamicIP      bool `split_words:"true"`
 			Tags           []string
 			UserData       string `envconfig:"DRONE_SCALEWAY_USERDATA"`
 			UserDataFile   string `envconfig:"DRONE_SCALEWAY_USERDATA_FILE"`

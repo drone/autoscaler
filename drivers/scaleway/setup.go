@@ -23,8 +23,9 @@ func (p *provider) setup(ctx context.Context) error {
 
 func (p *provider) newClient(ctx context.Context) error {
 	client, err := scw.NewClient(
-		scw.WithDefaultProjectID(p.orgID),
+		scw.WithDefaultOrganizationID(p.orgID),
 		scw.WithAuth(p.accessKey, p.secretKey),
+		scw.WithDefaultZone(p.zone),
 	)
 	if err != nil {
 		return err

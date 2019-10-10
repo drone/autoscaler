@@ -50,7 +50,7 @@ require (
 	github.com/prometheus/procfs v0.0.0-20180212145926-282c8707aa21
 	github.com/rs/xid v1.2.1
 	github.com/rs/zerolog v1.14.3
-	github.com/scaleway/scaleway-sdk-go v0.0.0-20190830154938-1d5b45329dc4 // indirect
+	github.com/scaleway/scaleway-sdk-go v1.0.0-beta.3
 	github.com/tent/http-link-go v0.0.0-20130702225549-ac974c61c2f9
 	github.com/zenazn/goji v0.9.0
 	golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2

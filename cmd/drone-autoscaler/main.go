@@ -227,6 +227,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			scaleway.WithZone(c.Scaleway.Zone),
 			scaleway.WithSize(c.Scaleway.Size),
 			scaleway.WithImage(c.Scaleway.Image),
+			scaleway.WithDynamicIP(c.Scaleway.DynamicIP),
 			scaleway.WithTags(c.Scaleway.Tags...),
 			scaleway.WithUserData(c.Scaleway.UserData),
 			scaleway.WithUserDataFile(c.Scaleway.UserDataFile),

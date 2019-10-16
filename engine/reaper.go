@@ -121,5 +121,15 @@ func (r *reaper) reap(ctx context.Context, server *autoscaler.Server) error {
 
 	server.Stopped = time.Now().Unix()
 	server.State = autoscaler.StateStopped
-	return r.servers.Update(ctx, server)
+	err := r.servers.Update(ctx, server)
+	if err != nil {
+		logger.Error().
+			Err(err).
+			Str("server", server.Name).
+			Str("state", "stopped").
+			Msg("failed to update server state")
+		return err
+	}
+
+	return nil
 }

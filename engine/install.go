@@ -279,7 +279,17 @@ poller:
 	}
 
 	instance.State = autoscaler.StateRunning
-	return i.servers.Update(ctx, instance)
+	err = i.servers.Update(ctx, instance)
+	if err != nil {
+		logger.Error().
+			Err(err).
+			Str("server", instance.Name).
+			Str("state", "running").
+			Msg("failed to update server state")
+		return err
+	}
+
+	return nil
 }
 
 func (i *installer) setupWatchtower(ctx context.Context, client docker.APIClient) error {
@@ -363,7 +373,14 @@ func (i *installer) errorUpdate(ctx context.Context, server *autoscaler.Server, 
 	if err != nil {
 		server.State = autoscaler.StateError
 		server.Error = err.Error()
-		i.servers.Update(ctx, server)
+		xerr := i.servers.Update(ctx, server)
+		if xerr != nil {
+			log.Ctx(ctx).Error().
+				Err(xerr).
+				Str("server", server.Name).
+				Str("state", "error").
+				Msg("failed to update server state")
+		}
 	}
 	return err
 }

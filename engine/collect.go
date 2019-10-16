@@ -96,7 +96,7 @@ func (c *collector) collect(ctx context.Context, server *autoscaler.Server) erro
 	}
 
 	err = c.provider.Destroy(ctx, in)
-        if err == autoscaler.ErrInstanceNotFound {
+	if err == autoscaler.ErrInstanceNotFound {
 		logger.Info().
 			Str("state", "error").
 			Str("server", server.Name).
@@ -104,7 +104,7 @@ func (c *collector) collect(ctx context.Context, server *autoscaler.Server) erro
 
 		server.Stopped = time.Now().Unix()
 		server.State = autoscaler.StateStopped
-        } else if err != nil {
+	} else if err != nil {
 		logger.Error().
 			Str("server", server.Name).
 			Msg("failed to destroy server")
@@ -120,5 +120,14 @@ func (c *collector) collect(ctx context.Context, server *autoscaler.Server) erro
 		server.State = autoscaler.StateStopped
 	}
 
-	return c.servers.Update(ctx, server)
+	err = c.servers.Update(ctx, server)
+	if err != nil {
+		logger.Error().
+			Err(err).
+			Str("server", server.Name).
+			Msg("failed to update server state")
+		return err
+	}
+
+	return nil
 }

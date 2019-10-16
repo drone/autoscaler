@@ -79,13 +79,19 @@ func HandleServerDelete(
 		// in an error state. In this case we force-delete from
 		// the database.
 		if server.State == autoscaler.StateError && (server.ID == "" || force) {
+			hlog.FromRequest(r).Info().
+				Str("server", server.Name).
+				Str("state", string(server.State)).
+				Bool("force", force).
+				Msg("force delete server from database")
+
 			err = servers.Delete(ctx, server)
 			if err != nil {
 				hlog.FromRequest(r).
 					Error().
 					Err(err).
-					Str("server", name).
-					Msg("cannot delete server")
+					Str("server", server.Name).
+					Msg("cannot delete instance")
 				writeError(w, err)
 				return
 			}
@@ -93,13 +99,20 @@ func HandleServerDelete(
 			return
 		}
 
+		hlog.FromRequest(r).Info().
+			Str("server", server.Name).
+			Str("state", string(server.State)).
+			Bool("force", force).
+			Msg("schedule server shutdown")
+
 		server.State = autoscaler.StateShutdown
 		err = servers.Update(ctx, server)
 		if err != nil {
 			hlog.FromRequest(r).
 				Error().
 				Err(err).
-				Str("server", name).
+				Str("server", server.Name).
+				Str("state", "shutdown").
 				Msg("cannot update server")
 			writeError(w, err)
 			return

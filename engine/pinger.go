@@ -102,5 +102,15 @@ func (p *pinger) ping(ctx context.Context, server *autoscaler.Server) error {
 	server.Error = "Failed to ping the server"
 	server.Stopped = time.Now().Unix()
 	server.State = autoscaler.StateError
-	return p.servers.Update(ctx, server)
+	err = p.servers.Update(ctx, server)
+	if err != nil {
+		logger.Error().
+			Err(err).
+			Str("server", server.Name).
+			Str("state", "error").
+			Msg("failed to update server state")
+		return err
+	}
+
+	return nil
 }

@@ -112,5 +112,15 @@ func (a *allocator) allocate(ctx context.Context, server *autoscaler.Server) err
 		server.TLSKey = opts.TLSKey
 		server.Started = time.Now().Unix()
 	}
-	return a.servers.Update(ctx, server)
+
+	err = a.servers.Update(ctx, server)
+	if err != nil {
+		logger.Error().
+			Err(err).
+			Str("server", server.Name).
+			Msg("failed to update server state")
+		return err
+	}
+
+	return nil
 }

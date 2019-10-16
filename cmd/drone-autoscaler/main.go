@@ -68,7 +68,9 @@ func main() {
 			Msg("Cannot establish database connection")
 	}
 
-	servers := store.NewServerStore(db)
+	mu := store.NewLocker(conf.Database.Driver)
+	servers := store.NewServerStore(db, mu)
+
 	// instruments the provider with slack notifications
 	// instance creation and termination events.
 	if conf.Slack.Webhook != "" {

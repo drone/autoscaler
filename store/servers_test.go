@@ -21,7 +21,8 @@ func TestServer(t *testing.T) {
 	}
 	defer conn.Close()
 
-	store := NewServerStore(conn).(*serverStore)
+	mu := locker()
+	store := NewServerStore(conn, mu).(*serverStore)
 	t.Run("Create", testServerCreate(store))
 	t.Run("Find", testServerFind(store))
 	t.Run("List", testServerList(store))

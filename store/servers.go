@@ -7,6 +7,7 @@ package store
 import (
 	"context"
 	"database/sql"
+	"sync"
 	"time"
 
 	"github.com/drone/autoscaler"
@@ -15,80 +16,102 @@ import (
 )
 
 // NewServerStore returns a new server store.
-func NewServerStore(db *sqlx.DB) autoscaler.ServerStore {
-	return &serverStore{db}
+func NewServerStore(db *sqlx.DB, mu sync.Locker) autoscaler.ServerStore {
+	return &serverStore{mu, db}
 }
 
 type serverStore struct {
-	*sqlx.DB
+	mu sync.Locker
+	db *sqlx.DB
 }
 
-func (db *serverStore) Find(ctx context.Context, name string) (*autoscaler.Server, error) {
+func (s *serverStore) Find(ctx context.Context, name string) (*autoscaler.Server, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	dest := &autoscaler.Server{Name: name}
-	stmt, args, err := db.BindNamed(serverFindStmt, dest)
+	stmt, args, err := s.db.BindNamed(serverFindStmt, dest)
 	if err != nil {
 		return nil, err
 	}
-	err = db.GetContext(ctx, dest, stmt, args...)
+	err = s.db.GetContext(ctx, dest, stmt, args...)
 	return dest, err
 }
 
-func (db *serverStore) List(ctx context.Context) ([]*autoscaler.Server, error) {
+func (s *serverStore) List(ctx context.Context) ([]*autoscaler.Server, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	dest := []*autoscaler.Server{}
-	err := db.SelectContext(ctx, &dest, serverListStmt)
+	err := s.db.SelectContext(ctx, &dest, serverListStmt)
 	return dest, err
 }
 
-func (db *serverStore) ListState(ctx context.Context, state autoscaler.ServerState) ([]*autoscaler.Server, error) {
+func (s *serverStore) ListState(ctx context.Context, state autoscaler.ServerState) ([]*autoscaler.Server, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	dest := []*autoscaler.Server{}
-	stmt, args, err := db.BindNamed(serverListStateStmt, map[string]interface{}{"server_state": state})
+	stmt, args, err := s.db.BindNamed(serverListStateStmt, map[string]interface{}{"server_state": state})
 	if err != nil {
 		return nil, err
 	}
-	err = db.SelectContext(ctx, &dest, stmt, args...)
+	err = s.db.SelectContext(ctx, &dest, stmt, args...)
 	if err == sql.ErrNoRows {
 		return dest, nil
 	}
 	return dest, err
 }
 
-func (db *serverStore) Create(ctx context.Context, server *autoscaler.Server) error {
+func (s *serverStore) Create(ctx context.Context, server *autoscaler.Server) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	server.Created = time.Now().Unix()
 	server.Updated = time.Now().Unix()
-	stmt, args, err := db.BindNamed(serverInsertStmt, server)
+	stmt, args, err := s.db.BindNamed(serverInsertStmt, server)
 	if err != nil {
 		return err
 	}
-	_, err = db.ExecContext(ctx, stmt, args...)
+	_, err = s.db.ExecContext(ctx, stmt, args...)
 	return err
 }
 
-func (db *serverStore) Update(ctx context.Context, server *autoscaler.Server) error {
+func (s *serverStore) Update(ctx context.Context, server *autoscaler.Server) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	// before := server.Updated
 	server.Updated = time.Now().Unix()
-	stmt, args, err := db.BindNamed(serverUpdateStmt, server)
+	stmt, args, err := s.db.BindNamed(serverUpdateStmt, server)
 	if err != nil {
 		return err
 	}
-	_, err = db.ExecContext(ctx, stmt, args...)
+	_, err = s.db.ExecContext(ctx, stmt, args...)
 	return err
 }
 
-func (db *serverStore) Delete(ctx context.Context, server *autoscaler.Server) error {
-	stmt, args, err := db.BindNamed(serverDeleteStmt, server)
+func (s *serverStore) Delete(ctx context.Context, server *autoscaler.Server) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	stmt, args, err := s.db.BindNamed(serverDeleteStmt, server)
 	if err != nil {
 		return err
 	}
-	_, err = db.ExecContext(ctx, stmt, args...)
+	_, err = s.db.ExecContext(ctx, stmt, args...)
 	return err
 }
 
-func (db *serverStore) Purge(ctx context.Context, before int64) error {
-	stmt, args, err := db.BindNamed(serverPurgeStmt, &autoscaler.Server{Stopped: before})
+func (s *serverStore) Purge(ctx context.Context, before int64) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	stmt, args, err := s.db.BindNamed(serverPurgeStmt, &autoscaler.Server{Stopped: before})
 	if err != nil {
 		return err
 	}
-	_, err = db.ExecContext(ctx, stmt, args...)
+	_, err = s.db.ExecContext(ctx, stmt, args...)
 	return err
 }
 

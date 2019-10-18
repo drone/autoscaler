@@ -1,6 +1,6 @@
 // +build nolimit
 // Copyright 2018 Drone.IO Inc
-// Use of this software is governed by the Business Source License
+// Use of this source code is governed by the Polyform License
 // that can be found in the LICENSE file.
 
 package limiter
@@ -17,7 +17,7 @@ func Limit(server autoscaler.ServerStore, token string) autoscaler.ServerStore {
 var message = `
 ATTENTION
 
-Use of this software is governed by the Business Source License
+Use of this software is governed by the Polyform License
 that can be found in the LICENSE file.
 
 If your use of the Licensed Work does not comply with the requirements

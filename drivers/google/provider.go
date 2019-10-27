@@ -112,7 +112,7 @@ func (p *provider) waitZoneOperation(ctx context.Context, name string) error {
 	}
 }
 
-func (p *provider) waitGlogalOperation(ctx context.Context, name string) error {
+func (p *provider) waitGlobalOperation(ctx context.Context, name string) error {
 	for {
 		op, err := p.service.GlobalOperations.Get(p.project, name).Context(ctx).Do()
 		if err != nil {

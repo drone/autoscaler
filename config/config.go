@@ -129,6 +129,7 @@ type (
 			SSHKey       string
 			Size         string
 			Tags         []string
+			PrivateIP    bool   `split_words:"true"`
 			UserData     string `envconfig:"DRONE_DIGITALOCEAN_USERDATA"`
 			UserDataFile string `envconfig:"DRONE_DIGITALOCEAN_USERDATA_FILE"`
 		}

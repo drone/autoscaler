@@ -5,13 +5,16 @@
 package store
 
 import (
+	"context"
 	"database/sql"
 	"time"
 
-	"github.com/drone/autoscaler/store/migrate"
+	ddl "github.com/drone/autoscaler/store/migrate"
 
 	"github.com/jmoiron/sqlx"
 )
+
+var noContext = context.Background()
 
 // Connect to a database and verify with a ping.
 func Connect(driver, datasource string) (*sqlx.DB, error) {

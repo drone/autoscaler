@@ -25,7 +25,7 @@ type serverStore struct {
 	db *sqlx.DB
 }
 
-func (s *serverStore) Find(ctx context.Context, name string) (*autoscaler.Server, error) {
+func (s *serverStore) Find(_ context.Context, name string) (*autoscaler.Server, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -34,20 +34,20 @@ func (s *serverStore) Find(ctx context.Context, name string) (*autoscaler.Server
 	if err != nil {
 		return nil, err
 	}
-	err = s.db.GetContext(ctx, dest, stmt, args...)
+	err = s.db.GetContext(noContext, dest, stmt, args...)
 	return dest, err
 }
 
-func (s *serverStore) List(ctx context.Context) ([]*autoscaler.Server, error) {
+func (s *serverStore) List(_ context.Context) ([]*autoscaler.Server, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	dest := []*autoscaler.Server{}
-	err := s.db.SelectContext(ctx, &dest, serverListStmt)
+	err := s.db.SelectContext(noContext, &dest, serverListStmt)
 	return dest, err
 }
 
-func (s *serverStore) ListState(ctx context.Context, state autoscaler.ServerState) ([]*autoscaler.Server, error) {
+func (s *serverStore) ListState(_ context.Context, state autoscaler.ServerState) ([]*autoscaler.Server, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -56,14 +56,14 @@ func (s *serverStore) ListState(ctx context.Context, state autoscaler.ServerStat
 	if err != nil {
 		return nil, err
 	}
-	err = s.db.SelectContext(ctx, &dest, stmt, args...)
+	err = s.db.SelectContext(noContext, &dest, stmt, args...)
 	if err == sql.ErrNoRows {
 		return dest, nil
 	}
 	return dest, err
 }
 
-func (s *serverStore) Create(ctx context.Context, server *autoscaler.Server) error {
+func (s *serverStore) Create(_ context.Context, server *autoscaler.Server) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -73,11 +73,11 @@ func (s *serverStore) Create(ctx context.Context, server *autoscaler.Server) err
 	if err != nil {
 		return err
 	}
-	_, err = s.db.ExecContext(ctx, stmt, args...)
+	_, err = s.db.ExecContext(noContext, stmt, args...)
 	return err
 }
 
-func (s *serverStore) Update(ctx context.Context, server *autoscaler.Server) error {
+func (s *serverStore) Update(_ context.Context, server *autoscaler.Server) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -87,11 +87,11 @@ func (s *serverStore) Update(ctx context.Context, server *autoscaler.Server) err
 	if err != nil {
 		return err
 	}
-	_, err = s.db.ExecContext(ctx, stmt, args...)
+	_, err = s.db.ExecContext(noContext, stmt, args...)
 	return err
 }
 
-func (s *serverStore) Delete(ctx context.Context, server *autoscaler.Server) error {
+func (s *serverStore) Delete(_ context.Context, server *autoscaler.Server) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -99,11 +99,11 @@ func (s *serverStore) Delete(ctx context.Context, server *autoscaler.Server) err
 	if err != nil {
 		return err
 	}
-	_, err = s.db.ExecContext(ctx, stmt, args...)
+	_, err = s.db.ExecContext(noContext, stmt, args...)
 	return err
 }
 
-func (s *serverStore) Purge(ctx context.Context, before int64) error {
+func (s *serverStore) Purge(_ context.Context, before int64) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -111,7 +111,7 @@ func (s *serverStore) Purge(ctx context.Context, before int64) error {
 	if err != nil {
 		return err
 	}
-	_, err = s.db.ExecContext(ctx, stmt, args...)
+	_, err = s.db.ExecContext(noContext, stmt, args...)
 	return err
 }
 

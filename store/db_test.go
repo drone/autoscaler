@@ -5,7 +5,6 @@
 package store
 
 import (
-	"context"
 	"os"
 	"sync"
 
@@ -15,8 +14,6 @@ import (
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 )
-
-var noContext = context.Background()
 
 // connect opens a new test database connection.
 func connect() (*sqlx.DB, error) {

@@ -43,12 +43,18 @@ func (p *planner) Plan(ctx context.Context) error {
 
 	logger := log.Ctx(ctx).With().Str("id", cycle).Logger()
 
+	logger.Debug().
+		Msg("calculate unfinished jobs")
+
 	pending, running, err := p.count(ctx)
 	if err != nil {
 		logger.Error().Err(err).
-			Msg("cannot fetch queue details")
+			Msg("cannot calculate unfinished jobs")
 		return err
 	}
+
+	logger.Debug().
+		Msg("calculate server capacity")
 
 	capacity, servers, err := p.capacity(ctx)
 	if err != nil {

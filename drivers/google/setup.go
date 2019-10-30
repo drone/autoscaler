@@ -55,7 +55,7 @@ func (p *provider) setupFirewall(ctx context.Context) error {
 		return err
 	}
 
-	err = p.waitGlogalOperation(ctx, op.Name)
+	err = p.waitGlobalOperation(ctx, op.Name)
 	if err != nil {
 		logger.Error().
 			Err(err).

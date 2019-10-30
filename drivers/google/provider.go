@@ -31,7 +31,7 @@ var (
 	}
 )
 
-// provider implements a Google provider.
+// provider implements a Google Cloud Platform provider.
 type provider struct {
 	init sync.Once
 
@@ -50,7 +50,7 @@ type provider struct {
 	service *compute.Service
 }
 
-// New returns a new Digital Ocean provider.
+// New returns a new Google Cloud Platform provider.
 func New(opts ...Option) (autoscaler.Provider, error) {
 	p := new(provider)
 	for _, opt := range opts {
@@ -112,7 +112,7 @@ func (p *provider) waitZoneOperation(ctx context.Context, name string) error {
 	}
 }
 
-func (p *provider) waitGlogalOperation(ctx context.Context, name string) error {
+func (p *provider) waitGlobalOperation(ctx context.Context, name string) error {
 	for {
 		op, err := p.service.GlobalOperations.Get(p.project, name).Context(ctx).Do()
 		if err != nil {

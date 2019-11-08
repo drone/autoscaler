@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+### Changed
+- Use the new Docker runner and deprecate the agent, by [@bradrydzewski](https://github.com/bradrydzewski).
+
 ## [1.4.3]
 ### Fixed
 - Expired context preventing database updates, by [@bradrydzewski](https://github.com/bradrydzewski).

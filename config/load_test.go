@@ -57,7 +57,7 @@ func TestDefaults(t *testing.T) {
 	if got, want := conf.Agent.Concurrency, 2; got != want {
 		t.Errorf("Want default DRONE_AGENT_CONCURRENCY of %d, got %d", want, got)
 	}
-	if got, want := conf.Agent.Image, "drone/agent:1"; got != want {
+	if got, want := conf.Agent.Image, "drone/drone-runner-docker:1"; got != want {
 		t.Errorf("Want default DRONE_AGENT_IMAGE of %s, got %s", want, got)
 	}
 }
@@ -82,7 +82,7 @@ func TestLoad(t *testing.T) {
 		"DRONE_HTTP_PORT":                  "633eb230f5",
 		"DRONE_HTTP_ROOT":                  "/autoscaler",
 		"DRONE_AGENT_TOKEN":                "f5064039f5",
-		"DRONE_AGENT_IMAGE":                "drone/agent:0.8",
+		"DRONE_AGENT_IMAGE":                "drone/drone-runner-docker:latest",
 		"DRONE_AGENT_CONCURRENCY":          "2",
 		"DRONE_TLS_AUTOCERT":               "true",
 		"DRONE_TLS_CERT":                   "/path/to/cert.crt",
@@ -205,7 +205,7 @@ var jsonConfig = []byte(`{
 		"OS": "linux",
 		"Arch": "amd64",
     "Token": "f5064039f5",
-    "Image": "drone/agent:0.8",
+    "Image": "drone/drone-runner-docker:latest",
     "Concurrency": 2,
     "KeepaliveTime": 360000000000,
     "KeepaliveTimeout": 30000000000

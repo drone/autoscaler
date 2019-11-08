@@ -304,6 +304,7 @@ func (i *installer) setupWatchtower(ctx context.Context, client docker.APIClient
 				fmt.Sprintf("WATCHTOWER_POLL_INTERVAL=%d", i.watchtowerInterval),
 				fmt.Sprintf("WATCHTOWER_TIMEOUT=%s", i.watchtowerTimeout),
 				fmt.Sprintf("WATCHTOWER_CLEANUP=true"),
+				fmt.Sprintf("WATCHTOWER_LABEL_ENABLE=true"),
 			},
 		},
 		&container.HostConfig{

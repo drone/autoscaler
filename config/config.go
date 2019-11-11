@@ -11,7 +11,6 @@ import (
 type (
 	// Config stores the configuration settings.
 	Config struct {
-		License        string
 		Interval       time.Duration `default:"5m"`
 		CapacityBuffer int           `default:"0" split_words:"true"`
 
@@ -23,8 +22,8 @@ type (
 		}
 
 		Logs struct {
-			Color  bool
 			Debug  bool `default:"true"`
+			Trace bool 
 			Pretty bool
 		}
 

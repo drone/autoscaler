@@ -10,9 +10,9 @@ import (
 	"strconv"
 
 	"github.com/drone/autoscaler"
+	"github.com/drone/autoscaler/logger"
 
 	"github.com/hetznercloud/hcloud-go/hcloud"
-	"github.com/rs/zerolog/log"
 )
 
 func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpts) (*autoscaler.Instance, error) {
@@ -52,27 +52,24 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		datacenter = p.datacenter
 	}
 
-	logger := log.Ctx(ctx).With().
-		Str("datacenter", datacenter).
-		Str("image", req.Image.Name).
-		Str("serverType", req.ServerType.Name).
-		Str("name", req.Name).
-		Logger()
+	logger := logger.FromContext(ctx).
+		WithField("datacenter", datacenter).
+		WithField("image", req.Image.Name).
+		WithField("serverType", req.ServerType.Name).
+		WithField("name", req.Name)
 
-	logger.Debug().
-		Msg("instance create")
+	logger.Debugln("instance create")
 
 	resp, _, err := p.client.Server.Create(ctx, req)
 	if err != nil {
-		logger.Error().
-			Err(err).
-			Msg("cannot create instance")
+		logger.WithError(err).
+			Errorln("cannot create instance")
 		return nil, err
 	}
 
-	logger.Info().
-		Str("name", req.Name).
-		Msg("instance created")
+	logger.
+		WithField("name", req.Name).
+		Infoln("instance created")
 
 	return &autoscaler.Instance{
 		Provider: autoscaler.ProviderHetznerCloud,

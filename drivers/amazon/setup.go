@@ -8,8 +8,9 @@ import (
 	"context"
 	"errors"
 
+	"github.com/drone/autoscaler/logger"
+
 	"github.com/aws/aws-sdk-go/service/ec2"
-	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -30,10 +31,9 @@ func (p *provider) setup(ctx context.Context) error {
 }
 
 func (p *provider) setupKeypair(ctx context.Context) error {
-	logger := log.Ctx(ctx)
+	logger := logger.FromContext(ctx)
 
-	logger.Debug().
-		Msg("finding default ssh key")
+	logger.Debugln("finding default ssh key")
 
 	opts := new(ec2.DescribeKeyPairsInput)
 	keys, err := p.getClient().DescribeKeyPairs(opts)
@@ -55,10 +55,10 @@ func (p *provider) setupKeypair(ctx context.Context) error {
 		}
 		p.key = name
 
-		logger.Debug().
-			Str("name", name).
-			Str("fingerprint", fingerprint).
-			Msg("using default ssh key")
+		logger.
+			WithField("name", name).
+			WithField("fingerprint", fingerprint).
+			Debugln("using default ssh key")
 		return nil
 	}
 
@@ -69,10 +69,10 @@ func (p *provider) setupKeypair(ctx context.Context) error {
 		key := keys.KeyPairs[0]
 		p.key = *key.KeyName
 
-		logger.Debug().
-			Str("name", *key.KeyName).
-			Str("fingerprint", *key.KeyFingerprint).
-			Msg("using default ssh key")
+		logger.
+			WithField("name", *key.KeyName).
+			WithField("fingerprint", *key.KeyFingerprint).
+			Debugln("using default ssh key")
 		return nil
 	}
 

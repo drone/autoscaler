@@ -11,9 +11,8 @@ import (
 
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/config"
+	"github.com/drone/autoscaler/logger"
 	"github.com/drone/drone-go/drone"
-
-	"github.com/rs/zerolog/log"
 )
 
 // defines the interval at which terminated instances are
@@ -179,7 +178,9 @@ func (e *engine) install(ctx context.Context) {
 	// This happens when the autoscaler is stopped after the server is created, but before the installation is complete.
 	stagings, err := e.allocator.servers.ListState(ctx, autoscaler.StateStaging)
 	if err != nil {
-		log.Warn().Err(err)
+		logger.FromContext(ctx).
+			WithError(err).
+			Warnln("cannot list servers")
 	} else {
 		for _, s := range stagings {
 			s.State = autoscaler.StateCreated
@@ -243,15 +244,14 @@ func (e *engine) purge(ctx context.Context) {
 	const interval = time.Hour * 24
 	const retain = time.Hour * 24 * -1
 
-	logger := log.Ctx(ctx)
+	logger := logger.FromContext(ctx)
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		case <-time.After(interval):
-			logger.Debug().
-				Str("ttl", retain.String()).
-				Msg("clear stopped servers from database")
+			logger.WithField("ttl", retain.String()).
+				Debugln("clear stopped servers from database")
 			e.planner.servers.Purge(ctx, time.Now().Add(retain).Unix())
 		}
 	}

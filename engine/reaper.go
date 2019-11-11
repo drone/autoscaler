@@ -12,8 +12,7 @@ import (
 	"time"
 
 	"github.com/drone/autoscaler"
-
-	"github.com/rs/zerolog/log"
+	"github.com/drone/autoscaler/logger"
 )
 
 // this is a feature flag that can be used to enable
@@ -64,26 +63,26 @@ func (r *reaper) Reap(ctx context.Context) error {
 }
 
 func (r *reaper) reap(ctx context.Context, server *autoscaler.Server) error {
-	logger := log.Ctx(ctx)
-	logger.Debug().
-		Str("state", "error").
-		Str("server", server.Name).
-		Msg("inspecting failed server")
+	logger := logger.FromContext(ctx)
+	logger.
+		WithField("state", "error").
+		WithField("server", server.Name).
+		Debugln("inspecting failed server")
 
 	// if the server ID is an empty string it indicates
 	// the server was never provisioned, but still has an
 	// entry in the database. In this case, we can simply
 	// delete the database entry
 	if server.ID == "" {
-		logger.Info().
-			Str("state", "error").
-			Str("server", server.Name).
-			Msg("server never provisioned. nothing to destroy")
+		logger.
+			WithField("state", "error").
+			WithField("server", server.Name).
+			Infoln("server never provisioned. nothing to destroy")
 	} else {
-		logger.Info().
-			Str("state", "error").
-			Str("server", server.Name).
-			Msg("destroy provisioned server")
+		logger.
+			WithField("state", "error").
+			WithField("server", server.Name).
+			Infoln("destroy provisioned server")
 
 		in := &autoscaler.Instance{
 			ID:       server.ID,
@@ -100,10 +99,10 @@ func (r *reaper) reap(ctx context.Context, server *autoscaler.Server) error {
 		// TODO implement ErrInstanceNotFound in Hetzner driver
 		// TODO implement ErrInstanceNotFound in Packet driver
 		if err == autoscaler.ErrInstanceNotFound {
-			logger.Info().
-				Str("state", "error").
-				Str("server", server.Name).
-				Msg("server no longer exists. nothing to destroy")
+			logger.
+				WithField("state", "error").
+				WithField("server", server.Name).
+				Infoln("server no longer exists. nothing to destroy")
 
 			// this accounts for the fact that the server can be
 			// manually terminated outside of the autoscaler. In
@@ -111,10 +110,10 @@ func (r *reaper) reap(ctx context.Context, server *autoscaler.Server) error {
 			// server state to stopped (below)
 
 		} else if err != nil {
-			logger.Error().Err(err).
-				Str("state", "error").
-				Str("server", server.Name).
-				Msg("cannot destroy server")
+			logger.WithError(err).
+				WithField("state", "error").
+				WithField("server", server.Name).
+				Errorln("cannot destroy server")
 			return err
 		}
 	}
@@ -123,11 +122,10 @@ func (r *reaper) reap(ctx context.Context, server *autoscaler.Server) error {
 	server.State = autoscaler.StateStopped
 	err := r.servers.Update(ctx, server)
 	if err != nil {
-		logger.Error().
-			Err(err).
-			Str("server", server.Name).
-			Str("state", "stopped").
-			Msg("failed to update server state")
+		logger.WithError(err).
+			WithField("server", server.Name).
+			WithField("state", "stopped").
+			Errorln("failed to update server state")
 		return err
 	}
 

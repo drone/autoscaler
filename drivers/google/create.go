@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/drone/autoscaler"
-	"github.com/rs/zerolog/log"
+	"github.com/drone/autoscaler/logger"
 
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
@@ -30,15 +30,13 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 
 	name := strings.ToLower(opts.Name)
 
-	logger := log.Ctx(ctx).With().
-		Str("zone", p.zone).
-		Str("image", p.image).
-		Str("size", p.size).
-		Str("name", opts.Name).
-		Logger()
+	logger := logger.FromContext(ctx).
+		WithField("zone", p.zone).
+		WithField("image", p.image).
+		WithField("size", p.size).
+		WithField("name", opts.Name)
 
-	logger.Debug().
-		Msg("instance insert")
+	logger.Debugln("instance insert")
 
 	in := &compute.Instance{
 		Name:           name,
@@ -99,31 +97,26 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 
 	op, err := p.service.Instances.Insert(p.project, p.zone, in).Context(ctx).Do()
 	if err != nil {
-		logger.Error().
-			Err(err).
-			Msg("instance insert failed")
+		logger.WithError(err).
+			Errorln("instance insert failed")
 		return nil, err
 	}
 
-	logger.Debug().
-		Msg("pending instance insert operation")
+	logger.Debugln("pending instance insert operation")
 
 	err = p.waitZoneOperation(ctx, op.Name)
 	if err != nil {
-		logger.Error().
-			Err(err).
-			Msg("instance insert operation failed")
+		logger.WithError(err).
+			Errorln("instance insert operation failed")
 		return nil, err
 	}
 
-	logger.Debug().
-		Msg("instance insert operation complete")
+	logger.Debugln("instance insert operation complete")
 
 	resp, err := p.service.Instances.Get(p.project, p.zone, name).Do()
 	if err != nil {
-		logger.Error().
-			Err(err).
-			Msg("cannot get instance details")
+		logger.WithError(err).
+			Errorln("cannot get instance details")
 		return nil, err
 	}
 
@@ -137,10 +130,10 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		Address:  resp.NetworkInterfaces[0].AccessConfigs[0].NatIP,
 	}
 
-	logger.Debug().
-		Str("name", instance.Name).
-		Str("ip", instance.Address).
-		Msg("instance inserted")
+	logger.
+		WithField("name", instance.Name).
+		WithField("ip", instance.Address).
+		Debugln("instance inserted")
 
 	return instance, nil
 }

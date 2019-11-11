@@ -11,9 +11,9 @@ import (
 	"time"
 
 	"github.com/drone/autoscaler"
+	"github.com/drone/autoscaler/logger"
 
 	"github.com/digitalocean/godo"
-	"github.com/rs/zerolog/log"
 )
 
 func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpts) (*autoscaler.Instance, error) {
@@ -42,22 +42,19 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		},
 	}
 
-	logger := log.Ctx(ctx).With().
-		Str("region", req.Region).
-		Str("image", req.Image.Slug).
-		Str("size", req.Size).
-		Str("name", req.Name).
-		Logger()
+	logger := logger.FromContext(ctx).
+		WithField("region", req.Region).
+		WithField("image", req.Image.Slug).
+		WithField("size", req.Size).
+		WithField("name", req.Name)
 
-	logger.Debug().
-		Msg("instance create")
+	logger.Debugln("instance create")
 
 	client := newClient(ctx, p.token)
 	droplet, _, err := client.Droplets.Create(ctx, req)
 	if err != nil {
-		logger.Error().
-			Err(err).
-			Msg("cannot create instance")
+		logger.WithError(err).
+			Errorln("cannot create instance")
 		return nil, err
 	}
 
@@ -70,9 +67,8 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		Image:    req.Image.Slug,
 	}
 
-	logger.Info().
-		Str("name", instance.Name).
-		Msg("instance created")
+	logger.WithField("name", instance.Name).
+		Infoln("instance created")
 
 	// poll the digitalocean endpoint for server updates
 	// and exit when a network address is allocated.
@@ -81,23 +77,20 @@ poller:
 	for {
 		select {
 		case <-ctx.Done():
-			logger.Debug().
-				Str("name", instance.Name).
-				Msg("cannot ascertain network")
+			logger.WithField("name", instance.Name).
+				Debugln("cannot ascertain network")
 
 			return instance, ctx.Err()
 		case <-time.After(interval):
 			interval = time.Minute
 
-			logger.Debug().
-				Str("name", instance.Name).
-				Msg("find instance network")
+			logger.WithField("name", instance.Name).
+				Debugln("find instance network")
 
 			droplet, _, err = client.Droplets.Get(ctx, droplet.ID)
 			if err != nil {
-				logger.Error().
-					Err(err).
-					Msg("cannot find instance")
+				logger.WithError(err).
+					Errorln("cannot find instance")
 				return instance, err
 			}
 
@@ -113,10 +106,10 @@ poller:
 		}
 	}
 
-	logger.Debug().
-		Str("name", instance.Name).
-		Str("ip", instance.Address).
-		Msg("instance network ready")
+	logger.
+		WithField("name", instance.Name).
+		WithField("ip", instance.Address).
+		Debugln("instance network ready")
 
 	return instance, nil
 }

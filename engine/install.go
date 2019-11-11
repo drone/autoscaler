@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/drone/autoscaler/config"
+	"github.com/drone/autoscaler/logger"
 
 	"github.com/drone/autoscaler"
 
@@ -22,7 +23,6 @@ import (
 	"docker.io/go-docker/api/types"
 	"docker.io/go-docker/api/types/container"
 	"docker.io/go-docker/api/types/mount"
-	"github.com/rs/zerolog/log"
 )
 
 type installer struct {
@@ -61,7 +61,7 @@ type installer struct {
 }
 
 func (i *installer) Install(ctx context.Context) error {
-	logger := log.Ctx(ctx)
+	logger := logger.FromContext(ctx)
 
 	servers, err := i.servers.ListState(ctx, autoscaler.StateCreated)
 	if err != nil {
@@ -72,11 +72,10 @@ func (i *installer) Install(ctx context.Context) error {
 		server.State = autoscaler.StateStaging
 		err = i.servers.Update(ctx, server)
 		if err != nil {
-			logger.Error().
-				Err(err).
-				Str("server", server.Name).
-				Str("state", "staging").
-				Msg("failed to update server state")
+			logger.WithError(err).
+				WithField("server", server.Name).
+				WithField("state", "staging").
+				Errorln("failed to update server state")
 			return err
 		}
 
@@ -90,24 +89,22 @@ func (i *installer) Install(ctx context.Context) error {
 }
 
 func (i *installer) install(ctx context.Context, instance *autoscaler.Server) error {
-	logger := log.Ctx(ctx).With().
-		Str("ip", instance.Address).
-		Str("name", instance.Name).
-		Logger()
+	logger := logger.FromContext(ctx).
+		WithField("ip", instance.Address).
+		WithField("name", instance.Name)
 
 	client, closer, err := i.client(instance)
 	if closer != nil {
 		defer closer.Close()
 	}
 	if err != nil {
-		logger.Error().Err(err).
-			Msg("cannot create docker client")
+		logger.WithError(err).
+			Errorln("cannot create docker client")
 		return i.errorUpdate(ctx, instance, err)
 	}
 
-	logger.Debug().
-		Str("name", instance.Name).
-		Msg("check docker connectivity")
+	logger.WithField("name", instance.Name).
+		Debugln("check docker connectivity")
 
 	timeout, cancel := context.WithTimeout(ctx, i.checkDeadline)
 	defer cancel()
@@ -117,47 +114,43 @@ poller:
 	for {
 		select {
 		case <-timeout.Done():
-			logger.Debug().
-				Str("name", instance.Name).
-				Msg("connection timeout")
+			logger.WithField("name", instance.Name).
+				Debugln("connection timeout")
 
 			return i.errorUpdate(ctx, instance, timeout.Err())
 		case <-time.After(interval):
 			interval = i.checkInterval
 
-			logger.Debug().
-				Str("name", instance.Name).
-				Msg("connecting to docker")
+			logger.WithField("name", instance.Name).
+				Debugln("connecting to docker")
 
 			_, err := client.ContainerList(ctx, types.ContainerListOptions{})
 			if err != nil {
-				logger.Debug().
-					Str("error", err.Error()).
-					Str("name", instance.Name).
-					Msgf("cannot connect, retry in %v", interval)
+				logger.
+					WithField("error", err.Error()).
+					WithField("name", instance.Name).
+					Debugf("cannot connect, retry in %v", interval)
 				continue
 			}
 			break poller
 		}
 	}
 
-	logger.Debug().
-		Str("image", i.image).
-		Msg("pull docker image")
+	logger.WithField("image", i.image).
+		Debugln("pull docker image")
 
 	rc, err := client.ImagePull(ctx, i.image, types.ImagePullOptions{})
 	if err != nil {
-		logger.Error().Err(err).
-			Str("image", i.image).
-			Msg("cannot pull docker image")
+		logger.WithError(err).
+			WithField("image", i.image).
+			Errorln("cannot pull docker image")
 		return i.errorUpdate(ctx, instance, err)
 	}
 	io.Copy(ioutil.Discard, rc)
 	rc.Close()
 
-	logger.Debug().
-		Str("image", i.image).
-		Msg("create agent container")
+	logger.WithField("image", i.image).
+		Debugln("create agent container")
 
 	envs := append(i.envs,
 		fmt.Sprintf("DRONE_RPC_HOST=%s", i.host),
@@ -230,62 +223,53 @@ poller:
 		}, nil, "agent")
 
 	if err != nil {
-		logger.Error().Err(err).
-			Str("image", i.image).
-			Msg("cannot create agent container")
+		logger.WithField("image", i.image).
+			Errorln("cannot create agent container")
 		return i.errorUpdate(ctx, instance, err)
 	}
 
-	logger.Debug().
-		Str("image", i.image).
-		Msg("start the agent container")
+	logger.WithField("image", i.image).
+		Debugln("start the agent container")
 
 	err = client.ContainerStart(ctx, res.ID, types.ContainerStartOptions{})
 	if err != nil {
-		logger.Debug().
-			Str("image", i.image).
-			Msg("cannot start the agent container")
+		logger.WithField("image", i.image).
+			Debugln("cannot start the agent container")
 		return i.errorUpdate(ctx, instance, err)
 	}
 
-	logger.Debug().
-		Str("image", i.image).
-		Msg("agent container started")
+	logger.WithField("image", i.image).
+		Debugln("agent container started")
 
 	if i.gcEnabled {
-		logger.Debug().
-			Str("image", i.image).
-			Msg("setup the garbage collector")
+		logger.WithField("image", i.image).
+			Debugln("setup the garbage collector")
 		err = i.setupGarbageCollector(ctx, client)
 		if err != nil {
-			logger.Warn().
-				Err(err).
-				Str("image", i.image).
-				Msg("cannot setup the garbage collector")
+			logger.WithError(err).
+				WithField("image", i.image).
+				Warnln("cannot setup the garbage collector")
 		}
 	}
 
 	if i.watchtowerEnabled {
-		logger.Debug().
-			Str("image", i.image).
-			Msg("setup watchtower")
+		logger.WithField("image", i.image).
+			Debugln("setup watchtower")
 		err = i.setupWatchtower(ctx, client)
 		if err != nil {
-			logger.Warn().
-				Err(err).
-				Str("image", i.image).
-				Msg("cannot setup watchtwoer")
+			logger.WithError(err).
+				WithField("image", i.image).
+				Warnln("cannot setup watchtwoer")
 		}
 	}
 
 	instance.State = autoscaler.StateRunning
 	err = i.servers.Update(ctx, instance)
 	if err != nil {
-		logger.Error().
-			Err(err).
-			Str("server", instance.Name).
-			Str("state", "running").
-			Msg("failed to update server state")
+		logger.WithError(err).
+			WithField("server", instance.Name).
+			WithField("state", "running").
+			Errorln("failed to update server state")
 		return err
 	}
 
@@ -320,7 +304,7 @@ func (i *installer) setupWatchtower(ctx context.Context, client docker.APIClient
 }
 
 func (i *installer) setupGarbageCollector(ctx context.Context, client docker.APIClient) error {
-	logger := log.Ctx(ctx)
+	logger := logger.FromContext(ctx)
 	vols := []string{"/var/run/docker.sock:/var/run/docker.sock"}
 	envs := []string{
 		fmt.Sprintf("GC_CACHE=%s", i.gcCache),
@@ -333,15 +317,14 @@ func (i *installer) setupGarbageCollector(ctx context.Context, client docker.API
 		)
 	}
 
-	logger.Debug().
-		Str("image", i.gcImage).
-		Msg("pull gc image")
+	logger.WithField("image", i.gcImage).
+		Debugln("pull gc image")
 
 	rc, err := client.ImagePull(ctx, i.gcImage, types.ImagePullOptions{})
 	if err != nil {
-		logger.Error().Err(err).
-			Str("image", i.gcImage).
-			Msg("cannot pull gc image")
+		logger.WithError(err).
+			WithField("image", i.gcImage).
+			Errorln("cannot pull gc image")
 		return err
 	}
 	io.Copy(ioutil.Discard, rc)
@@ -376,11 +359,11 @@ func (i *installer) errorUpdate(ctx context.Context, server *autoscaler.Server, 
 		server.Error = err.Error()
 		xerr := i.servers.Update(ctx, server)
 		if xerr != nil {
-			log.Ctx(ctx).Error().
-				Err(xerr).
-				Str("server", server.Name).
-				Str("state", "error").
-				Msg("failed to update server state")
+			logger.FromContext(ctx).
+				WithError(xerr).
+				WithField("server", server.Name).
+				WithField("state", "error").
+				Errorln("failed to update server state")
 		}
 	}
 	return err

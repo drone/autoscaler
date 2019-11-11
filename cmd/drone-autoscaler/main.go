@@ -21,6 +21,8 @@ import (
 	"github.com/drone/autoscaler/drivers/packet"
 	"github.com/drone/autoscaler/drivers/scaleway"
 	"github.com/drone/autoscaler/engine"
+	"github.com/drone/autoscaler/logger"
+	"github.com/drone/autoscaler/logger/request"
 	"github.com/drone/autoscaler/metrics"
 	"github.com/drone/autoscaler/server"
 	"github.com/drone/autoscaler/slack"
@@ -29,9 +31,7 @@ import (
 	"github.com/drone/signal"
 
 	"github.com/go-chi/chi"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/hlog"
-	"github.com/rs/zerolog/log"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/acme/autocert"
 	"golang.org/x/oauth2"
 	"golang.org/x/sync/errgroup"
@@ -54,8 +54,8 @@ func main() {
 
 	provider, err := setupProvider(conf)
 	if err != nil {
-		log.Fatal().Err(err).
-			Msg("Invalid or missing hosting provider")
+		logrus.WithError(err).
+			Fatalln("Invalid or missing hosting provider")
 	}
 
 	// instruments the provider with prometheus metrics.
@@ -64,8 +64,8 @@ func main() {
 
 	db, err := store.Connect(conf.Database.Driver, conf.Database.Datasource)
 	if err != nil {
-		log.Fatal().Err(err).
-			Msg("Cannot establish database connection")
+		logrus.WithError(err).
+			Fatalln("Cannot establish database connection")
 	}
 
 	mu := store.NewLocker(conf.Database.Driver)
@@ -89,11 +89,7 @@ func main() {
 	)
 
 	r := chi.NewRouter()
-	r.Use(hlog.NewHandler(log.Logger))
-	r.Use(hlog.RemoteAddrHandler("ip"))
-	r.Use(hlog.URLHandler("path"))
-	r.Use(hlog.MethodHandler("method"))
-	r.Use(hlog.RequestIDHandler("request_id", "Request-Id"))
+	r.Use(request.Logger)
 
 	r.Route(conf.HTTP.Root, func(root chi.Router) {
 		root.Get("/metrics", server.HandleMetrics(conf.Prometheus.AuthToken))
@@ -120,7 +116,7 @@ func main() {
 		Handler: r,
 	}
 
-	ctx := log.Logger.WithContext(context.Background())
+	ctx := context.Background()
 	ctx = signal.WithContextFunc(ctx, func() {
 		srv.Shutdown(ctx)
 	})
@@ -151,7 +147,7 @@ func main() {
 	})
 
 	if err := g.Wait(); err != nil {
-		log.Fatal().Err(err).Msg("Program terminated")
+		logrus.WithError(err).Fatalln("Program terminated")
 	}
 }
 
@@ -164,17 +160,19 @@ func setupServer(c config.Config) *http.Server {
 
 // helper funciton configures the logging.
 func setupLogging(c config.Config) {
-	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	logger.Default = logger.Logrus(
+		logrus.NewEntry(
+			logrus.StandardLogger(),
+		),
+	)
 	if c.Logs.Debug {
-		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+		logrus.SetLevel(logrus.DebugLevel)
 	}
-	if c.Logs.Pretty {
-		log.Logger = log.Output(
-			zerolog.ConsoleWriter{
-				Out:     os.Stderr,
-				NoColor: !c.Logs.Color,
-			},
-		)
+	if c.Logs.Trace {
+		logrus.SetLevel(logrus.TraceLevel)
+	}
+	if c.Logs.Pretty == false {
+		logrus.SetFormatter(&logrus.JSONFormatter{})
 	}
 }
 

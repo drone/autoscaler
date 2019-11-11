@@ -10,11 +10,10 @@ import (
 	"time"
 
 	"github.com/drone/autoscaler"
-	"github.com/drone/autoscaler/limiter"
+	"github.com/drone/autoscaler/logger"
 	"github.com/drone/drone-go/drone"
 
 	"github.com/dchest/uniuri"
-	"github.com/rs/zerolog/log"
 )
 
 // a planner is responsible for capacity planning. It will assess
@@ -41,44 +40,40 @@ func (p *planner) Plan(ctx context.Context) error {
 	// execution cycle for tracing and grouping logs.
 	cycle := uniuri.New()
 
-	logger := log.Ctx(ctx).With().Str("id", cycle).Logger()
-
-	logger.Debug().
-		Msg("calculate unfinished jobs")
+	log := logger.FromContext(ctx).WithField("id", cycle)
+	log.Debugln("calculate unfinished jobs")
 
 	pending, running, err := p.count(ctx)
 	if err != nil {
-		logger.Error().Err(err).
-			Msg("cannot calculate unfinished jobs")
+		log.WithError(err).
+			Errorln("cannot calculate unfinished jobs")
 		return err
 	}
 
-	logger.Debug().
-		Msg("calculate server capacity")
+	log.Debugln("calculate server capacity")
 
 	capacity, servers, err := p.capacity(ctx)
 	if err != nil {
-		logger.Error().Err(err).
-			Msg("cannot calculate server capacity")
+		log.WithError(err).
+			Errorln("cannot calculate server capacity")
 		return err
 	}
 
-	logger.Debug().
-		Int("min-pool", p.min).
-		Int("max-pool", p.max).
-		Int("server-buffer", p.buffer).
-		Int("server-capacity", capacity).
-		Int("server-count", servers).
-		Int("pending-builds", pending).
-		Int("running-builds", running).
-		Msg("check capacity")
+	log.
+		WithField("min-pool", p.min).
+		WithField("max-pool", p.max).
+		WithField("server-buffer", p.buffer).
+		WithField("server-capacity", capacity).
+		WithField("server-count", servers).
+		WithField("pending-builds", pending).
+		WithField("running-builds", running).
+		Debugln("check capacity")
 
 	defer func() {
-		logger.Debug().
-			Msg("check capacity complete")
+		log.Debugln("check capacity complete")
 	}()
 
-	ctx = logger.WithContext(ctx)
+	ctx = logger.WithContext(ctx, log)
 
 	free := max(capacity-running-p.buffer, 0)
 	diff := serverDiff(pending, free, p.cap)
@@ -103,18 +98,15 @@ func (p *planner) Plan(ctx context.Context) error {
 		)
 	}
 
-	logger.Debug().
-		Msg("no capacity changes required")
+	log.Debugln("no capacity changes required")
 
 	return nil
 }
 
 // helper function allocates n new server instances.
 func (p *planner) alloc(ctx context.Context, n int) error {
-	logger := log.Ctx(ctx)
-
-	logger.Debug().
-		Msgf("allocate %d servers", n)
+	logger := logger.FromContext(ctx)
+	logger.Debugln("allocate %d servers", n)
 
 	for i := 0; i < n; i++ {
 		server := &autoscaler.Server{
@@ -125,14 +117,9 @@ func (p *planner) alloc(ctx context.Context, n int) error {
 		}
 
 		err := p.servers.Create(ctx, server)
-		if limiter.IsError(err) {
-			logger.Warn().Err(err).
-				Msg("cannot create server")
-			return err
-		}
 		if err != nil {
-			logger.Error().Err(err).
-				Msg("cannot create server")
+			logger.WithError(err).
+				Errorln("cannot create server")
 			return err
 		}
 	}
@@ -141,10 +128,8 @@ func (p *planner) alloc(ctx context.Context, n int) error {
 
 // helper funciton marks instances for termination.
 func (p *planner) mark(ctx context.Context, n int) error {
-	logger := log.Ctx(ctx)
-
-	logger.Debug().
-		Msgf("terminate %d servers", n)
+	logger := logger.FromContext(ctx)
+	logger.Debugf("terminate %d servers", n)
 
 	if n == 0 {
 		return nil
@@ -152,16 +137,16 @@ func (p *planner) mark(ctx context.Context, n int) error {
 
 	servers, err := p.servers.ListState(ctx, autoscaler.StateRunning)
 	if err != nil {
-		logger.Error().Err(err).
-			Msg("cannot fetch server list")
+		logger.WithError(err).
+			Errorln("cannot fetch server list")
 		return err
 	}
 	sort.Sort(sort.Reverse(byCreated(servers)))
 
 	busy, err := p.listBusy(ctx)
 	if err != nil {
-		logger.Error().Err(err).
-			Msg("cannot ascertain busy server list")
+		logger.WithError(err).
+			Errorln("cannot ascertain busy server list")
 		return err
 	}
 
@@ -169,33 +154,30 @@ func (p *planner) mark(ctx context.Context, n int) error {
 	for _, server := range servers {
 		// skip busy servers
 		if _, ok := busy[server.Name]; ok {
-			logger.Debug().
-				Str("server", server.Name).
-				Msg("server is busy")
+			logger.WithField("server", server.Name).
+				Debugln("server is busy")
 			continue
 		}
 
 		// skip servers less than minage
 		if time.Now().Before(time.Unix(server.Created, 0).Add(p.ttu)) {
-			logger.Debug().
-				Str("server", server.Name).
-				TimeDiff("age", time.Now(), time.Unix(server.Created, 0)).
-				Dur("min-age", p.ttu).
-				Msg("server min-age not reached")
+			logger.
+				WithField("server", server.Name).
+				WithField("age", timeDiff(time.Now(), time.Unix(server.Created, 0))).
+				WithField("min-age", p.ttu).
+				Debugln("server min-age not reached")
 			continue
 		}
 
 		idle = append(idle, server)
-		logger.Debug().
-			Str("server", server.Name).
-			Msg("server is idle")
+		logger.WithField("server", server.Name).
+			Debugln("server is idle")
 	}
 
 	// if there are no idle servers, there are no servers
 	// to retire and we can exit.
 	if len(idle) == 0 {
-		logger.Debug().
-			Msg("no idle servers to shutdown")
+		logger.Debugln("no idle servers to shutdown")
 	}
 
 	if len(idle) > n {
@@ -206,11 +188,10 @@ func (p *planner) mark(ctx context.Context, n int) error {
 		server.State = autoscaler.StateShutdown
 		err := p.servers.Update(ctx, server)
 		if err != nil {
-			logger.Error().
-				Err(err).
-				Str("server", server.Name).
-				Str("state", "shutdown").
-				Msg("cannot update server state")
+			logger.WithError(err).
+				WithField("server", server.Name).
+				WithField("state", "shutdown").
+				Errorln("cannot update server state")
 		}
 	}
 
@@ -300,4 +281,12 @@ func checkLabels(a, b map[string]string) bool {
 		}
 	}
 	return true
+}
+
+func timeDiff(t time.Time, start time.Time) time.Duration {
+	var d time.Duration
+	if t.After(start) {
+		d = t.Sub(start)
+	}
+	return d
 }

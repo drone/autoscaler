@@ -8,46 +8,41 @@ import (
 	"context"
 
 	"github.com/drone/autoscaler"
+	"github.com/drone/autoscaler/logger"
+
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/floatingips"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/servers"
-	"github.com/rs/zerolog/log"
 )
 
 func (p *provider) Destroy(ctx context.Context, instance *autoscaler.Instance) error {
-	logger := log.Ctx(ctx).With().
-		Str("region", instance.Region).
-		Str("image", instance.Image).
-		Str("size", instance.Size).
-		Str("name", instance.Name).
-		Logger()
+	logger := logger.FromContext(ctx).
+		WithField("region", instance.Region).
+		WithField("image", instance.Image).
+		WithField("size", instance.Size).
+		WithField("name", instance.Name)
 
-	logger.Debug().
-		Msg("deleting instance")
+	logger.Debugln("deleting instance")
 
 	_ = p.deleteFloatingIps(instance)
 
 	err := servers.Delete(p.computeClient, instance.ID).ExtractErr()
 	if err == nil {
-		logger.Debug().
-			Msg("instance deleted")
+		logger.Debugln("instance deleted")
 		return nil
 	}
 
-	logger.Error().
-		Err(err).
-		Msg("deleting instance failed, attempting to force")
+	logger.WithError(err).
+		Errorln("deleting instance failed, attempting to force")
 
 	err = servers.ForceDelete(p.computeClient, instance.ID).ExtractErr()
 
 	if err == nil {
-		logger.Debug().
-			Msg("instance deleted")
+		logger.Debugln("instance deleted")
 		return nil
 	}
 
-	logger.Error().
-		Err(err).
-		Msg("force-deleting instance failed")
+	logger.WithError(err).
+		Errorln("force-deleting instance failed")
 
 	return err
 }

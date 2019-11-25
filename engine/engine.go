@@ -127,7 +127,7 @@ func (e *engine) Resume() {
 
 func (e *engine) Start(ctx context.Context) {
 	var wg sync.WaitGroup
-	wg.Add(5)
+	wg.Add(7)
 	go func() {
 		e.allocate(ctx)
 		wg.Done()

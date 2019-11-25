@@ -106,7 +106,7 @@ func (p *planner) Plan(ctx context.Context) error {
 // helper function allocates n new server instances.
 func (p *planner) alloc(ctx context.Context, n int) error {
 	logger := logger.FromContext(ctx)
-	logger.Debugln("allocate %d servers", n)
+	logger.Debugf("allocate %d servers", n)
 
 	for i := 0; i < n; i++ {
 		server := &autoscaler.Server{

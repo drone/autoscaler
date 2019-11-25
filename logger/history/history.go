@@ -55,6 +55,10 @@ func NewLimit(limit int) *Hook {
 
 // Fire receives the log entry.
 func (h *Hook) Fire(e *logrus.Entry) error {
+	// ignore http request logs
+	if _, ok := e.Data["user-agent"]; ok {
+		return nil
+	}
 	h.Lock()
 	if len(h.entries) >= h.limit {
 		h.entries = h.entries[1:]

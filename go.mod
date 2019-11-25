@@ -5,6 +5,7 @@ go 1.12
 require (
 	cloud.google.com/go v0.28.0 // indirect
 	docker.io/go-docker v1.0.0
+	github.com/99designs/basicauth-go v0.0.0-20160802081356-2a93ba0f464d
 	github.com/Microsoft/go-winio v0.4.7 // indirect
 	github.com/aead/chacha20 v0.0.0-20180709150244-8b13a72661da // indirect
 	github.com/aead/chacha20poly1305 v0.0.0-20170617001512-233f39982aeb // indirect
@@ -16,8 +17,8 @@ require (
 	github.com/digitalocean/godo v1.1.1
 	github.com/docker/distribution v0.0.0-20170726174610-edc3ab29cdff // indirect
 	github.com/docker/go-connections v0.3.0 // indirect
-	github.com/docker/go-units v0.3.2 // indirect
-	github.com/drone/drone-go v0.0.0-20181022043707-2d78f279e8ef
+	github.com/docker/go-units v0.4.0 // indirect
+	github.com/drone/drone-go v1.0.5-0.20190504210458-4d6116b897ba
 	github.com/drone/signal v0.0.0-20170915013802-ac5d07ef1315
 	github.com/dustin/go-humanize v0.0.0-20171111073723-bb3d318650d4
 	github.com/go-chi/chi v3.3.2+incompatible
@@ -54,8 +55,8 @@ require (
 	github.com/sirupsen/logrus v1.4.2
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/tent/http-link-go v0.0.0-20130702225549-ac974c61c2f9 // indirect
-	golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
-	golang.org/x/net v0.0.0-20190311183353-d8887717615a
+	golang.org/x/crypto v0.0.0-20190621222207-cc06ce4a13d4
+	golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3
 	golang.org/x/oauth2 v0.0.0-20180207181906-543e37812f10
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58
 	google.golang.org/api v0.0.0-20180921000521-920bb1beccf7

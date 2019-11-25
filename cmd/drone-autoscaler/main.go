@@ -22,14 +22,18 @@ import (
 	"github.com/drone/autoscaler/drivers/scaleway"
 	"github.com/drone/autoscaler/engine"
 	"github.com/drone/autoscaler/logger"
+	"github.com/drone/autoscaler/logger/history"
 	"github.com/drone/autoscaler/logger/request"
 	"github.com/drone/autoscaler/metrics"
 	"github.com/drone/autoscaler/server"
+	"github.com/drone/autoscaler/server/web"
+	"github.com/drone/autoscaler/server/web/static"
 	"github.com/drone/autoscaler/slack"
 	"github.com/drone/autoscaler/store"
 	"github.com/drone/drone-go/drone"
 	"github.com/drone/signal"
 
+	"github.com/99designs/basicauth-go"
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/acme/autocert"
@@ -88,14 +92,40 @@ func main() {
 		provider,
 	)
 
+	//
+	// Setup the router
+	//
+
 	r := chi.NewRouter()
 	r.Use(request.Logger)
 
+	// middleware to require basic authentication.
+	auth := basicauth.New(conf.UI.Realm, map[string][]string{
+		conf.UI.Username: {conf.UI.Password},
+	})
+
 	r.Route(conf.HTTP.Root, func(root chi.Router) {
+		// handler to serve static assets for the dashboard.
+		fs := http.FileServer(static.New())
+
+		root.Handle("/", http.RedirectHandler("/ui", http.StatusSeeOther))
 		root.Get("/metrics", server.HandleMetrics(conf.Prometheus.AuthToken))
 		root.Get("/version", server.HandleVersion(source, version, commit))
 		root.Get("/healthz", server.HandleHealthz())
 		root.Get("/varz", server.HandleVarz(enginex))
+		root.Handle("/static/*", http.StripPrefix("/static/", fs))
+
+		if conf.UI.Password != "" {
+			// register the history handler
+			history := history.New()
+			logrus.AddHook(history)
+
+			root.Route("/ui", func(ui chi.Router) {
+				ui.Use(auth)
+				ui.Get("/", web.HandleServers(servers))
+				ui.Get("/logs", web.HandleLogging(history))
+			})
+		}
 		root.Route("/api", func(api chi.Router) {
 			api.Use(server.CheckDrone(conf))
 
@@ -134,6 +164,10 @@ func main() {
 			)
 		}
 		srv.Addr = conf.HTTP.Port
+
+		logrus.WithField("addr", conf.HTTP.Port).
+			Infoln("starting the server")
+
 		return srv.ListenAndServe()
 	})
 
@@ -148,13 +182,6 @@ func main() {
 
 	if err := g.Wait(); err != nil {
 		logrus.WithError(err).Fatalln("Program terminated")
-	}
-}
-
-// helper funciton configures the http server.
-func setupServer(c config.Config) *http.Server {
-	return &http.Server{
-		Addr: c.HTTP.Port,
 	}
 }
 

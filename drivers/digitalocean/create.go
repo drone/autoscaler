@@ -28,12 +28,14 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	}
 
 	req := &godo.DropletCreateRequest{
-		Name:     opts.Name,
-		Region:   p.region,
-		Size:     p.size,
-		Tags:     p.tags,
-		IPv6:     false,
-		UserData: buf.String(),
+		Name:              opts.Name,
+		Region:            p.region,
+		Size:              p.size,
+		Tags:              p.tags,
+		IPv6:              false,
+		PrivateNetworking: p.privateIP,
+		UserData:          buf.String(),
+
 		SSHKeys: []godo.DropletCreateSSHKey{
 			{Fingerprint: p.key},
 		},

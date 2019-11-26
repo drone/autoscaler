@@ -14,6 +14,7 @@ func TestOptions(t *testing.T) {
 		WithSSHKey("58:8e:30:66:fc:e2:ff:ad:4f:6f:02:4b:af:28:0d:c7"),
 		WithTags("drone", "agent"),
 		WithToken("77e027c7447f468068a7d4fea41e7149a75a94088082c66fcf555de3977f69d3"),
+		WithPrivateIP(false),
 	).(*provider)
 
 	if got, want := p.image, "ubuntu-18-04-x64"; got != want {
@@ -30,6 +31,9 @@ func TestOptions(t *testing.T) {
 	}
 	if got, want := p.token, "77e027c7447f468068a7d4fea41e7149a75a94088082c66fcf555de3977f69d3"; got != want {
 		t.Errorf("Want token %q, got %q", want, got)
+	}
+	if got, want := p.privateIP, false; got != want {
+		t.Errorf("Want %v privateIP, got %v", want, got)
 	}
 	if got, want := len(p.tags), 2; got != want {
 		t.Errorf("Want %d tags, got %d", want, got)

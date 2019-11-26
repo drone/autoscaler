@@ -23,7 +23,6 @@ func TestServerCapacity(t *testing.T) {
 	snapshot := prometheus.DefaultRegisterer
 	defer func() {
 		prometheus.DefaultRegisterer = snapshot
-		controller.Finish()
 	}()
 
 	// creates a blank registry

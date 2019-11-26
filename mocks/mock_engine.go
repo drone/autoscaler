@@ -35,16 +35,19 @@ func (m *MockEngine) EXPECT() *MockEngineMockRecorder {
 
 // Pause mocks base method
 func (m *MockEngine) Pause() {
+	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "Pause")
 }
 
 // Pause indicates an expected call of Pause
 func (mr *MockEngineMockRecorder) Pause() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Pause", reflect.TypeOf((*MockEngine)(nil).Pause))
 }
 
 // Paused mocks base method
 func (m *MockEngine) Paused() bool {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Paused")
 	ret0, _ := ret[0].(bool)
 	return ret0
@@ -52,25 +55,30 @@ func (m *MockEngine) Paused() bool {
 
 // Paused indicates an expected call of Paused
 func (mr *MockEngineMockRecorder) Paused() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Paused", reflect.TypeOf((*MockEngine)(nil).Paused))
 }
 
 // Resume mocks base method
 func (m *MockEngine) Resume() {
+	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "Resume")
 }
 
 // Resume indicates an expected call of Resume
 func (mr *MockEngineMockRecorder) Resume() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Resume", reflect.TypeOf((*MockEngine)(nil).Resume))
 }
 
 // Start mocks base method
 func (m *MockEngine) Start(arg0 context.Context) {
+	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "Start", arg0)
 }
 
 // Start indicates an expected call of Start
 func (mr *MockEngineMockRecorder) Start(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Start", reflect.TypeOf((*MockEngine)(nil).Start), arg0)
 }

@@ -36,6 +36,7 @@ func (m *MockProvider) EXPECT() *MockProviderMockRecorder {
 
 // Create mocks base method
 func (m *MockProvider) Create(arg0 context.Context, arg1 autoscaler.InstanceCreateOpts) (*autoscaler.Instance, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", arg0, arg1)
 	ret0, _ := ret[0].(*autoscaler.Instance)
 	ret1, _ := ret[1].(error)
@@ -44,11 +45,13 @@ func (m *MockProvider) Create(arg0 context.Context, arg1 autoscaler.InstanceCrea
 
 // Create indicates an expected call of Create
 func (mr *MockProviderMockRecorder) Create(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockProvider)(nil).Create), arg0, arg1)
 }
 
 // Destroy mocks base method
 func (m *MockProvider) Destroy(arg0 context.Context, arg1 *autoscaler.Instance) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Destroy", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -56,5 +59,6 @@ func (m *MockProvider) Destroy(arg0 context.Context, arg1 *autoscaler.Instance) 
 
 // Destroy indicates an expected call of Destroy
 func (mr *MockProviderMockRecorder) Destroy(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Destroy", reflect.TypeOf((*MockProvider)(nil).Destroy), arg0, arg1)
 }

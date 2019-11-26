@@ -25,7 +25,7 @@ require (
 	github.com/go-ini/ini v1.32.0 // indirect
 	github.com/go-sql-driver/mysql v1.3.0
 	github.com/gogo/protobuf v0.0.0-20170307180453-100ba4e88506 // indirect
-	github.com/golang/mock v1.0.0
+	github.com/golang/mock v1.3.1
 	github.com/golang/protobuf v1.0.0 // indirect
 	github.com/google/go-cmp v0.3.1
 	github.com/google/go-querystring v0.0.0-20170111101155-53e6ce116135 // indirect

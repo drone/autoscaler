@@ -211,9 +211,13 @@ var jsonConfig = []byte(`{
     "KeepaliveTimeout": 30000000000
   },
   "HTTP": {
+	"Proto": "http",
     "Host": "autoscaler.drone.company.com",
     "Port": "633eb230f5",
     "Root": "/autoscaler"
+  },
+  "UI": {
+	  "Realm": "Autoscaler"
   },
   "TLS": {
     "Autocert": true,

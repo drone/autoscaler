@@ -5,6 +5,8 @@
 package engine
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"context"
 	"fmt"
 	"io"
@@ -58,6 +60,8 @@ type installer struct {
 
 	servers autoscaler.ServerStore
 	client  clientFunc
+	dockerUsername         string
+	dockerPassword         string
 }
 
 func (i *installer) Install(ctx context.Context) error {
@@ -143,9 +147,23 @@ poller:
 
 	logger.Debug().
 		Str("image", i.image).
-		Msg("pull docker image")
+			Msg("pull docker image")
 
-	rc, err := client.ImagePull(ctx, i.image, types.ImagePullOptions{})
+	options := types.ImagePullOptions{}
+	if i.dockerUsername != "" && i.dockerPassword != "" {
+		authConfig := types.AuthConfig{
+			Username: i.dockerUsername,
+			Password: i.dockerPassword,
+		}
+		encodedJSON, err := json.Marshal(authConfig)
+		if err != nil {
+			panic(err)
+		}
+		authStr := base64.URLEncoding.EncodeToString(encodedJSON)
+		options = types.ImagePullOptions{RegistryAuth: authStr}
+	}
+
+	rc, err := client.ImagePull(ctx, i.image, options)
 	if err != nil {
 		logger.Error().Err(err).
 			Str("image", i.image).

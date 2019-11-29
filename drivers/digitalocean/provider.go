@@ -19,13 +19,14 @@ import (
 type provider struct {
 	init sync.Once
 
-	key      string
-	region   string
-	token    string
-	size     string
-	image    string
-	userdata *template.Template
-	tags     []string
+	key       string
+	region    string
+	token     string
+	size      string
+	image     string
+	privateIP bool
+	userdata  *template.Template
+	tags      []string
 }
 
 // New returns a new Digital Ocean provider.

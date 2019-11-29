@@ -96,6 +96,7 @@ func TestLoad(t *testing.T) {
 		"DRONE_DIGITALOCEAN_SSHKEY":        "/path/to/ssh/key",
 		"DRONE_DIGITALOCEAN_SIZE":          "s-1vcpu-1gb",
 		"DRONE_DIGITALOCEAN_IPV6":          "true",
+		"DRONE_DIGITALOCEAN_PRIVATE_IP":    "false",
 		"DRONE_DIGITALOCEAN_TAGS":          "drone,agent,prod",
 		"DRONE_DIGITALOCEAN_USERDATA":      "#cloud-init",
 		"DRONE_DIGITALOCEAN_USERDATA_FILE": "/path/to/cloud/init.yml",

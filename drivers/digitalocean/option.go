@@ -55,6 +55,13 @@ func WithToken(token string) Option {
 	}
 }
 
+// WithPrivateIP returns an option to set the private IP address.
+func WithPrivateIP(private bool) Option {
+	return func(p *provider) {
+		p.privateIP = private
+	}
+}
+
 // WithUserData returns an option to set the cloud-init
 // template from text.
 func WithUserData(text string) Option {

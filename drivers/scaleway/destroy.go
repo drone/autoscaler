@@ -8,7 +8,8 @@ import (
 	"context"
 
 	"github.com/drone/autoscaler"
-	"github.com/rs/zerolog/log"
+	"github.com/drone/autoscaler/logger"
+
 	"github.com/scaleway/scaleway-sdk-go/api/instance/v1"
 	"github.com/scaleway/scaleway-sdk-go/scw"
 )
@@ -18,12 +19,11 @@ func (p *provider) Destroy(ctx context.Context, inst *autoscaler.Instance) error
 		p.setup(ctx)
 	})
 
-	logger := log.Ctx(ctx).With().
-		Str("datacenter", inst.Region).
-		Str("image", inst.Image).
-		Str("size", inst.Size).
-		Str("name", inst.Name).
-		Logger()
+	logger := logger.FromContext(ctx).
+		WithField("datacenter", inst.Region).
+		WithField("image", inst.Image).
+		WithField("size", inst.Size).
+		WithField("name", inst.Name)
 
 	api := instance.NewAPI(p.client)
 
@@ -36,9 +36,8 @@ func (p *provider) Destroy(ctx context.Context, inst *autoscaler.Instance) error
 		if ok && scwErr.StatusCode == 404 {
 			return autoscaler.ErrInstanceNotFound
 		} else {
-			logger.Error().
-				Err(err).
-				Msg("cannot get server")
+			logger.WithError(err).
+				Errorln("cannot get server")
 			return err
 		}
 	}
@@ -50,20 +49,17 @@ func (p *provider) Destroy(ctx context.Context, inst *autoscaler.Instance) error
 		Action:   instance.ServerActionTerminate,
 	}
 
-	logger.Debug().
-		Msg("terminating server")
+	logger.Debugln("terminating server")
 
 	_, err = api.ServerAction(req, scw.WithContext(ctx))
 
 	if err != nil {
-		logger.Error().
-			Err(err).
-			Msg("terminating server failed")
+		logger.WithError(err).
+			Errorln("terminating server failed")
 		return err
 	}
 
-	logger.Info().
-		Msg("server terminated")
+	logger.Infoln("server terminated")
 
 	return err
 }

@@ -10,8 +10,7 @@ import (
 	"time"
 
 	"github.com/drone/autoscaler"
-
-	"github.com/rs/zerolog/log"
+	"github.com/drone/autoscaler/logger"
 )
 
 type collector struct {
@@ -23,7 +22,7 @@ type collector struct {
 }
 
 func (c *collector) Collect(ctx context.Context) error {
-	logger := log.Ctx(ctx)
+	logger := logger.FromContext(ctx)
 
 	servers, err := c.servers.ListState(ctx, autoscaler.StateShutdown)
 	if err != nil {
@@ -34,11 +33,10 @@ func (c *collector) Collect(ctx context.Context) error {
 		server.State = autoscaler.StateStopping
 		err = c.servers.Update(ctx, server)
 		if err != nil {
-			logger.Error().
-				Err(err).
-				Str("server", server.Name).
-				Str("state", "stopping").
-				Msg("failed to update server state")
+			logger.WithError(err).
+				WithField("server", server.Name).
+				WithField("state", "stopping").
+				Errorln("failed to update server state")
 			return err
 		}
 
@@ -52,17 +50,15 @@ func (c *collector) Collect(ctx context.Context) error {
 }
 
 func (c *collector) collect(ctx context.Context, server *autoscaler.Server) error {
-	logger := log.Ctx(ctx)
-	logger.Debug().
-		Str("server", server.Name).
-		Msg("destroying server")
+	logger := logger.FromContext(ctx)
+	logger.WithField("server", server.Name).
+		Debugln("destroying server")
 
 	defer func() {
 		if err := recover(); err != nil {
-			logger.Error().
-				Err(err.(error)).
-				Str("server", server.Name).
-				Msg("unexpected panic")
+			logger.WithError(err.(error)).
+				WithField("server", server.Name).
+				Errorln("unexpected panic")
 		}
 	}()
 
@@ -90,31 +86,29 @@ func (c *collector) collect(ctx context.Context, server *autoscaler.Server) erro
 	timeout := time.Hour * 60
 	err = client.ContainerStop(ctx, "agent", &timeout)
 	if err != nil {
-		logger.Warn().Err(err).
-			Str("server", server.Name).
-			Msg("cannot stop the agent")
+		logger.WithError(err).
+			WithField("server", server.Name).
+			Errorln("cannot stop the agent")
 	}
 
 	err = c.provider.Destroy(ctx, in)
 	if err == autoscaler.ErrInstanceNotFound {
-		logger.Info().
-			Str("state", "error").
-			Str("server", server.Name).
-			Msg("server no longer exists. nothing to destroy")
+		logger.
+			WithField("state", "error").
+			WithField("server", server.Name).
+			Infoln("server no longer exists. nothing to destroy")
 
 		server.Stopped = time.Now().Unix()
 		server.State = autoscaler.StateStopped
 	} else if err != nil {
-		logger.Error().
-			Str("server", server.Name).
-			Msg("failed to destroy server")
+		logger.WithField("server", server.Name).
+			Errorln("failed to destroy server")
 
 		server.Error = err.Error()
 		server.State = autoscaler.StateError
 	} else {
-		logger.Debug().
-			Str("server", server.Name).
-			Msg("destroyed server")
+		logger.WithField("server", server.Name).
+			Debugln("destroyed server")
 
 		server.Stopped = time.Now().Unix()
 		server.State = autoscaler.StateStopped
@@ -122,10 +116,9 @@ func (c *collector) collect(ctx context.Context, server *autoscaler.Server) erro
 
 	err = c.servers.Update(ctx, server)
 	if err != nil {
-		logger.Error().
-			Err(err).
-			Str("server", server.Name).
-			Msg("failed to update server state")
+		logger.WithError(err).
+			WithField("server", server.Name).
+			Errorln("failed to update server state")
 		return err
 	}
 

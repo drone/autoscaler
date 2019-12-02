@@ -4,14 +4,13 @@
 
 package config
 
-import (
-	"time"
-)
+import "time"
+
+// TODO change DRONE_HTTP_PORT to DRONE_HTTP_BIND
 
 type (
 	// Config stores the configuration settings.
 	Config struct {
-		License        string
 		Interval       time.Duration `default:"5m"`
 		CapacityBuffer int           `default:"0" split_words:"true"`
 
@@ -23,8 +22,8 @@ type (
 		}
 
 		Logs struct {
-			Color  bool
 			Debug  bool `default:"true"`
+			Trace  bool
 			Pretty bool
 		}
 
@@ -83,9 +82,16 @@ type (
 		}
 
 		HTTP struct {
-			Host string
-			Port string `default:":8080"`
-			Root string `default:"/"`
+			Proto string `envconfig:"DRONE_HTTP_PROTO" default:"http"`
+			Host  string `envconfig:"DRONE_HTTP_HOST"`
+			Port  string `envconfig:"DRONE_HTTP_PORT" default:":8080"`
+			Root  string `envconfig:"DRONE_HTTP_ROOT" default:"/"`
+		}
+
+		UI struct {
+			Username string `envconfig:"DRONE_UI_USERNAME"`
+			Password string `envconfig:"DRONE_UI_PASSWORD"`
+			Realm    string `envconfig:"DRONE_UI_REALM" default:"Autoscaler"`
 		}
 
 		TLS struct {

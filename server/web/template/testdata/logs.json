@@ -1,0 +1,34 @@
+{
+    "Entries": [
+        {
+            "Level": "trace",
+            "Message": "this is a test trace message",
+            "Data": { "foo": "bar", "baz": "boo" },
+            "Unix": 1563058875
+        },
+        {
+            "Level": "debug",
+            "Message": "this is a test debug message",
+            "Data": { "foo": "bar", "baz": "boo" },
+            "Unix": 1563058875
+        },
+        {
+            "Level": "info",
+            "Message": "this is an info trace message",
+            "Data": { "foo": "bar", "baz": "boo" },
+            "Unix": 1563058975
+        },
+        {
+            "Level": "warn",
+            "Message": "this is a test warning message",
+            "Data": { "foo": "bar", "baz": "boo" },
+            "Unix": 1563058977
+        },
+        {
+            "Level": "error",
+            "Message": "this is a test error message",
+            "Data": { "foo": "bar", "baz": "boo" },
+            "Unix": 1563059000
+        }
+    ]
+}

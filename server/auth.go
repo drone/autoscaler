@@ -9,10 +9,9 @@ import (
 	"strings"
 
 	"github.com/drone/autoscaler/config"
+	"github.com/drone/autoscaler/logger"
 	"github.com/drone/drone-go/drone"
 
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/hlog"
 	"golang.org/x/oauth2"
 )
 
@@ -21,7 +20,8 @@ import (
 func CheckDrone(conf config.Config) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			logger := hlog.FromRequest(r)
+			ctx := r.Context()
+			log := logger.FromContext(ctx)
 
 			// the user can authenticate with a global authorization
 			// token provied in the Authorization header.
@@ -29,8 +29,7 @@ func CheckDrone(conf config.Config) func(http.Handler) http.Handler {
 			token = strings.TrimPrefix(token, "Bearer ")
 			token = strings.TrimSpace(token)
 			if token == "" {
-				logger.Debug().
-					Msg("missing authorization header")
+				log.Debugln("missing authorization header")
 				writeUnauthorized(w, errInvalidToken)
 				return
 			}
@@ -52,32 +51,26 @@ func CheckDrone(conf config.Config) func(http.Handler) http.Handler {
 			// drone and must be an administrator.
 			user, err := client.Self()
 			if err != nil {
-				logger.Error().
-					Err(err).
-					Msg("cannot authenticate user")
+				log.WithError(err).
+					Errorln("cannot authenticate user")
 				writeUnauthorized(w, errUnauthorized)
 				return
 			}
 
 			if !user.Admin {
-				logger.Error().
-					Err(err).
-					Str("username", user.Login).
-					Msg("insufficient privileges")
+				log.WithError(err).
+					WithField("username", user.Login).
+					Errorln("insufficient privileges")
 				writeForbidden(w, errForbidden)
 				return
 			}
 
-			// add the authorized user to the logger context.
-			logger.UpdateContext(func(c zerolog.Context) zerolog.Context {
-				return c.Str("username", user.Login)
-			})
+			log = log.WithField("username", user.Login)
+			log.Debugln("user authorized")
 
-			logger.Debug().
-				Str("username", user.Login).
-				Msg("user authorized")
-
-			next.ServeHTTP(w, r)
+			next.ServeHTTP(w, r.WithContext(
+				logger.WithContext(ctx, log),
+			))
 		})
 	}
 }

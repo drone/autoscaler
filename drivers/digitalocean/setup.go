@@ -9,7 +9,8 @@ import (
 	"errors"
 
 	"github.com/digitalocean/godo"
-	"github.com/rs/zerolog/log"
+	"github.com/drone/autoscaler/logger"
+
 	"golang.org/x/sync/errgroup"
 )
 
@@ -24,10 +25,9 @@ func (p *provider) setup(ctx context.Context) error {
 }
 
 func (p *provider) setupKeypair(ctx context.Context) error {
-	logger := log.Ctx(ctx)
+	logger := logger.FromContext(ctx)
 
-	logger.Debug().
-		Msg("finding default ssh key")
+	logger.Debugln("finding default ssh key")
 
 	client := newClient(ctx, p.token)
 	keys, _, err := client.Keys.List(ctx, &godo.ListOptions{})
@@ -49,10 +49,10 @@ func (p *provider) setupKeypair(ctx context.Context) error {
 		}
 		p.key = fingerprint
 
-		logger.Debug().
-			Str("name", name).
-			Str("fingerprint", fingerprint).
-			Msg("using default ssh key")
+		logger.
+			WithField("name", name).
+			WithField("fingerprint", fingerprint).
+			Debugln("using default ssh key")
 		return nil
 	}
 
@@ -63,10 +63,10 @@ func (p *provider) setupKeypair(ctx context.Context) error {
 		key := keys[0]
 		p.key = key.Fingerprint
 
-		logger.Debug().
-			Str("name", key.Name).
-			Str("fingerprint", key.Fingerprint).
-			Msg("using default ssh key")
+		logger.
+			WithField("name", key.Name).
+			WithField("fingerprint", key.Fingerprint).
+			Debugln("using default ssh key")
 		return nil
 	}
 

@@ -8,7 +8,8 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/rs/zerolog/log"
+	"github.com/drone/autoscaler/logger"
+
 	compute "google.golang.org/api/compute/v1"
 )
 
@@ -20,15 +21,13 @@ func (p *provider) setup(ctx context.Context) error {
 }
 
 func (p *provider) setupFirewall(ctx context.Context) error {
-	logger := log.Ctx(ctx)
+	logger := logger.FromContext(ctx)
 
-	logger.Debug().
-		Msg("finding default firewall rules")
+	logger.Debugln("finding default firewall rules")
 
 	_, err := p.service.Firewalls.Get(p.project, "default-allow-docker").Context(ctx).Do()
 	if err == nil {
-		logger.Debug().
-			Msg("found default firewall rule")
+		logger.Debugln("found default firewall rule")
 		return nil
 	}
 
@@ -49,17 +48,15 @@ func (p *provider) setupFirewall(ctx context.Context) error {
 
 	op, err := p.service.Firewalls.Insert(p.project, rule).Context(ctx).Do()
 	if err != nil {
-		logger.Error().
-			Err(err).
-			Msg("cannot create firewall operation")
+		logger.WithError(err).
+			Errorln("cannot create firewall operation")
 		return err
 	}
 
 	err = p.waitGlobalOperation(ctx, op.Name)
 	if err != nil {
-		logger.Error().
-			Err(err).
-			Msg("cannot create firewall rule")
+		logger.WithError(err).
+			Errorln("cannot create firewall rule")
 	}
 
 	return err

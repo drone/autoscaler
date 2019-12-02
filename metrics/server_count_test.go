@@ -23,7 +23,6 @@ func TestServerCount(t *testing.T) {
 	snapshot := prometheus.DefaultRegisterer
 	defer func() {
 		prometheus.DefaultRegisterer = snapshot
-		controller.Finish()
 	}()
 
 	// creates a blank registry
@@ -37,7 +36,7 @@ func TestServerCount(t *testing.T) {
 	}
 
 	store := mocks.NewMockServerStore(controller)
-	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
+	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil).AnyTimes()
 	ServerCount(store)
 
 	metrics, err := registry.Gather()

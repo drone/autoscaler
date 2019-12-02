@@ -11,7 +11,8 @@ import (
 	"time"
 
 	"github.com/drone/autoscaler"
-	"github.com/rs/zerolog/log"
+	"github.com/drone/autoscaler/logger"
+
 	"github.com/scaleway/scaleway-sdk-go/api/instance/v1"
 	"github.com/scaleway/scaleway-sdk-go/scw"
 )
@@ -32,22 +33,19 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		SecurityGroup:     p.securityGroup,
 	}
 
-	logger := log.Ctx(ctx).With().
-		Str("datacenter", string(p.zone)).
-		Str("image", req.Image).
-		Str("size", req.CommercialType).
-		Str("name", req.Name).
-		Logger()
+	logger := logger.FromContext(ctx).
+		WithField("datacenter", string(p.zone)).
+		WithField("image", req.Image).
+		WithField("size", req.CommercialType).
+		WithField("name", req.Name)
 
-	logger.Info().
-		Msg("instance create")
+	logger.Infoln("instance create")
 
 	resp, err := api.CreateServer(req)
 
 	if err != nil {
-		logger.Error().
-			Err(err).
-			Msg("cannot create instance")
+		logger.WithError(err).
+			Errorln("cannot create instance")
 		return nil, err
 	}
 
@@ -68,24 +66,21 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		return nil, err
 	}
 
-	logger.Debug().
-		Str("name", req.Name).
-		Msg("powering instance on")
+	logger.WithField("name", req.Name).
+		Debugln("powering instance on")
 
 	server, err := serverPowerAction(api, ctx, instance.ServerActionPoweron, resp.Server.ID)
 	if err != nil {
-		logger.Error().
-			Err(err).
-			Msg("cannot power on instance")
+		logger.WithError(err).
+			Errorln("cannot power on instance")
 		return nil, err
 	}
 	if server.State != instance.ServerStateRunning {
 		return nil, errors.New("instance in invalid state: " + string(server.State))
 	}
 
-	logger.Info().
-		Str("name", req.Name).
-		Msg("instance created")
+	logger.WithField("name", req.Name).
+		Infoln("instance created")
 
 	ip := server.PublicIP
 	if ip == nil {

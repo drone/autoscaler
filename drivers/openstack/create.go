@@ -9,10 +9,11 @@ import (
 	"context"
 
 	"github.com/drone/autoscaler"
+	"github.com/drone/autoscaler/logger"
+
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/floatingips"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/keypairs"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/servers"
-	"github.com/rs/zerolog/log"
 )
 
 // Create creates an OpenStack instance
@@ -52,12 +53,11 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		floatingips.Delete(p.computeClient, ip.ID)
 		return nil, err
 	}
-	logger := log.Ctx(ctx).With().
-		Str("region", p.region).
-		Str("image", p.image).
-		Str("sizes", p.flavor).
-		Str("name", opts.Name).
-		Logger()
+	logger := logger.FromContext(ctx).
+		WithField("region", p.region).
+		WithField("image", p.image).
+		WithField("sizes", p.flavor).
+		WithField("name", opts.Name)
 
 	err = servers.WaitForStatus(p.computeClient, server.ID, "ACTIVE", 300)
 	if err != nil {
@@ -67,8 +67,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		FloatingIP: ip.IP,
 	})
 
-	logger.Debug().
-		Msg("instance create")
+	logger.Debugln("instance create")
 
 	instance := &autoscaler.Instance{
 		Provider: autoscaler.ProviderOpenStack,
@@ -80,10 +79,10 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		Size:     p.flavor,
 	}
 
-	logger.Debug().
-		Str("name", instance.Name).
-		Str("ip", instance.Address).
-		Msg("instance network ready")
+	logger.
+		WithField("name", instance.Name).
+		WithField("ip", instance.Address).
+		Debugln("instance network ready")
 
 	return instance, nil
 }

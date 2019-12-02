@@ -8,8 +8,8 @@ import (
 	"context"
 	"errors"
 
+	"github.com/drone/autoscaler/logger"
 	"github.com/hetznercloud/hcloud-go/hcloud"
-	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -24,10 +24,9 @@ func (p *provider) setup(ctx context.Context) error {
 }
 
 func (p *provider) setupKeypair(ctx context.Context) error {
-	logger := log.Ctx(ctx)
+	logger := logger.FromContext(ctx)
 
-	logger.Debug().
-		Msg("finding default ssh key")
+	logger.Debugln("finding default ssh key")
 
 	keys, _, err := p.client.SSHKey.List(ctx, hcloud.SSHKeyListOpts{})
 	if err != nil {
@@ -48,10 +47,10 @@ func (p *provider) setupKeypair(ctx context.Context) error {
 		}
 		p.key = key.ID
 
-		logger.Debug().
-			Str("name", name).
-			Str("fingerprint", key.Fingerprint).
-			Msg("using default ssh key")
+		logger.
+			WithField("name", name).
+			WithField("fingerprint", key.Fingerprint).
+			Debugln("using default ssh key")
 		return nil
 	}
 
@@ -62,10 +61,10 @@ func (p *provider) setupKeypair(ctx context.Context) error {
 		key := keys[0]
 		p.key = key.ID
 
-		logger.Debug().
-			Str("name", key.Name).
-			Str("fingerprint", key.Fingerprint).
-			Msg("using default ssh key")
+		logger.
+			WithField("name", key.Name).
+			WithField("fingerprint", key.Fingerprint).
+			Debugln("using default ssh key")
 		return nil
 	}
 

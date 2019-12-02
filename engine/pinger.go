@@ -12,8 +12,7 @@ import (
 	"time"
 
 	"github.com/drone/autoscaler"
-
-	"github.com/rs/zerolog/log"
+	"github.com/drone/autoscaler/logger"
 )
 
 // this is a feature flag that can be used to enable
@@ -54,18 +53,17 @@ func (p *pinger) Ping(ctx context.Context) error {
 }
 
 func (p *pinger) ping(ctx context.Context, server *autoscaler.Server) error {
-	logger := log.Ctx(ctx).With().
-		Str("ip", server.Address).
-		Str("name", server.Name).
-		Logger()
+	logger := logger.FromContext(ctx).
+		WithField("ip", server.Address).
+		WithField("name", server.Name)
 
 	client, closer, err := p.client(server)
 	if closer != nil {
 		defer closer.Close()
 	}
 	if err != nil {
-		logger.Error().Err(err).
-			Msg("cannot create docker client")
+		logger.WithError(err).
+			Errorln("cannot create docker client")
 		return nil
 	}
 
@@ -79,9 +77,8 @@ func (p *pinger) ping(ctx context.Context, server *autoscaler.Server) error {
 		_, err := client.Ping(timeout)
 		cancel()
 		if err == nil {
-			logger.Debug().
-				Str("state", "healthy").
-				Msg("server ping successful")
+			logger.WithField("state", "healthy").
+				Debugln("server ping successful")
 			return nil
 		}
 	}
@@ -104,11 +101,10 @@ func (p *pinger) ping(ctx context.Context, server *autoscaler.Server) error {
 	server.State = autoscaler.StateError
 	err = p.servers.Update(ctx, server)
 	if err != nil {
-		logger.Error().
-			Err(err).
-			Str("server", server.Name).
-			Str("state", "error").
-			Msg("failed to update server state")
+		logger.WithError(err).
+			WithField("server", server.Name).
+			WithField("state", "error").
+			Errorln("failed to update server state")
 		return err
 	}
 

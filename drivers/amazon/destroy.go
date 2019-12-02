@@ -9,11 +9,11 @@ import (
 	"os"
 
 	"github.com/drone/autoscaler"
+	"github.com/drone/autoscaler/logger"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ec2"
-	"github.com/rs/zerolog/log"
 )
 
 func (p *provider) Destroy(ctx context.Context, instance *autoscaler.Instance) error {
@@ -21,15 +21,13 @@ func (p *provider) Destroy(ctx context.Context, instance *autoscaler.Instance) e
 		return p.destroy2(ctx, instance)
 	}
 
-	logger := log.Ctx(ctx).With().
-		Str("id", instance.ID).
-		Str("ip", instance.Address).
-		Str("name", instance.Name).
-		Str("zone", instance.Region).
-		Logger()
+	logger := logger.FromContext(ctx).
+		WithField("id", instance.ID).
+		WithField("ip", instance.Address).
+		WithField("name", instance.Name).
+		WithField("zone", instance.Region)
 
-	logger.Debug().
-		Msg("terminate instance")
+	logger.Debugln("terminate instance")
 
 	input := &ec2.TerminateInstancesInput{
 		InstanceIds: []*string{
@@ -42,33 +40,29 @@ func (p *provider) Destroy(ctx context.Context, instance *autoscaler.Instance) e
 		case ec2.UnsuccessfulInstanceCreditSpecificationErrorCodeInvalidInstanceIdMalformed:
 			fallthrough
 		case ec2.UnsuccessfulInstanceCreditSpecificationErrorCodeInvalidInstanceIdNotFound:
-			logger.Debug().Msg("instance does not exist")
+			logger.Debugln("instance does not exist")
 			return autoscaler.ErrInstanceNotFound
 		}
 	}
 	if err != nil {
-		logger.Error().
-			Err(err).
-			Msg("cannot terminate instance")
+		logger.WithError(err).
+			Errorln("cannot terminate instance")
 		return err
 	}
 
-	logger.Debug().
-		Msg("terminated")
+	logger.Debugln("terminated")
 
 	return nil
 }
 
 func (p *provider) destroy2(ctx context.Context, instance *autoscaler.Instance) error {
-	logger := log.Ctx(ctx).With().
-		Str("id", instance.ID).
-		Str("ip", instance.Address).
-		Str("name", instance.Name).
-		Str("zone", instance.Region).
-		Logger()
+	logger := logger.FromContext(ctx).
+		WithField("id", instance.ID).
+		WithField("ip", instance.Address).
+		WithField("name", instance.Name).
+		WithField("zone", instance.Region)
 
-	logger.Debug().
-		Msg("terminate instance")
+	logger.Debugln("terminate instance")
 
 	input := &ec2.TerminateInstancesInput{
 		InstanceIds: []*string{
@@ -77,7 +71,7 @@ func (p *provider) destroy2(ctx context.Context, instance *autoscaler.Instance) 
 	}
 	_, err := p.getClient().TerminateInstances(input)
 	if err == nil {
-		logger.Debug().Msg("terminated")
+		logger.Debugln("terminated")
 		return nil
 	}
 
@@ -87,21 +81,19 @@ func (p *provider) destroy2(ctx context.Context, instance *autoscaler.Instance) 
 	if awsErr, ok := err.(awserr.Error); ok {
 		switch awsErr.Code() {
 		case ec2.UnsuccessfulInstanceCreditSpecificationErrorCodeInvalidInstanceIdMalformed:
-			logger.Debug().Msg("instance does not exist")
+			logger.Debugln("instance does not exist")
 			return autoscaler.ErrInstanceNotFound
 		case ec2.UnsuccessfulInstanceCreditSpecificationErrorCodeInvalidInstanceIdNotFound:
-			logger.Debug().Msg("instance does not exist")
+			logger.Debugln("instance does not exist")
 			return autoscaler.ErrInstanceNotFound
 		}
 	}
 	if err != nil {
-		logger.Error().
-			Err(err).
-			Msg("cannot terminate instance")
+		logger.WithError(err).
+			Errorln("cannot terminate instance")
 	}
 
-	logger.Debug().
-		Msg("describe instance")
+	logger.Debugln("describe instance")
 
 	describe := &ec2.DescribeInstancesInput{
 		InstanceIds: []*string{
@@ -112,16 +104,15 @@ func (p *provider) destroy2(ctx context.Context, instance *autoscaler.Instance) 
 	if awsErr, ok := err.(awserr.Error); ok {
 		switch awsErr.Code() {
 		case ec2.UnsuccessfulInstanceCreditSpecificationErrorCodeInvalidInstanceIdMalformed:
-			logger.Debug().Msg("instance does not exist")
+			logger.Debugln("instance does not exist")
 			return autoscaler.ErrInstanceNotFound
 		case ec2.UnsuccessfulInstanceCreditSpecificationErrorCodeInvalidInstanceIdNotFound:
-			logger.Debug().Msg("instance does not exist")
+			logger.Debugln("instance does not exist")
 			return autoscaler.ErrInstanceNotFound
 		}
 	}
 
-	logger.Error().
-		Err(err).
-		Msg("cannot describe instance")
+	logger.WithError(err).
+		Errorln("cannot describe instance")
 	return err
 }

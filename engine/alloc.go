@@ -11,8 +11,7 @@ import (
 
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/engine/certs"
-
-	"github.com/rs/zerolog/log"
+	"github.com/drone/autoscaler/logger"
 )
 
 type allocator struct {
@@ -23,7 +22,7 @@ type allocator struct {
 }
 
 func (a *allocator) Allocate(ctx context.Context) error {
-	logger := log.Ctx(ctx)
+	logger := logger.FromContext(ctx)
 
 	servers, err := a.servers.ListState(ctx, autoscaler.StatePending)
 	if err != nil {
@@ -34,11 +33,10 @@ func (a *allocator) Allocate(ctx context.Context) error {
 		server.State = autoscaler.StateCreating
 		err = a.servers.Update(ctx, server)
 		if err != nil {
-			logger.Error().
-				Err(err).
-				Str("server", server.Name).
-				Str("state", "creating").
-				Msg("failed to update server state")
+			logger.WithError(err).
+				WithField("server", server.Name).
+				WithField("state", "creating").
+				Errorln("failed to update server state")
 			return err
 		}
 
@@ -52,13 +50,12 @@ func (a *allocator) Allocate(ctx context.Context) error {
 }
 
 func (a *allocator) allocate(ctx context.Context, server *autoscaler.Server) error {
-	logger := log.Ctx(ctx)
+	logger := logger.FromContext(ctx)
 	defer func() {
 		if err := recover(); err != nil {
-			logger.Error().
-				Err(err.(error)).
-				Str("server", server.Name).
-				Msg("unexpected panic")
+			logger.WithError(err.(error)).
+				WithField("server", server.Name).
+				Errorln("unexpected panic")
 		}
 	}()
 
@@ -85,17 +82,15 @@ func (a *allocator) allocate(ctx context.Context, server *autoscaler.Server) err
 
 	instance, err := a.provider.Create(ctx, opts)
 	if err != nil {
-		log.Ctx(ctx).Error().
-			Err(err).
-			Str("server", server.Name).
-			Msg("failed to provision server")
+		logger.WithError(err).
+			WithField("server", server.Name).
+			Errorln("failed to provision server")
 
 		server.Error = err.Error()
 		server.State = autoscaler.StateError
 	} else {
-		logger.Debug().
-			Str("server", server.Name).
-			Msg("provisioned server")
+		logger.WithField("server", server.Name).
+			Debugln("provisioned server")
 
 		server.State = autoscaler.StateCreated
 	}
@@ -115,10 +110,9 @@ func (a *allocator) allocate(ctx context.Context, server *autoscaler.Server) err
 
 	err = a.servers.Update(ctx, server)
 	if err != nil {
-		logger.Error().
-			Err(err).
-			Str("server", server.Name).
-			Msg("failed to update server state")
+		logger.WithError(err).
+			WithField("server", server.Name).
+			Errorln("failed to update server state")
 		return err
 	}
 

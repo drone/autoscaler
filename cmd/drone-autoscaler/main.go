@@ -21,17 +21,21 @@ import (
 	"github.com/drone/autoscaler/drivers/packet"
 	"github.com/drone/autoscaler/drivers/scaleway"
 	"github.com/drone/autoscaler/engine"
+	"github.com/drone/autoscaler/logger"
+	"github.com/drone/autoscaler/logger/history"
+	"github.com/drone/autoscaler/logger/request"
 	"github.com/drone/autoscaler/metrics"
 	"github.com/drone/autoscaler/server"
+	"github.com/drone/autoscaler/server/web"
+	"github.com/drone/autoscaler/server/web/static"
 	"github.com/drone/autoscaler/slack"
 	"github.com/drone/autoscaler/store"
 	"github.com/drone/drone-go/drone"
 	"github.com/drone/signal"
 
+	"github.com/99designs/basicauth-go"
 	"github.com/go-chi/chi"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/hlog"
-	"github.com/rs/zerolog/log"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/acme/autocert"
 	"golang.org/x/oauth2"
 	"golang.org/x/sync/errgroup"
@@ -54,8 +58,8 @@ func main() {
 
 	provider, err := setupProvider(conf)
 	if err != nil {
-		log.Fatal().Err(err).
-			Msg("Invalid or missing hosting provider")
+		logrus.WithError(err).
+			Fatalln("Invalid or missing hosting provider")
 	}
 
 	// instruments the provider with prometheus metrics.
@@ -64,8 +68,8 @@ func main() {
 
 	db, err := store.Connect(conf.Database.Driver, conf.Database.Datasource)
 	if err != nil {
-		log.Fatal().Err(err).
-			Msg("Cannot establish database connection")
+		logrus.WithError(err).
+			Fatalln("Cannot establish database connection")
 	}
 
 	mu := store.NewLocker(conf.Database.Driver)
@@ -88,18 +92,40 @@ func main() {
 		provider,
 	)
 
+	//
+	// Setup the router
+	//
+
 	r := chi.NewRouter()
-	r.Use(hlog.NewHandler(log.Logger))
-	r.Use(hlog.RemoteAddrHandler("ip"))
-	r.Use(hlog.URLHandler("path"))
-	r.Use(hlog.MethodHandler("method"))
-	r.Use(hlog.RequestIDHandler("request_id", "Request-Id"))
+	r.Use(request.Logger)
+
+	// middleware to require basic authentication.
+	auth := basicauth.New(conf.UI.Realm, map[string][]string{
+		conf.UI.Username: {conf.UI.Password},
+	})
 
 	r.Route(conf.HTTP.Root, func(root chi.Router) {
+		// handler to serve static assets for the dashboard.
+		fs := http.FileServer(static.New())
+
+		root.Handle("/", http.RedirectHandler("/ui", http.StatusSeeOther))
 		root.Get("/metrics", server.HandleMetrics(conf.Prometheus.AuthToken))
 		root.Get("/version", server.HandleVersion(source, version, commit))
 		root.Get("/healthz", server.HandleHealthz())
 		root.Get("/varz", server.HandleVarz(enginex))
+		root.Handle("/static/*", http.StripPrefix("/static/", fs))
+
+		if conf.UI.Password != "" {
+			// register the history handler
+			history := history.New()
+			logrus.AddHook(history)
+
+			root.Route("/ui", func(ui chi.Router) {
+				ui.Use(auth)
+				ui.Get("/", web.HandleServers(servers))
+				ui.Get("/logs", web.HandleLogging(history))
+			})
+		}
 		root.Route("/api", func(api chi.Router) {
 			api.Use(server.CheckDrone(conf))
 
@@ -120,7 +146,7 @@ func main() {
 		Handler: r,
 	}
 
-	ctx := log.Logger.WithContext(context.Background())
+	ctx := context.Background()
 	ctx = signal.WithContextFunc(ctx, func() {
 		srv.Shutdown(ctx)
 	})
@@ -138,6 +164,10 @@ func main() {
 			)
 		}
 		srv.Addr = conf.HTTP.Port
+
+		logrus.WithField("addr", conf.HTTP.Port).
+			Infoln("starting the server")
+
 		return srv.ListenAndServe()
 	})
 
@@ -151,30 +181,25 @@ func main() {
 	})
 
 	if err := g.Wait(); err != nil {
-		log.Fatal().Err(err).Msg("Program terminated")
-	}
-}
-
-// helper funciton configures the http server.
-func setupServer(c config.Config) *http.Server {
-	return &http.Server{
-		Addr: c.HTTP.Port,
+		logrus.WithError(err).Fatalln("Program terminated")
 	}
 }
 
 // helper funciton configures the logging.
 func setupLogging(c config.Config) {
-	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	logger.Default = logger.Logrus(
+		logrus.NewEntry(
+			logrus.StandardLogger(),
+		),
+	)
 	if c.Logs.Debug {
-		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+		logrus.SetLevel(logrus.DebugLevel)
 	}
-	if c.Logs.Pretty {
-		log.Logger = log.Output(
-			zerolog.ConsoleWriter{
-				Out:     os.Stderr,
-				NoColor: !c.Logs.Color,
-			},
-		)
+	if c.Logs.Trace {
+		logrus.SetLevel(logrus.TraceLevel)
+	}
+	if c.Logs.Pretty == false {
+		logrus.SetFormatter(&logrus.JSONFormatter{})
 	}
 }
 

@@ -11,10 +11,10 @@ import (
 	"time"
 
 	"github.com/drone/autoscaler"
+	"github.com/drone/autoscaler/logger"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
-	"github.com/rs/zerolog/log"
 )
 
 func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpts) (*autoscaler.Instance, error) {
@@ -84,21 +84,18 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		},
 	}
 
-	logger := log.Ctx(ctx).With().
-		Str("region", p.region).
-		Str("image", p.image).
-		Str("size", p.size).
-		Str("name", opts.Name).
-		Logger()
+	logger := logger.FromContext(ctx).
+		WithField("region", p.region).
+		WithField("image", p.image).
+		WithField("size", p.size).
+		WithField("name", opts.Name)
 
-	logger.Debug().
-		Msg("instance create")
+	logger.Debug("instance create")
 
 	results, err := client.RunInstances(in)
 	if err != nil {
-		logger.Error().
-			Err(err).
-			Msg("instance create failed")
+		logger.WithError(err).
+			Error("instance create failed")
 		return nil, err
 	}
 
@@ -113,9 +110,8 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		Image:    *amazonInstance.ImageId,
 	}
 
-	logger.Info().
-		Str("name", instance.Name).
-		Msg("instance create success")
+	logger.WithField("name", instance.Name).
+		Infoln("instance create success")
 
 	// poll the amazon endpoint for server updates
 	// and exit when a network address is allocated.
@@ -124,17 +120,15 @@ poller:
 	for {
 		select {
 		case <-ctx.Done():
-			logger.Debug().
-				Str("name", instance.Name).
-				Msg("instance network deadline exceeded")
+			logger.WithField("name", instance.Name).
+				Debugln("instance network deadline exceeded")
 
 			return instance, ctx.Err()
 		case <-time.After(interval):
 			interval = time.Minute
 
-			logger.Debug().
-				Str("name", instance.Name).
-				Msg("check instance network")
+			logger.WithField("name", instance.Name).
+				Debugln("check instance network")
 
 			desc, err := client.DescribeInstances(
 				&ec2.DescribeInstancesInput{
@@ -144,18 +138,17 @@ poller:
 				},
 			)
 			if err != nil {
-				logger.Warn().
-					Err(err).
-					Msg("instance details failed")
+				logger.WithError(err).
+					Warnln("instance details failed")
 				continue
 			}
 
 			if len(desc.Reservations) == 0 {
-				logger.Warn().Msg("empty reservations in details")
+				logger.Warnln("empty reservations in details")
 				continue
 			}
 			if len(desc.Reservations[0].Instances) == 0 {
-				logger.Warn().Msg("empty instances in reservations")
+				logger.Warnln("empty instances in reservations")
 				continue
 			}
 
@@ -175,10 +168,10 @@ poller:
 		}
 	}
 
-	logger.Debug().
-		Str("name", instance.Name).
-		Str("ip", instance.Address).
-		Msg("instance network ready")
+	logger.
+		WithField("name", instance.Name).
+		WithField("ip", instance.Address).
+		Debugln("instance network ready")
 
 	return instance, nil
 }

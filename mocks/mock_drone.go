@@ -36,6 +36,7 @@ func (m *MockClient) EXPECT() *MockClientMockRecorder {
 
 // Approve mocks base method
 func (m *MockClient) Approve(arg0, arg1 string, arg2, arg3 int) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Approve", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -43,11 +44,13 @@ func (m *MockClient) Approve(arg0, arg1 string, arg2, arg3 int) error {
 
 // Approve indicates an expected call of Approve
 func (mr *MockClientMockRecorder) Approve(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Approve", reflect.TypeOf((*MockClient)(nil).Approve), arg0, arg1, arg2, arg3)
 }
 
 // AutoscalePause mocks base method
 func (m *MockClient) AutoscalePause() error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AutoscalePause")
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -55,11 +58,13 @@ func (m *MockClient) AutoscalePause() error {
 
 // AutoscalePause indicates an expected call of AutoscalePause
 func (mr *MockClientMockRecorder) AutoscalePause() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AutoscalePause", reflect.TypeOf((*MockClient)(nil).AutoscalePause))
 }
 
 // AutoscaleResume mocks base method
 func (m *MockClient) AutoscaleResume() error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AutoscaleResume")
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -67,11 +72,13 @@ func (m *MockClient) AutoscaleResume() error {
 
 // AutoscaleResume indicates an expected call of AutoscaleResume
 func (mr *MockClientMockRecorder) AutoscaleResume() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AutoscaleResume", reflect.TypeOf((*MockClient)(nil).AutoscaleResume))
 }
 
 // AutoscaleVersion mocks base method
 func (m *MockClient) AutoscaleVersion() (*drone.Version, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AutoscaleVersion")
 	ret0, _ := ret[0].(*drone.Version)
 	ret1, _ := ret[1].(error)
@@ -80,11 +87,13 @@ func (m *MockClient) AutoscaleVersion() (*drone.Version, error) {
 
 // AutoscaleVersion indicates an expected call of AutoscaleVersion
 func (mr *MockClientMockRecorder) AutoscaleVersion() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AutoscaleVersion", reflect.TypeOf((*MockClient)(nil).AutoscaleVersion))
 }
 
 // Build mocks base method
 func (m *MockClient) Build(arg0, arg1 string, arg2 int) (*drone.Build, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Build", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*drone.Build)
 	ret1, _ := ret[1].(error)
@@ -93,11 +102,13 @@ func (m *MockClient) Build(arg0, arg1 string, arg2 int) (*drone.Build, error) {
 
 // Build indicates an expected call of Build
 func (mr *MockClientMockRecorder) Build(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Build", reflect.TypeOf((*MockClient)(nil).Build), arg0, arg1, arg2)
 }
 
 // BuildCancel mocks base method
 func (m *MockClient) BuildCancel(arg0, arg1 string, arg2 int) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BuildCancel", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -105,11 +116,13 @@ func (m *MockClient) BuildCancel(arg0, arg1 string, arg2 int) error {
 
 // BuildCancel indicates an expected call of BuildCancel
 func (mr *MockClientMockRecorder) BuildCancel(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuildCancel", reflect.TypeOf((*MockClient)(nil).BuildCancel), arg0, arg1, arg2)
 }
 
 // BuildLast mocks base method
 func (m *MockClient) BuildLast(arg0, arg1, arg2 string) (*drone.Build, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BuildLast", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*drone.Build)
 	ret1, _ := ret[1].(error)
@@ -118,24 +131,42 @@ func (m *MockClient) BuildLast(arg0, arg1, arg2 string) (*drone.Build, error) {
 
 // BuildLast indicates an expected call of BuildLast
 func (mr *MockClientMockRecorder) BuildLast(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuildLast", reflect.TypeOf((*MockClient)(nil).BuildLast), arg0, arg1, arg2)
 }
 
 // BuildList mocks base method
-func (m *MockClient) BuildList(arg0, arg1 string) ([]*drone.Build, error) {
-	ret := m.ctrl.Call(m, "BuildList", arg0, arg1)
+func (m *MockClient) BuildList(arg0, arg1 string, arg2 drone.ListOptions) ([]*drone.Build, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BuildList", arg0, arg1, arg2)
 	ret0, _ := ret[0].([]*drone.Build)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // BuildList indicates an expected call of BuildList
-func (mr *MockClientMockRecorder) BuildList(arg0, arg1 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuildList", reflect.TypeOf((*MockClient)(nil).BuildList), arg0, arg1)
+func (mr *MockClientMockRecorder) BuildList(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuildList", reflect.TypeOf((*MockClient)(nil).BuildList), arg0, arg1, arg2)
+}
+
+// BuildPurge mocks base method
+func (m *MockClient) BuildPurge(arg0, arg1 string, arg2 int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BuildPurge", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// BuildPurge indicates an expected call of BuildPurge
+func (mr *MockClientMockRecorder) BuildPurge(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuildPurge", reflect.TypeOf((*MockClient)(nil).BuildPurge), arg0, arg1, arg2)
 }
 
 // BuildRestart mocks base method
 func (m *MockClient) BuildRestart(arg0, arg1 string, arg2 int, arg3 map[string]string) (*drone.Build, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BuildRestart", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(*drone.Build)
 	ret1, _ := ret[1].(error)
@@ -144,11 +175,13 @@ func (m *MockClient) BuildRestart(arg0, arg1 string, arg2 int, arg3 map[string]s
 
 // BuildRestart indicates an expected call of BuildRestart
 func (mr *MockClientMockRecorder) BuildRestart(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuildRestart", reflect.TypeOf((*MockClient)(nil).BuildRestart), arg0, arg1, arg2, arg3)
 }
 
 // Cron mocks base method
 func (m *MockClient) Cron(arg0, arg1, arg2 string) (*drone.Cron, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Cron", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*drone.Cron)
 	ret1, _ := ret[1].(error)
@@ -157,11 +190,13 @@ func (m *MockClient) Cron(arg0, arg1, arg2 string) (*drone.Cron, error) {
 
 // Cron indicates an expected call of Cron
 func (mr *MockClientMockRecorder) Cron(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Cron", reflect.TypeOf((*MockClient)(nil).Cron), arg0, arg1, arg2)
 }
 
 // CronCreate mocks base method
 func (m *MockClient) CronCreate(arg0, arg1 string, arg2 *drone.Cron) (*drone.Cron, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CronCreate", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*drone.Cron)
 	ret1, _ := ret[1].(error)
@@ -170,11 +205,13 @@ func (m *MockClient) CronCreate(arg0, arg1 string, arg2 *drone.Cron) (*drone.Cro
 
 // CronCreate indicates an expected call of CronCreate
 func (mr *MockClientMockRecorder) CronCreate(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CronCreate", reflect.TypeOf((*MockClient)(nil).CronCreate), arg0, arg1, arg2)
 }
 
 // CronDelete mocks base method
 func (m *MockClient) CronDelete(arg0, arg1, arg2 string) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CronDelete", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -182,11 +219,13 @@ func (m *MockClient) CronDelete(arg0, arg1, arg2 string) error {
 
 // CronDelete indicates an expected call of CronDelete
 func (mr *MockClientMockRecorder) CronDelete(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CronDelete", reflect.TypeOf((*MockClient)(nil).CronDelete), arg0, arg1, arg2)
 }
 
 // CronList mocks base method
 func (m *MockClient) CronList(arg0, arg1 string) ([]*drone.Cron, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CronList", arg0, arg1)
 	ret0, _ := ret[0].([]*drone.Cron)
 	ret1, _ := ret[1].(error)
@@ -195,11 +234,13 @@ func (m *MockClient) CronList(arg0, arg1 string) ([]*drone.Cron, error) {
 
 // CronList indicates an expected call of CronList
 func (mr *MockClientMockRecorder) CronList(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CronList", reflect.TypeOf((*MockClient)(nil).CronList), arg0, arg1)
 }
 
 // CronUpdate mocks base method
 func (m *MockClient) CronUpdate(arg0, arg1, arg2 string, arg3 *drone.CronPatch) (*drone.Cron, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CronUpdate", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(*drone.Cron)
 	ret1, _ := ret[1].(error)
@@ -208,11 +249,13 @@ func (m *MockClient) CronUpdate(arg0, arg1, arg2 string, arg3 *drone.CronPatch) 
 
 // CronUpdate indicates an expected call of CronUpdate
 func (mr *MockClientMockRecorder) CronUpdate(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CronUpdate", reflect.TypeOf((*MockClient)(nil).CronUpdate), arg0, arg1, arg2, arg3)
 }
 
 // Decline mocks base method
 func (m *MockClient) Decline(arg0, arg1 string, arg2, arg3 int) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Decline", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -220,11 +263,13 @@ func (m *MockClient) Decline(arg0, arg1 string, arg2, arg3 int) error {
 
 // Decline indicates an expected call of Decline
 func (mr *MockClientMockRecorder) Decline(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Decline", reflect.TypeOf((*MockClient)(nil).Decline), arg0, arg1, arg2, arg3)
 }
 
 // Encrypt mocks base method
 func (m *MockClient) Encrypt(arg0, arg1 string, arg2 *drone.Secret) (string, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Encrypt", arg0, arg1, arg2)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
@@ -233,11 +278,13 @@ func (m *MockClient) Encrypt(arg0, arg1 string, arg2 *drone.Secret) (string, err
 
 // Encrypt indicates an expected call of Encrypt
 func (mr *MockClientMockRecorder) Encrypt(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Encrypt", reflect.TypeOf((*MockClient)(nil).Encrypt), arg0, arg1, arg2)
 }
 
 // Logs mocks base method
 func (m *MockClient) Logs(arg0, arg1 string, arg2, arg3, arg4 int) ([]*drone.Line, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Logs", arg0, arg1, arg2, arg3, arg4)
 	ret0, _ := ret[0].([]*drone.Line)
 	ret1, _ := ret[1].(error)
@@ -246,11 +293,13 @@ func (m *MockClient) Logs(arg0, arg1 string, arg2, arg3, arg4 int) ([]*drone.Lin
 
 // Logs indicates an expected call of Logs
 func (mr *MockClientMockRecorder) Logs(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Logs", reflect.TypeOf((*MockClient)(nil).Logs), arg0, arg1, arg2, arg3, arg4)
 }
 
 // LogsPurge mocks base method
 func (m *MockClient) LogsPurge(arg0, arg1 string, arg2, arg3, arg4 int) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "LogsPurge", arg0, arg1, arg2, arg3, arg4)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -258,11 +307,176 @@ func (m *MockClient) LogsPurge(arg0, arg1 string, arg2, arg3, arg4 int) error {
 
 // LogsPurge indicates an expected call of LogsPurge
 func (mr *MockClientMockRecorder) LogsPurge(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LogsPurge", reflect.TypeOf((*MockClient)(nil).LogsPurge), arg0, arg1, arg2, arg3, arg4)
+}
+
+// Node mocks base method
+func (m *MockClient) Node(arg0 string) (*drone.Node, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Node", arg0)
+	ret0, _ := ret[0].(*drone.Node)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Node indicates an expected call of Node
+func (mr *MockClientMockRecorder) Node(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Node", reflect.TypeOf((*MockClient)(nil).Node), arg0)
+}
+
+// NodeCreate mocks base method
+func (m *MockClient) NodeCreate(arg0 *drone.Node) (*drone.Node, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NodeCreate", arg0)
+	ret0, _ := ret[0].(*drone.Node)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// NodeCreate indicates an expected call of NodeCreate
+func (mr *MockClientMockRecorder) NodeCreate(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NodeCreate", reflect.TypeOf((*MockClient)(nil).NodeCreate), arg0)
+}
+
+// NodeDelete mocks base method
+func (m *MockClient) NodeDelete(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NodeDelete", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// NodeDelete indicates an expected call of NodeDelete
+func (mr *MockClientMockRecorder) NodeDelete(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NodeDelete", reflect.TypeOf((*MockClient)(nil).NodeDelete), arg0)
+}
+
+// NodeList mocks base method
+func (m *MockClient) NodeList() ([]*drone.Node, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NodeList")
+	ret0, _ := ret[0].([]*drone.Node)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// NodeList indicates an expected call of NodeList
+func (mr *MockClientMockRecorder) NodeList() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NodeList", reflect.TypeOf((*MockClient)(nil).NodeList))
+}
+
+// NodeUpdate mocks base method
+func (m *MockClient) NodeUpdate(arg0 string, arg1 *drone.NodePatch) (*drone.Node, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NodeUpdate", arg0, arg1)
+	ret0, _ := ret[0].(*drone.Node)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// NodeUpdate indicates an expected call of NodeUpdate
+func (mr *MockClientMockRecorder) NodeUpdate(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NodeUpdate", reflect.TypeOf((*MockClient)(nil).NodeUpdate), arg0, arg1)
+}
+
+// OrgSecret mocks base method
+func (m *MockClient) OrgSecret(arg0, arg1 string) (*drone.Secret, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "OrgSecret", arg0, arg1)
+	ret0, _ := ret[0].(*drone.Secret)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// OrgSecret indicates an expected call of OrgSecret
+func (mr *MockClientMockRecorder) OrgSecret(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrgSecret", reflect.TypeOf((*MockClient)(nil).OrgSecret), arg0, arg1)
+}
+
+// OrgSecretCreate mocks base method
+func (m *MockClient) OrgSecretCreate(arg0 string, arg1 *drone.Secret) (*drone.Secret, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "OrgSecretCreate", arg0, arg1)
+	ret0, _ := ret[0].(*drone.Secret)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// OrgSecretCreate indicates an expected call of OrgSecretCreate
+func (mr *MockClientMockRecorder) OrgSecretCreate(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrgSecretCreate", reflect.TypeOf((*MockClient)(nil).OrgSecretCreate), arg0, arg1)
+}
+
+// OrgSecretDelete mocks base method
+func (m *MockClient) OrgSecretDelete(arg0, arg1 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "OrgSecretDelete", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// OrgSecretDelete indicates an expected call of OrgSecretDelete
+func (mr *MockClientMockRecorder) OrgSecretDelete(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrgSecretDelete", reflect.TypeOf((*MockClient)(nil).OrgSecretDelete), arg0, arg1)
+}
+
+// OrgSecretList mocks base method
+func (m *MockClient) OrgSecretList(arg0 string) ([]*drone.Secret, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "OrgSecretList", arg0)
+	ret0, _ := ret[0].([]*drone.Secret)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// OrgSecretList indicates an expected call of OrgSecretList
+func (mr *MockClientMockRecorder) OrgSecretList(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrgSecretList", reflect.TypeOf((*MockClient)(nil).OrgSecretList), arg0)
+}
+
+// OrgSecretListAll mocks base method
+func (m *MockClient) OrgSecretListAll() ([]*drone.Secret, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "OrgSecretListAll")
+	ret0, _ := ret[0].([]*drone.Secret)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// OrgSecretListAll indicates an expected call of OrgSecretListAll
+func (mr *MockClientMockRecorder) OrgSecretListAll() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrgSecretListAll", reflect.TypeOf((*MockClient)(nil).OrgSecretListAll))
+}
+
+// OrgSecretUpdate mocks base method
+func (m *MockClient) OrgSecretUpdate(arg0 string, arg1 *drone.Secret) (*drone.Secret, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "OrgSecretUpdate", arg0, arg1)
+	ret0, _ := ret[0].(*drone.Secret)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// OrgSecretUpdate indicates an expected call of OrgSecretUpdate
+func (mr *MockClientMockRecorder) OrgSecretUpdate(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrgSecretUpdate", reflect.TypeOf((*MockClient)(nil).OrgSecretUpdate), arg0, arg1)
 }
 
 // Promote mocks base method
 func (m *MockClient) Promote(arg0, arg1 string, arg2 int, arg3 string, arg4 map[string]string) (*drone.Build, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Promote", arg0, arg1, arg2, arg3, arg4)
 	ret0, _ := ret[0].(*drone.Build)
 	ret1, _ := ret[1].(error)
@@ -271,11 +485,13 @@ func (m *MockClient) Promote(arg0, arg1 string, arg2 int, arg3 string, arg4 map[
 
 // Promote indicates an expected call of Promote
 func (mr *MockClientMockRecorder) Promote(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Promote", reflect.TypeOf((*MockClient)(nil).Promote), arg0, arg1, arg2, arg3, arg4)
 }
 
 // Queue mocks base method
 func (m *MockClient) Queue() ([]*drone.Stage, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Queue")
 	ret0, _ := ret[0].([]*drone.Stage)
 	ret1, _ := ret[1].(error)
@@ -284,11 +500,13 @@ func (m *MockClient) Queue() ([]*drone.Stage, error) {
 
 // Queue indicates an expected call of Queue
 func (mr *MockClientMockRecorder) Queue() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Queue", reflect.TypeOf((*MockClient)(nil).Queue))
 }
 
 // QueuePause mocks base method
 func (m *MockClient) QueuePause() error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "QueuePause")
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -296,11 +514,13 @@ func (m *MockClient) QueuePause() error {
 
 // QueuePause indicates an expected call of QueuePause
 func (mr *MockClientMockRecorder) QueuePause() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueuePause", reflect.TypeOf((*MockClient)(nil).QueuePause))
 }
 
 // QueueResume mocks base method
 func (m *MockClient) QueueResume() error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "QueueResume")
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -308,11 +528,13 @@ func (m *MockClient) QueueResume() error {
 
 // QueueResume indicates an expected call of QueueResume
 func (mr *MockClientMockRecorder) QueueResume() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueueResume", reflect.TypeOf((*MockClient)(nil).QueueResume))
 }
 
 // Repo mocks base method
 func (m *MockClient) Repo(arg0, arg1 string) (*drone.Repo, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Repo", arg0, arg1)
 	ret0, _ := ret[0].(*drone.Repo)
 	ret1, _ := ret[1].(error)
@@ -321,11 +543,13 @@ func (m *MockClient) Repo(arg0, arg1 string) (*drone.Repo, error) {
 
 // Repo indicates an expected call of Repo
 func (mr *MockClientMockRecorder) Repo(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Repo", reflect.TypeOf((*MockClient)(nil).Repo), arg0, arg1)
 }
 
 // RepoChown mocks base method
 func (m *MockClient) RepoChown(arg0, arg1 string) (*drone.Repo, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RepoChown", arg0, arg1)
 	ret0, _ := ret[0].(*drone.Repo)
 	ret1, _ := ret[1].(error)
@@ -334,11 +558,27 @@ func (m *MockClient) RepoChown(arg0, arg1 string) (*drone.Repo, error) {
 
 // RepoChown indicates an expected call of RepoChown
 func (mr *MockClientMockRecorder) RepoChown(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RepoChown", reflect.TypeOf((*MockClient)(nil).RepoChown), arg0, arg1)
+}
+
+// RepoDelete mocks base method
+func (m *MockClient) RepoDelete(arg0, arg1 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RepoDelete", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RepoDelete indicates an expected call of RepoDelete
+func (mr *MockClientMockRecorder) RepoDelete(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RepoDelete", reflect.TypeOf((*MockClient)(nil).RepoDelete), arg0, arg1)
 }
 
 // RepoDisable mocks base method
 func (m *MockClient) RepoDisable(arg0, arg1 string) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RepoDisable", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -346,11 +586,13 @@ func (m *MockClient) RepoDisable(arg0, arg1 string) error {
 
 // RepoDisable indicates an expected call of RepoDisable
 func (mr *MockClientMockRecorder) RepoDisable(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RepoDisable", reflect.TypeOf((*MockClient)(nil).RepoDisable), arg0, arg1)
 }
 
 // RepoEnable mocks base method
 func (m *MockClient) RepoEnable(arg0, arg1 string) (*drone.Repo, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RepoEnable", arg0, arg1)
 	ret0, _ := ret[0].(*drone.Repo)
 	ret1, _ := ret[1].(error)
@@ -359,11 +601,13 @@ func (m *MockClient) RepoEnable(arg0, arg1 string) (*drone.Repo, error) {
 
 // RepoEnable indicates an expected call of RepoEnable
 func (mr *MockClientMockRecorder) RepoEnable(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RepoEnable", reflect.TypeOf((*MockClient)(nil).RepoEnable), arg0, arg1)
 }
 
 // RepoList mocks base method
 func (m *MockClient) RepoList() ([]*drone.Repo, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RepoList")
 	ret0, _ := ret[0].([]*drone.Repo)
 	ret1, _ := ret[1].(error)
@@ -372,11 +616,13 @@ func (m *MockClient) RepoList() ([]*drone.Repo, error) {
 
 // RepoList indicates an expected call of RepoList
 func (mr *MockClientMockRecorder) RepoList() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RepoList", reflect.TypeOf((*MockClient)(nil).RepoList))
 }
 
 // RepoListSync mocks base method
 func (m *MockClient) RepoListSync() ([]*drone.Repo, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RepoListSync")
 	ret0, _ := ret[0].([]*drone.Repo)
 	ret1, _ := ret[1].(error)
@@ -385,11 +631,13 @@ func (m *MockClient) RepoListSync() ([]*drone.Repo, error) {
 
 // RepoListSync indicates an expected call of RepoListSync
 func (mr *MockClientMockRecorder) RepoListSync() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RepoListSync", reflect.TypeOf((*MockClient)(nil).RepoListSync))
 }
 
 // RepoRepair mocks base method
 func (m *MockClient) RepoRepair(arg0, arg1 string) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RepoRepair", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -397,11 +645,13 @@ func (m *MockClient) RepoRepair(arg0, arg1 string) error {
 
 // RepoRepair indicates an expected call of RepoRepair
 func (mr *MockClientMockRecorder) RepoRepair(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RepoRepair", reflect.TypeOf((*MockClient)(nil).RepoRepair), arg0, arg1)
 }
 
 // RepoUpdate mocks base method
 func (m *MockClient) RepoUpdate(arg0, arg1 string, arg2 *drone.RepoPatch) (*drone.Repo, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RepoUpdate", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*drone.Repo)
 	ret1, _ := ret[1].(error)
@@ -410,11 +660,13 @@ func (m *MockClient) RepoUpdate(arg0, arg1 string, arg2 *drone.RepoPatch) (*dron
 
 // RepoUpdate indicates an expected call of RepoUpdate
 func (mr *MockClientMockRecorder) RepoUpdate(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RepoUpdate", reflect.TypeOf((*MockClient)(nil).RepoUpdate), arg0, arg1, arg2)
 }
 
 // Rollback mocks base method
 func (m *MockClient) Rollback(arg0, arg1 string, arg2 int, arg3 string, arg4 map[string]string) (*drone.Build, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Rollback", arg0, arg1, arg2, arg3, arg4)
 	ret0, _ := ret[0].(*drone.Build)
 	ret1, _ := ret[1].(error)
@@ -423,11 +675,13 @@ func (m *MockClient) Rollback(arg0, arg1 string, arg2 int, arg3 string, arg4 map
 
 // Rollback indicates an expected call of Rollback
 func (mr *MockClientMockRecorder) Rollback(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Rollback", reflect.TypeOf((*MockClient)(nil).Rollback), arg0, arg1, arg2, arg3, arg4)
 }
 
 // Secret mocks base method
 func (m *MockClient) Secret(arg0, arg1, arg2 string) (*drone.Secret, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Secret", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*drone.Secret)
 	ret1, _ := ret[1].(error)
@@ -436,11 +690,13 @@ func (m *MockClient) Secret(arg0, arg1, arg2 string) (*drone.Secret, error) {
 
 // Secret indicates an expected call of Secret
 func (mr *MockClientMockRecorder) Secret(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Secret", reflect.TypeOf((*MockClient)(nil).Secret), arg0, arg1, arg2)
 }
 
 // SecretCreate mocks base method
 func (m *MockClient) SecretCreate(arg0, arg1 string, arg2 *drone.Secret) (*drone.Secret, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SecretCreate", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*drone.Secret)
 	ret1, _ := ret[1].(error)
@@ -449,11 +705,13 @@ func (m *MockClient) SecretCreate(arg0, arg1 string, arg2 *drone.Secret) (*drone
 
 // SecretCreate indicates an expected call of SecretCreate
 func (mr *MockClientMockRecorder) SecretCreate(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SecretCreate", reflect.TypeOf((*MockClient)(nil).SecretCreate), arg0, arg1, arg2)
 }
 
 // SecretDelete mocks base method
 func (m *MockClient) SecretDelete(arg0, arg1, arg2 string) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SecretDelete", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -461,11 +719,13 @@ func (m *MockClient) SecretDelete(arg0, arg1, arg2 string) error {
 
 // SecretDelete indicates an expected call of SecretDelete
 func (mr *MockClientMockRecorder) SecretDelete(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SecretDelete", reflect.TypeOf((*MockClient)(nil).SecretDelete), arg0, arg1, arg2)
 }
 
 // SecretList mocks base method
 func (m *MockClient) SecretList(arg0, arg1 string) ([]*drone.Secret, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SecretList", arg0, arg1)
 	ret0, _ := ret[0].([]*drone.Secret)
 	ret1, _ := ret[1].(error)
@@ -474,11 +734,13 @@ func (m *MockClient) SecretList(arg0, arg1 string) ([]*drone.Secret, error) {
 
 // SecretList indicates an expected call of SecretList
 func (mr *MockClientMockRecorder) SecretList(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SecretList", reflect.TypeOf((*MockClient)(nil).SecretList), arg0, arg1)
 }
 
 // SecretUpdate mocks base method
 func (m *MockClient) SecretUpdate(arg0, arg1 string, arg2 *drone.Secret) (*drone.Secret, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SecretUpdate", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*drone.Secret)
 	ret1, _ := ret[1].(error)
@@ -487,11 +749,13 @@ func (m *MockClient) SecretUpdate(arg0, arg1 string, arg2 *drone.Secret) (*drone
 
 // SecretUpdate indicates an expected call of SecretUpdate
 func (mr *MockClientMockRecorder) SecretUpdate(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SecretUpdate", reflect.TypeOf((*MockClient)(nil).SecretUpdate), arg0, arg1, arg2)
 }
 
 // Self mocks base method
 func (m *MockClient) Self() (*drone.User, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Self")
 	ret0, _ := ret[0].(*drone.User)
 	ret1, _ := ret[1].(error)
@@ -500,11 +764,13 @@ func (m *MockClient) Self() (*drone.User, error) {
 
 // Self indicates an expected call of Self
 func (mr *MockClientMockRecorder) Self() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Self", reflect.TypeOf((*MockClient)(nil).Self))
 }
 
 // Server mocks base method
 func (m *MockClient) Server(arg0 string) (*drone.Server, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Server", arg0)
 	ret0, _ := ret[0].(*drone.Server)
 	ret1, _ := ret[1].(error)
@@ -513,11 +779,13 @@ func (m *MockClient) Server(arg0 string) (*drone.Server, error) {
 
 // Server indicates an expected call of Server
 func (mr *MockClientMockRecorder) Server(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Server", reflect.TypeOf((*MockClient)(nil).Server), arg0)
 }
 
 // ServerCreate mocks base method
 func (m *MockClient) ServerCreate() (*drone.Server, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ServerCreate")
 	ret0, _ := ret[0].(*drone.Server)
 	ret1, _ := ret[1].(error)
@@ -526,11 +794,13 @@ func (m *MockClient) ServerCreate() (*drone.Server, error) {
 
 // ServerCreate indicates an expected call of ServerCreate
 func (mr *MockClientMockRecorder) ServerCreate() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ServerCreate", reflect.TypeOf((*MockClient)(nil).ServerCreate))
 }
 
 // ServerDelete mocks base method
 func (m *MockClient) ServerDelete(arg0 string) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ServerDelete", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -538,11 +808,13 @@ func (m *MockClient) ServerDelete(arg0 string) error {
 
 // ServerDelete indicates an expected call of ServerDelete
 func (mr *MockClientMockRecorder) ServerDelete(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ServerDelete", reflect.TypeOf((*MockClient)(nil).ServerDelete), arg0)
 }
 
 // ServerList mocks base method
 func (m *MockClient) ServerList() ([]*drone.Server, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ServerList")
 	ret0, _ := ret[0].([]*drone.Server)
 	ret1, _ := ret[1].(error)
@@ -551,31 +823,37 @@ func (m *MockClient) ServerList() ([]*drone.Server, error) {
 
 // ServerList indicates an expected call of ServerList
 func (mr *MockClientMockRecorder) ServerList() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ServerList", reflect.TypeOf((*MockClient)(nil).ServerList))
 }
 
 // SetAddress mocks base method
 func (m *MockClient) SetAddress(arg0 string) {
+	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SetAddress", arg0)
 }
 
 // SetAddress indicates an expected call of SetAddress
 func (mr *MockClientMockRecorder) SetAddress(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAddress", reflect.TypeOf((*MockClient)(nil).SetAddress), arg0)
 }
 
 // SetClient mocks base method
 func (m *MockClient) SetClient(arg0 *http.Client) {
+	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SetClient", arg0)
 }
 
 // SetClient indicates an expected call of SetClient
 func (mr *MockClientMockRecorder) SetClient(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetClient", reflect.TypeOf((*MockClient)(nil).SetClient), arg0)
 }
 
 // Sign mocks base method
 func (m *MockClient) Sign(arg0, arg1, arg2 string) (string, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Sign", arg0, arg1, arg2)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
@@ -584,11 +862,13 @@ func (m *MockClient) Sign(arg0, arg1, arg2 string) (string, error) {
 
 // Sign indicates an expected call of Sign
 func (mr *MockClientMockRecorder) Sign(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Sign", reflect.TypeOf((*MockClient)(nil).Sign), arg0, arg1, arg2)
 }
 
 // User mocks base method
 func (m *MockClient) User(arg0 string) (*drone.User, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "User", arg0)
 	ret0, _ := ret[0].(*drone.User)
 	ret1, _ := ret[1].(error)
@@ -597,11 +877,13 @@ func (m *MockClient) User(arg0 string) (*drone.User, error) {
 
 // User indicates an expected call of User
 func (mr *MockClientMockRecorder) User(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "User", reflect.TypeOf((*MockClient)(nil).User), arg0)
 }
 
 // UserCreate mocks base method
 func (m *MockClient) UserCreate(arg0 *drone.User) (*drone.User, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UserCreate", arg0)
 	ret0, _ := ret[0].(*drone.User)
 	ret1, _ := ret[1].(error)
@@ -610,11 +892,13 @@ func (m *MockClient) UserCreate(arg0 *drone.User) (*drone.User, error) {
 
 // UserCreate indicates an expected call of UserCreate
 func (mr *MockClientMockRecorder) UserCreate(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserCreate", reflect.TypeOf((*MockClient)(nil).UserCreate), arg0)
 }
 
 // UserDelete mocks base method
 func (m *MockClient) UserDelete(arg0 string) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UserDelete", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -622,11 +906,13 @@ func (m *MockClient) UserDelete(arg0 string) error {
 
 // UserDelete indicates an expected call of UserDelete
 func (mr *MockClientMockRecorder) UserDelete(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserDelete", reflect.TypeOf((*MockClient)(nil).UserDelete), arg0)
 }
 
 // UserList mocks base method
 func (m *MockClient) UserList() ([]*drone.User, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UserList")
 	ret0, _ := ret[0].([]*drone.User)
 	ret1, _ := ret[1].(error)
@@ -635,24 +921,28 @@ func (m *MockClient) UserList() ([]*drone.User, error) {
 
 // UserList indicates an expected call of UserList
 func (mr *MockClientMockRecorder) UserList() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserList", reflect.TypeOf((*MockClient)(nil).UserList))
 }
 
 // UserUpdate mocks base method
-func (m *MockClient) UserUpdate(arg0 *drone.User) (*drone.User, error) {
-	ret := m.ctrl.Call(m, "UserUpdate", arg0)
+func (m *MockClient) UserUpdate(arg0 string, arg1 *drone.UserPatch) (*drone.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UserUpdate", arg0, arg1)
 	ret0, _ := ret[0].(*drone.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // UserUpdate indicates an expected call of UserUpdate
-func (mr *MockClientMockRecorder) UserUpdate(arg0 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserUpdate", reflect.TypeOf((*MockClient)(nil).UserUpdate), arg0)
+func (mr *MockClientMockRecorder) UserUpdate(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserUpdate", reflect.TypeOf((*MockClient)(nil).UserUpdate), arg0, arg1)
 }
 
 // Verify mocks base method
 func (m *MockClient) Verify(arg0, arg1, arg2 string) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Verify", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -660,5 +950,6 @@ func (m *MockClient) Verify(arg0, arg1, arg2 string) error {
 
 // Verify indicates an expected call of Verify
 func (mr *MockClientMockRecorder) Verify(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Verify", reflect.TypeOf((*MockClient)(nil).Verify), arg0, arg1, arg2)
 }

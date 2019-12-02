@@ -9,17 +9,15 @@ import (
 	"strconv"
 
 	"github.com/drone/autoscaler"
-
-	"github.com/rs/zerolog/log"
+	"github.com/drone/autoscaler/logger"
 )
 
 func (p *provider) Destroy(ctx context.Context, instance *autoscaler.Instance) error {
-	logger := log.Ctx(ctx).With().
-		Str("region", instance.Region).
-		Str("image", instance.Image).
-		Str("size", instance.Size).
-		Str("name", instance.Name).
-		Logger()
+	logger := logger.FromContext(ctx).
+		WithField("region", instance.Region).
+		WithField("image", instance.Image).
+		WithField("size", instance.Size).
+		WithField("name", instance.Name)
 
 	client := newClient(ctx, p.token)
 	id, err := strconv.Atoi(instance.ID)
@@ -29,30 +27,25 @@ func (p *provider) Destroy(ctx context.Context, instance *autoscaler.Instance) e
 
 	_, res, err := client.Droplets.Get(ctx, id)
 	if err != nil && res.StatusCode == 404 {
-		logger.Warn().
-			Err(err).
-			Msg("droplet does not exist")
+		logger.WithError(err).
+			Warnln("droplet does not exist")
 		return autoscaler.ErrInstanceNotFound
 	} else if err != nil {
-		logger.Error().
-			Err(err).
-			Msg("cannot find droplet")
+		logger.WithError(err).
+			Errorln("cannot find droplet")
 		return err
 	}
 
-	logger.Debug().
-		Msg("deleting droplet")
+	logger.Debugln("deleting droplet")
 
 	_, err = client.Droplets.Delete(ctx, id)
 	if err != nil {
-		logger.Error().
-			Err(err).
-			Msg("deleting droplet failed")
+		logger.WithError(err).
+			Errorln("deleting droplet failed")
 		return err
 	}
 
-	logger.Debug().
-		Msg("droplet deleted")
+	logger.Debugln("droplet deleted")
 
 	return nil
 }

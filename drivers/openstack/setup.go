@@ -8,8 +8,9 @@ import (
 	"context"
 	"errors"
 
+	"github.com/drone/autoscaler/logger"
+
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/keypairs"
-	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -25,10 +26,9 @@ func (p *provider) setup(ctx context.Context) error {
 }
 
 func (p *provider) findKeyPair(ctx context.Context) error {
-	logger := log.Ctx(ctx)
+	logger := logger.FromContext(ctx)
 
-	logger.Debug().
-		Msg("finding default ssh key")
+	logger.Debugln("finding default ssh key")
 
 	allPages, err := keypairs.List(p.computeClient).AllPages()
 	if err != nil {
@@ -54,10 +54,10 @@ func (p *provider) findKeyPair(ctx context.Context) error {
 		}
 		p.key = key.Name
 
-		logger.Debug().
-			Str("name", name).
-			Str("fingerprint", key.Fingerprint).
-			Msg("using default ssh key")
+		logger.
+			WithField("name", name).
+			WithField("fingerprint", key.Fingerprint).
+			Debugln("using default ssh key")
 		return nil
 	}
 
@@ -68,10 +68,10 @@ func (p *provider) findKeyPair(ctx context.Context) error {
 		key := keys[0]
 		p.key = key.Name
 
-		logger.Debug().
-			Str("name", key.Name).
-			Str("fingerprint", key.Fingerprint).
-			Msg("using default ssh key")
+		logger.
+			WithField("name", key.Name).
+			WithField("fingerprint", key.Fingerprint).
+			Debugln("using default ssh key")
 		return nil
 	}
 	return errors.New("no matching keys")

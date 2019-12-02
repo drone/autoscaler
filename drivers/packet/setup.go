@@ -8,8 +8,9 @@ import (
 	"context"
 	"errors"
 
+	"github.com/drone/autoscaler/logger"
+
 	"github.com/packethost/packngo"
-	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -27,10 +28,8 @@ func (p *provider) setup(ctx context.Context) error {
 // key to use when provisioning instances. This is only
 // necessary when the user has not provided the ID.
 func (p *provider) setupKeypair(ctx context.Context) error {
-	logger := log.Ctx(ctx)
-
-	logger.Debug().
-		Msg("finding default ssh key")
+	logger := logger.FromContext(ctx)
+	logger.Debugln("finding default ssh key")
 
 	keys, _, err := p.client.SSHKeys.List()
 	if err != nil {
@@ -51,11 +50,11 @@ func (p *provider) setupKeypair(ctx context.Context) error {
 		}
 		p.sshkey = key.Key
 
-		logger.Debug().
-			Str("id", key.ID).
-			Str("label", key.Key).
-			Str("fingerprint", key.FingerPrint).
-			Msg("using default ssh key")
+		logger.
+			WithField("id", key.ID).
+			WithField("label", key.Key).
+			WithField("fingerprint", key.FingerPrint).
+			Debugln("using default ssh key")
 		return nil
 	}
 
@@ -66,11 +65,11 @@ func (p *provider) setupKeypair(ctx context.Context) error {
 		key := keys[0]
 		p.sshkey = key.ID
 
-		logger.Debug().
-			Str("id", key.ID).
-			Str("label", key.Label).
-			Str("fingerprint", key.FingerPrint).
-			Msg("using default ssh key")
+		logger.
+			WithField("id", key.ID).
+			WithField("label", key.Label).
+			WithField("fingerprint", key.FingerPrint).
+			Debugln("using default ssh key")
 		return nil
 	}
 

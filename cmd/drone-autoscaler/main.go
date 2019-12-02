@@ -244,6 +244,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			digitalocean.WithUserDataFile(c.DigitalOcean.UserDataFile),
 			digitalocean.WithUserData(c.DigitalOcean.UserData),
 			digitalocean.WithToken(c.DigitalOcean.Token),
+			digitalocean.WithPrivateIP(c.DigitalOcean.PrivateIP),
 			digitalocean.WithTags(c.DigitalOcean.Tags...),
 		), nil
 	case c.Scaleway.AccessKey != "":

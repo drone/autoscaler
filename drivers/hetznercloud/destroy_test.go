@@ -56,6 +56,32 @@ func TestDestroyDeleteError(t *testing.T) {
 	}
 }
 
+func TestDestroyNotFound(t *testing.T) {
+	defer gock.Off()
+
+	gock.New("https://api.hetzner.cloud").
+		Delete("/v1/servers/3164494").
+		Reply(404).
+		BodyString(destroyNotFoundResponse)
+
+	mockContext := context.TODO()
+	mockInstance := &autoscaler.Instance{
+		ID: "3164494",
+	}
+
+	p := New(
+		WithToken("LRK9DAWQ1ZAEFSrCNEEzLCUwhYX1U3g7wMg4dTlkkDC96fyDuyJ39nVbVjCKSDfj"),
+	)
+
+	err := p.Destroy(mockContext, mockInstance)
+	if err == nil {
+		t.Errorf("Expect error returned from hetzner cloud")
+	}
+	if err != autoscaler.ErrInstanceNotFound {
+		t.Errorf("Expect instance not found returned from hetzner cloud")
+	}
+}
+
 func TestDestroyInvalidInput(t *testing.T) {
 	i := &autoscaler.Instance{}
 	p := provider{}
@@ -64,3 +90,11 @@ func TestDestroyInvalidInput(t *testing.T) {
 		t.Errorf("Expected invalid or missing ID error")
 	}
 }
+
+var destroyNotFoundResponse = `{
+  "error": {
+    "message": "server with ID '3164494' not found",
+    "code": "not_found",
+    "details": null
+  }
+}`

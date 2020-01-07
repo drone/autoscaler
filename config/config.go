@@ -144,6 +144,7 @@ type (
 			MachineType  string            `envconfig:"DRONE_GOOGLE_MACHINE_TYPE"`
 			MachineImage string            `envconfig:"DRONE_GOOGLE_MACHINE_IMAGE"`
 			Network      string            `envconfig:"DRONE_GOOGLE_NETWORK"`
+			Subnetwork   string            `envconfig:"DRONE_GOOGLE_SUBNETWORK"`
 			Labels       map[string]string `envconfig:"DRONE_GOOGLE_LABELS"`
 			Scopes       string            `envconfig:"DRONE_GOOGLE_SCOPES"`
 			DiskSize     int64             `envconfig:"DRONE_GOOGLE_DISK_SIZE"`

@@ -74,6 +74,9 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 	if p.network == "" {
 		p.network = "global/networks/default"
 	}
+	if p.subnetwork == "" {
+		p.subnetwork = "subnetworks/default"
+	}
 	if p.userdata == nil {
 		p.userdata = userdata.T
 	}

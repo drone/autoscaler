@@ -72,6 +72,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		NetworkInterfaces: []*compute.NetworkInterface{
 			{
 				Network: p.network,
+				Subnetwork: p.subnetwork,
 				AccessConfigs: []*compute.AccessConfig{
 					{
 						Name: "External NAT",

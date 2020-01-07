@@ -71,6 +71,13 @@ func WithNetwork(network string) Option {
 	}
 }
 
+// WithSubNetwork returns an option to set the subnetwork.
+func WithSubnetwork(subnetwork string) Option {
+	return func(p *provider) {
+		p.subnetwork = subnetwork
+	}
+}
+
 // WithProject returns an option to set the project.
 func WithProject(project string) Option {
 	return func(p *provider) {

@@ -4,12 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [1.6.0]
 ### Changed
 - Use logrus for logging instead of zerolog, by [@bradrydzewski](https://github.com/bradrydzewski).
 
 ### Added
 - Read only user interface to visualize servers and logs, by [@bradrydzewski](https://github.com/bradrydzewski). 
+- Support for configuring subnetworks with GCP, by [@nsigarora](https://github.com/nsigarora).
+- Support for handling  ErrInstanceNotFound with Hetzner, by [@tboerger](https://github.com/tboerger).
 
 ## [1.5.0]
 ### Changed

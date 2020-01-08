@@ -35,17 +35,18 @@ var (
 type provider struct {
 	init sync.Once
 
-	diskSize int64
-	diskType string
-	image    string
-	labels   map[string]string
-	network  string
-	project  string
-	scopes   []string
-	size     string
-	tags     []string
-	zone     string
-	userdata *template.Template
+	diskSize   int64
+	diskType   string
+	image      string
+	labels     map[string]string
+	network    string
+	subnetwork string
+	project    string
+	scopes     []string
+	size       string
+	tags       []string
+	zone       string
+	userdata   *template.Template
 
 	service *compute.Service
 }

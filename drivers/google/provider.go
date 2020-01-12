@@ -7,6 +7,7 @@ package google
 import (
 	"context"
 	"errors"
+	"net/http"
 	"sync"
 	"text/template"
 	"time"
@@ -16,6 +17,7 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	compute "google.golang.org/api/compute/v1"
+	"google.golang.org/api/googleapi"
 )
 
 var (
@@ -101,6 +103,10 @@ func (p *provider) waitZoneOperation(ctx context.Context, name string) error {
 	for {
 		op, err := p.service.ZoneOperations.Get(p.project, p.zone, name).Context(ctx).Do()
 		if err != nil {
+			if gerr, ok := err.(*googleapi.Error); ok &&
+				gerr.Code == http.StatusNotFound {
+				return autoscaler.ErrInstanceNotFound
+			}
 			return err
 		}
 		if op.Error != nil {

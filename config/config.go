@@ -11,7 +11,7 @@ import "time"
 type (
 	// Config stores the configuration settings.
 	Config struct {
-		Interval       time.Duration `default:"5m"`
+		Interval       time.Duration `default:"1m"`
 		CapacityBuffer int           `default:"0" split_words:"true"`
 
 		Slack struct {

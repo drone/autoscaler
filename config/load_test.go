@@ -19,7 +19,7 @@ func TestDefaults(t *testing.T) {
 	if got, want := conf.Logs.Debug, true; got != want {
 		t.Errorf("Want default DRONE_LOGS_DEBUG of %v, got %v", want, got)
 	}
-	if got, want := conf.Interval, time.Minute*5; got != want {
+	if got, want := conf.Interval, time.Minute; got != want {
 		t.Errorf("Want default DRONE_INTERVAL of %s, got %s", want, got)
 	}
 	if got, want := conf.CapacityBuffer, 0; got != want {

@@ -126,6 +126,8 @@ func (e *engine) Resume() {
 }
 
 func (e *engine) Start(ctx context.Context) {
+	e.reset(ctx)
+
 	var wg sync.WaitGroup
 	wg.Add(7)
 	go func() {
@@ -174,20 +176,6 @@ func (e *engine) allocate(ctx context.Context) {
 
 // runs the installation process.
 func (e *engine) install(ctx context.Context) {
-	// Any Staging server is not considered installed so revert its state to run the installer again.
-	// This happens when the autoscaler is stopped after the server is created, but before the installation is complete.
-	stagings, err := e.allocator.servers.ListState(ctx, autoscaler.StateStaging)
-	if err != nil {
-		logger.FromContext(ctx).
-			WithError(err).
-			Warnln("cannot list servers")
-	} else {
-		for _, s := range stagings {
-			s.State = autoscaler.StateCreated
-			err = e.allocator.servers.Update(ctx, s)
-		}
-	}
-
 	const interval = time.Second * 10
 	for {
 		select {
@@ -267,6 +255,23 @@ func (e *engine) reap(ctx context.Context) {
 			return
 		case <-time.After(e.reaper.interval):
 			e.reaper.Reap(ctx)
+		}
+	}
+}
+
+func (e *engine) reset(ctx context.Context) {
+	// handle the situation where the autoscaler is stopped or
+	// restarted during instance setup or teardown. If this happens
+	// reset the instance state to resume.
+	servers, _ := e.allocator.servers.List(ctx)
+	for _, s := range servers {
+		switch s.State {
+		case autoscaler.StateStaging:
+			s.State = autoscaler.StateCreated
+			e.allocator.servers.Update(ctx, s)
+		case autoscaler.StateStopping:
+			s.State = autoscaler.StateShutdown
+			e.allocator.servers.Update(ctx, s)
 		}
 	}
 }

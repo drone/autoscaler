@@ -62,5 +62,4 @@ require (
 	google.golang.org/api v0.0.0-20180921000521-920bb1beccf7
 	google.golang.org/appengine v1.0.0 // indirect
 	gopkg.in/ini.v1 v1.51.0 // indirect
-	launchpad.net/gocheck v0.0.0-20140225173054-000000000087 // indirect
 )

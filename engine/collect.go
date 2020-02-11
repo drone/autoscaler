@@ -62,7 +62,9 @@ func (c *collector) collect(ctx context.Context, server *autoscaler.Server) erro
 		}
 	}()
 
-	ctx, cancel := context.WithTimeout(ctx, time.Hour)
+	ctx, cancel := context.WithTimeout(ctx,
+		time.Hour+time.Minute+time.Minute, // two minute buffer
+	)
 	defer cancel()
 
 	in := &autoscaler.Instance{
@@ -83,7 +85,7 @@ func (c *collector) collect(ctx context.Context, server *autoscaler.Server) erro
 		return err
 	}
 
-	timeout := time.Hour * 60
+	timeout := time.Hour
 	err = client.ContainerStop(ctx, "agent", &timeout)
 	if err != nil {
 		logger.WithError(err).

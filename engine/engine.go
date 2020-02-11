@@ -267,11 +267,31 @@ func (e *engine) reset(ctx context.Context) {
 	for _, s := range servers {
 		switch s.State {
 		case autoscaler.StateStaging:
+			log := logger.FromContext(ctx).
+				WithField("instance", s.ID).
+				WithField("address", s.Address).
+				WithField("from-state", "staging").
+				WithField("to-state", "created")
+			log.Infoln("reset instance state")
 			s.State = autoscaler.StateCreated
-			e.allocator.servers.Update(ctx, s)
+			err := e.allocator.servers.Update(ctx, s)
+			if err != nil {
+				log.WithError(err).
+					Error("failed to reset instance state")
+			}
 		case autoscaler.StateStopping:
+			log := logger.FromContext(ctx).
+				WithField("instance", s.ID).
+				WithField("address", s.Address).
+				WithField("from-state", "stopping").
+				WithField("to-state", "shutdown")
+			log.Infoln("reset instance state")
 			s.State = autoscaler.StateShutdown
-			e.allocator.servers.Update(ctx, s)
+			err := e.allocator.servers.Update(ctx, s)
+			if err != nil {
+				log.WithError(err).
+					Errorln("failed to reset instance state")
+			}
 		}
 	}
 }

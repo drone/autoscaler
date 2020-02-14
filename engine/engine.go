@@ -268,7 +268,7 @@ func (e *engine) reset(ctx context.Context) {
 		switch s.State {
 		case autoscaler.StateStaging:
 			log := logger.FromContext(ctx).
-				WithField("instance", s.ID).
+				WithField("instance", s.Name).
 				WithField("address", s.Address).
 				WithField("from-state", "staging").
 				WithField("to-state", "created")
@@ -280,7 +280,7 @@ func (e *engine) reset(ctx context.Context) {
 			}
 		case autoscaler.StateStopping:
 			log := logger.FromContext(ctx).
-				WithField("instance", s.ID).
+				WithField("instance", s.Name).
 				WithField("address", s.Address).
 				WithField("from-state", "stopping").
 				WithField("to-state", "shutdown")

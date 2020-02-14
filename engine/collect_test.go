@@ -7,8 +7,8 @@ package engine
 import (
 	"context"
 	"errors"
-	"testing"
 	"io"
+	"testing"
 
 	docker "docker.io/go-docker"
 	"github.com/drone/autoscaler"
@@ -23,7 +23,10 @@ func TestCollect(t *testing.T) {
 
 	mockctx := context.Background()
 	mockServers := []*autoscaler.Server{
-		{State: autoscaler.StateShutdown},
+		{
+			ID:    "i-1234567890abcdef0",
+			State: autoscaler.StateShutdown,
+		},
 	}
 
 	client := mocks.NewMockAPIClient(controller)
@@ -62,7 +65,10 @@ func TestCollect_DockerStopError(t *testing.T) {
 	mockerr := errors.New("oh no")
 	mockctx := context.Background()
 	mockServers := []*autoscaler.Server{
-		{State: autoscaler.StateShutdown},
+		{
+			ID:    "i-1234567890abcdef0",
+			State: autoscaler.StateShutdown,
+		},
 	}
 
 	client := mocks.NewMockAPIClient(controller)
@@ -102,6 +108,7 @@ func TestCollect_ServerDestroyError(t *testing.T) {
 	mockerr := errors.New("mock error")
 	mockServers := []*autoscaler.Server{
 		{
+			ID:    "i-1234567890abcdef0",
 			Name:  "agent-807jVFwj",
 			State: autoscaler.StateShutdown,
 		},
@@ -156,7 +163,10 @@ func TestCollect_ServerUpdateError(t *testing.T) {
 	mockctx := context.Background()
 	mockerr := errors.New("mock error")
 	mockServers := []*autoscaler.Server{
-		{State: autoscaler.StateShutdown},
+		{
+			ID:    "i-1234567890abcdef0",
+			State: autoscaler.StateShutdown,
+		},
 	}
 
 	store := mocks.NewMockServerStore(controller)
@@ -168,6 +178,28 @@ func TestCollect_ServerUpdateError(t *testing.T) {
 		t.Errorf("Want error updating server")
 	}
 	if got, want := mockServers[0].State, autoscaler.StateStopping; got != want {
+		t.Errorf("Want server state Stopping, got %v", got)
+	}
+}
+
+func TestCollect_ServerNeverProvisioned(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockctx := context.Background()
+	mockServer := &autoscaler.Server{
+		ID:    "",
+		State: autoscaler.StateShutdown,
+	}
+
+	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().Update(gomock.Any(), mockServer).Return(nil).Times(1)
+
+	c := collector{servers: store}
+	if err := c.collect(mockctx, mockServer); err != nil {
+		t.Error(err)
+	}
+	if got, want := mockServer.State, autoscaler.StateStopped; got != want {
 		t.Errorf("Want server state Stopping, got %v", got)
 	}
 }

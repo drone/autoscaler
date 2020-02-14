@@ -274,8 +274,7 @@ func (e *engine) reset(ctx context.Context) {
 				WithField("to-state", "created")
 			log.Infoln("reset instance state")
 			s.State = autoscaler.StateCreated
-			err := e.allocator.servers.Update(ctx, s)
-			if err != nil {
+			if err := e.allocator.servers.Update(ctx, s); err != nil {
 				log.WithError(err).
 					Error("failed to reset instance state")
 			}
@@ -287,8 +286,7 @@ func (e *engine) reset(ctx context.Context) {
 				WithField("to-state", "shutdown")
 			log.Infoln("reset instance state")
 			s.State = autoscaler.StateShutdown
-			err := e.allocator.servers.Update(ctx, s)
-			if err != nil {
+			if err := e.allocator.servers.Update(ctx, s); err != nil {
 				log.WithError(err).
 					Errorln("failed to reset instance state")
 			}

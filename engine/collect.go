@@ -85,12 +85,18 @@ func (c *collector) collect(ctx context.Context, server *autoscaler.Server) erro
 		return err
 	}
 
+	logger.WithField("server", server.Name).
+		Debugln("stopping the agent")
+
 	timeout := time.Hour
 	err = client.ContainerStop(ctx, "agent", &timeout)
 	if err != nil {
 		logger.WithError(err).
 			WithField("server", server.Name).
 			Errorln("cannot stop the agent")
+	} else {
+		logger.WithField("server", server.Name).
+			Debugln("stopped the agent")
 	}
 
 	err = c.provider.Destroy(ctx, in)

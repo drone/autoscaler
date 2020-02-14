@@ -84,29 +84,19 @@ func (c *collector) collect(ctx context.Context, server *autoscaler.Server) erro
 		return err
 	}
 
-	in := &autoscaler.Instance{
-		ID:       server.ID,
-		Provider: server.Provider,
-		Name:     server.Name,
-		Address:  server.Address,
-		Region:   server.Region,
-		Image:    server.Image,
-		Size:     server.Size,
-	}
-
-	client, closer, err := c.client(server)
-	if closer != nil {
-		defer closer.Close()
-	}
-	if err != nil {
-		return err
-	}
-
 	// first we need to gracefully shutdown the runner so
 	// that in-progress pipelines can complete. They will
 	// have up to 60 minutes to complete before being
 	// force-killed.
-	{
+	if server.Address != "" {
+		client, closer, err := c.client(server)
+		if closer != nil {
+			defer closer.Close()
+		}
+		if err != nil {
+			return err
+		}
+
 		logger.WithField("server", server.Name).
 			Debugln("stopping the agent")
 
@@ -131,10 +121,20 @@ func (c *collector) collect(ctx context.Context, server *autoscaler.Server) erro
 	// It is possible the server was terminated out-of-band in which
 	// case there is nothing to terminate.
 
+	in := &autoscaler.Instance{
+		ID:       server.ID,
+		Provider: server.Provider,
+		Name:     server.Name,
+		Address:  server.Address,
+		Region:   server.Region,
+		Image:    server.Image,
+		Size:     server.Size,
+	}
+
 	ctx, cancel := context.WithTimeout(ctx, time.Hour)
 	defer cancel()
 
-	err = c.provider.Destroy(ctx, in)
+	err := c.provider.Destroy(ctx, in)
 	if err == autoscaler.ErrInstanceNotFound {
 		logger.
 			WithField("state", "error").

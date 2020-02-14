@@ -24,8 +24,9 @@ func TestCollect(t *testing.T) {
 	mockctx := context.Background()
 	mockServers := []*autoscaler.Server{
 		{
-			ID:    "i-1234567890abcdef0",
-			State: autoscaler.StateShutdown,
+			ID:      "i-1234567890abcdef0",
+			Address: "1.2.3.4",
+			State:   autoscaler.StateShutdown,
 		},
 	}
 
@@ -66,8 +67,9 @@ func TestCollect_DockerStopError(t *testing.T) {
 	mockctx := context.Background()
 	mockServers := []*autoscaler.Server{
 		{
-			ID:    "i-1234567890abcdef0",
-			State: autoscaler.StateShutdown,
+			ID:      "i-1234567890abcdef0",
+			Address: "1.2.3.4",
+			State:   autoscaler.StateShutdown,
 		},
 	}
 
@@ -108,9 +110,10 @@ func TestCollect_ServerDestroyError(t *testing.T) {
 	mockerr := errors.New("mock error")
 	mockServers := []*autoscaler.Server{
 		{
-			ID:    "i-1234567890abcdef0",
-			Name:  "agent-807jVFwj",
-			State: autoscaler.StateShutdown,
+			ID:      "i-1234567890abcdef0",
+			Name:    "agent-807jVFwj",
+			Address: "1.2.3.4",
+			State:   autoscaler.StateShutdown,
 		},
 	}
 
@@ -164,8 +167,9 @@ func TestCollect_ServerUpdateError(t *testing.T) {
 	mockerr := errors.New("mock error")
 	mockServers := []*autoscaler.Server{
 		{
-			ID:    "i-1234567890abcdef0",
-			State: autoscaler.StateShutdown,
+			ID:      "i-1234567890abcdef0",
+			Address: "1.2.3.4",
+			State:   autoscaler.StateShutdown,
 		},
 	}
 

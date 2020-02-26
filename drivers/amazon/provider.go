@@ -22,6 +22,7 @@ type provider struct {
 	deviceName    string
 	volumeSize    int64
 	volumeType    string
+	volumeIops    int64
 	retries       int
 	key           string
 	region        string
@@ -69,6 +70,9 @@ func New(opts ...Option) autoscaler.Provider {
 	}
 	if p.volumeType == "" {
 		p.volumeType = "gp2"
+	}
+	if p.volumeType == "io1" && p.volumeIops == 0 {
+		p.volumeIops = 100
 	}
 	if p.userdata == nil {
 		p.userdata = userdata.T

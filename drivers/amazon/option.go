@@ -122,6 +122,13 @@ func WithVolumeType(t string) Option {
 	}
 }
 
+// WithVolumeIops returns an option to set the volume iops.
+func WithVolumeIops(i int64) Option {
+	return func(p *provider) {
+		p.volumeIops = i
+	}
+}
+
 // WithIamProfileArn returns an option to set the iam profile arn.
 func WithIamProfileArn(t string) Option {
 	return func(p *provider) {

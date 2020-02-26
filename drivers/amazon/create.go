@@ -84,6 +84,12 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		},
 	}
 
+	if p.volumeType == "io1" {
+		for _, blockDeviceMapping := range in.BlockDeviceMappings {
+			blockDeviceMapping.Ebs.Iops = aws.Int64(p.volumeIops)
+		}
+	}
+
 	logger := logger.FromContext(ctx).
 		WithField("region", p.region).
 		WithField("image", p.image).

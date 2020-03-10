@@ -128,6 +128,7 @@ type (
 			UserDataFile  string `envconfig:"DRONE_AMAZON_USERDATA_FILE"`
 			VolumeSize    int64  `envconfig:"DRONE_AMAZON_VOLUME_SIZE"`
 			VolumeType    string `envconfig:"DRONE_AMAZON_VOLUME_TYPE"`
+			VolumeIops    int64  `envconfig:"DRONE_AMAZON_VOLUME_IOPS"`
 			IamProfileArn string `envconfig:"DRONE_AMAZON_IAM_PROFILE_ARN"`
 			MarketType    string `envconfig:"DRONE_AMAZON_MARKET_TYPE"`
 		}

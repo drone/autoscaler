@@ -16,6 +16,7 @@ import (
 type collector struct {
 	wg sync.WaitGroup
 
+	timeout  time.Duration
 	servers  autoscaler.ServerStore
 	provider autoscaler.Provider
 	client   clientFunc
@@ -100,12 +101,12 @@ func (c *collector) collect(ctx context.Context, server *autoscaler.Server) erro
 		logger.WithField("server", server.Name).
 			Debugln("stopping the agent")
 
-		ctxStop, cancel := context.WithTimeout(ctx, time.Hour)
+		ctxStop, cancel := context.WithTimeout(ctx, c.timeout)
 		defer cancel()
 
 		// 1 minute offset between docker stop timeout and
 		// the context timeout.
-		timeout := time.Hour - time.Minute
+		timeout := c.timeout - time.Minute
 		err = client.ContainerStop(ctxStop, "agent", &timeout)
 		if err != nil {
 			logger.WithError(err).

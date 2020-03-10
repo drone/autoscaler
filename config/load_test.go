@@ -181,6 +181,9 @@ func TestLoad(t *testing.T) {
 var jsonConfig = []byte(`{
   "Interval": 60000000000,
   "CapacityBuffer": 3,
+  "Timeout": {
+	  "Stop": 3600000000000
+  },
   "Slack": {
     "Webhook": "https://hooks.slack.com/services/XXX/YYY/ZZZ",
     "Create": false,

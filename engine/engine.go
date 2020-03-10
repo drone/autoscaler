@@ -48,6 +48,7 @@ func New(
 			provider: provider,
 		},
 		collector: &collector{
+			timeout:  config.Timeout.Stop,
 			servers:  servers,
 			provider: provider,
 			client:   newDockerClient,

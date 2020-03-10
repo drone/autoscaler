@@ -14,6 +14,10 @@ type (
 		Interval       time.Duration `default:"5m"`
 		CapacityBuffer int           `default:"0" split_words:"true"`
 
+		Timeout struct {
+			Stop time.Duration `envconfig:"DRONE_TIMEOUT_STOP" default:"1h"`
+		}
+
 		Slack struct {
 			Webhook string
 			Create  bool `default:"true"`

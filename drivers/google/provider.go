@@ -87,7 +87,7 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 		p.scopes = defaultScopes
 	}
 	if p.service == nil {
-		client, err := google.DefaultClient(oauth2.NoContext, p.scopes...)
+		client, err := google.DefaultClient(oauth2.NoContext, compute.ComputeScope)
 		if err != nil {
 			return nil, err
 		}

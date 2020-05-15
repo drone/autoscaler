@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/drone/autoscaler"
+	"github.com/drone/autoscaler/metrics"
 	"github.com/drone/autoscaler/mocks"
 
 	"github.com/golang/mock/gomock"
@@ -33,7 +34,7 @@ func TestAllocate(t *testing.T) {
 	provider := mocks.NewMockProvider(controller)
 	provider.EXPECT().Create(gomock.Any(), gomock.Any()).Return(mockInstance, nil)
 
-	a := allocator{servers: store, provider: provider}
+	a := allocator{servers: store, provider: provider, metrics: &metrics.NopCollector{}}
 	err := a.Allocate(mockctx)
 	a.wg.Wait()
 
@@ -63,7 +64,7 @@ func TestAllocate_ServerCreateError(t *testing.T) {
 	provider := mocks.NewMockProvider(controller)
 	provider.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil, mockerr)
 
-	a := allocator{servers: store, provider: provider}
+	a := allocator{servers: store, provider: provider, metrics: &metrics.NopCollector{}}
 	a.Allocate(mockctx)
 	a.wg.Wait()
 
@@ -102,7 +103,7 @@ func TestAllocate_ServerUpdateError(t *testing.T) {
 	store.EXPECT().ListState(mockctx, autoscaler.StatePending).Return(mockServers, nil)
 	store.EXPECT().Update(mockctx, mockServers[0]).Return(mockerr)
 
-	a := allocator{servers: store}
+	a := allocator{servers: store, metrics: &metrics.NopCollector{}}
 	if got, want := a.Allocate(mockctx), mockerr; got != want {
 		t.Errorf("Want error updating server")
 	}

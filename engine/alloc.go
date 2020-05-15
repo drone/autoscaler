@@ -12,6 +12,7 @@ import (
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/engine/certs"
 	"github.com/drone/autoscaler/logger"
+	"github.com/drone/autoscaler/metrics"
 )
 
 type allocator struct {
@@ -19,6 +20,7 @@ type allocator struct {
 
 	servers  autoscaler.ServerStore
 	provider autoscaler.Provider
+	metrics  metrics.Collector
 }
 
 func (a *allocator) Allocate(ctx context.Context) error {
@@ -80,8 +82,10 @@ func (a *allocator) allocate(ctx context.Context, server *autoscaler.Server) err
 		TLSCert: cert.Cert,
 	}
 
+	start := time.Now()
 	instance, err := a.provider.Create(ctx, opts)
 	if err != nil {
+		a.metrics.IncrServerCreateError()
 		logger.WithError(err).
 			WithField("server", server.Name).
 			Errorln("failed to provision server")
@@ -89,11 +93,13 @@ func (a *allocator) allocate(ctx context.Context, server *autoscaler.Server) err
 		server.Error = err.Error()
 		server.State = autoscaler.StateError
 	} else {
+		a.metrics.TrackServerCreateTime(start)
 		logger.WithField("server", server.Name).
 			Debugln("provisioned server")
 
 		server.State = autoscaler.StateCreated
 	}
+
 	if instance != nil {
 		server.ID = instance.ID
 		server.Address = instance.Address
@@ -110,6 +116,7 @@ func (a *allocator) allocate(ctx context.Context, server *autoscaler.Server) err
 
 	err = a.servers.Update(ctx, server)
 	if err != nil {
+		a.metrics.IncrServerCreateError()
 		logger.WithError(err).
 			WithField("server", server.Name).
 			Errorln("failed to update server state")

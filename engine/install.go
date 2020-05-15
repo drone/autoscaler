@@ -14,10 +14,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/config"
 	"github.com/drone/autoscaler/logger"
-
-	"github.com/drone/autoscaler"
+	"github.com/drone/autoscaler/metrics"
 
 	docker "docker.io/go-docker"
 	"docker.io/go-docker/api/types"
@@ -57,6 +57,7 @@ type installer struct {
 	watchtowerTimeout  time.Duration
 
 	servers autoscaler.ServerStore
+	metrics metrics.Collector
 	client  clientFunc
 }
 
@@ -98,6 +99,7 @@ func (i *installer) install(ctx context.Context, instance *autoscaler.Server) er
 		defer closer.Close()
 	}
 	if err != nil {
+		i.metrics.IncrServerInitError()
 		logger.WithError(err).
 			Errorln("cannot create docker client")
 		return i.errorUpdate(ctx, instance, err)
@@ -109,11 +111,13 @@ func (i *installer) install(ctx context.Context, instance *autoscaler.Server) er
 	timeout, cancel := context.WithTimeout(ctx, i.checkDeadline)
 	defer cancel()
 
+	start := time.Now()
 	interval := time.Duration(0)
 poller:
 	for {
 		select {
 		case <-timeout.Done():
+			i.metrics.IncrServerInitError()
 			logger.WithField("name", instance.Name).
 				Debugln("connection timeout")
 
@@ -136,11 +140,16 @@ poller:
 		}
 	}
 
+	// track elapsed time to establish a connection
+	i.metrics.TrackServerInitTime(start)
+
 	logger.WithField("image", i.image).
 		Debugln("pull docker image")
 
+	start = time.Now()
 	rc, err := client.ImagePull(ctx, i.image, types.ImagePullOptions{})
 	if err != nil {
+		i.metrics.IncrServerSetupError()
 		logger.WithError(err).
 			WithField("image", i.image).
 			Errorln("cannot pull docker image")
@@ -223,6 +232,7 @@ poller:
 		}, nil, "agent")
 
 	if err != nil {
+		i.metrics.IncrServerSetupError()
 		logger.WithField("image", i.image).
 			Errorln("cannot create agent container")
 		return i.errorUpdate(ctx, instance, err)
@@ -233,6 +243,7 @@ poller:
 
 	err = client.ContainerStart(ctx, res.ID, types.ContainerStartOptions{})
 	if err != nil {
+		i.metrics.IncrServerSetupError()
 		logger.WithField("image", i.image).
 			Debugln("cannot start the agent container")
 		return i.errorUpdate(ctx, instance, err)
@@ -263,9 +274,13 @@ poller:
 		}
 	}
 
+	// track elapsed time to install software.
+	i.metrics.TrackServerSetupTime(start)
+
 	instance.State = autoscaler.StateRunning
 	err = i.servers.Update(ctx, instance)
 	if err != nil {
+		i.metrics.IncrServerSetupError()
 		logger.WithError(err).
 			WithField("server", instance.Name).
 			WithField("state", "running").

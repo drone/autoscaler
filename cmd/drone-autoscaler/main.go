@@ -90,6 +90,7 @@ func main() {
 		conf,
 		servers,
 		provider,
+		metrics.New(),
 	)
 
 	//

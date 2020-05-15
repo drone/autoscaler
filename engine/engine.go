@@ -12,6 +12,7 @@ import (
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/config"
 	"github.com/drone/autoscaler/logger"
+	"github.com/drone/autoscaler/metrics"
 	"github.com/drone/drone-go/drone"
 )
 
@@ -28,6 +29,7 @@ type engine struct {
 	pinger    *pinger
 	planner   *planner
 	reaper    *reaper
+	metrics   metrics.Collector
 
 	interval time.Duration
 	paused   bool
@@ -39,6 +41,7 @@ func New(
 	config config.Config,
 	servers autoscaler.ServerStore,
 	provider autoscaler.Provider,
+	metrics metrics.Collector,
 ) autoscaler.Engine {
 	return &engine{
 		paused:   false,
@@ -46,6 +49,7 @@ func New(
 		allocator: &allocator{
 			servers:  servers,
 			provider: provider,
+			metrics:  metrics,
 		},
 		collector: &collector{
 			timeout:  config.Timeout.Stop,
@@ -54,6 +58,7 @@ func New(
 			client:   newDockerClient,
 		},
 		installer: &installer{
+			metrics:            metrics,
 			servers:            servers,
 			os:                 config.Agent.OS,
 			arch:               config.Agent.Arch,

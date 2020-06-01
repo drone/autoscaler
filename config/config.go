@@ -139,6 +139,7 @@ type (
 			Region       string
 			SSHKey       string
 			Size         string
+			Firewall     string
 			Tags         []string
 			PrivateIP    bool   `split_words:"true"`
 			UserData     string `envconfig:"DRONE_DIGITALOCEAN_USERDATA"`

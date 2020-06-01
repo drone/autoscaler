@@ -55,6 +55,13 @@ func WithToken(token string) Option {
 	}
 }
 
+// WithFirewall returns an option to set the droplet firewall.
+func WithFirewall(firewall string) Option {
+	return func(p *provider) {
+		p.firewall = firewall
+	}
+}
+
 // WithPrivateIP returns an option to set the private IP address.
 func WithPrivateIP(private bool) Option {
 	return func(p *provider) {

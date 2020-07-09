@@ -18,6 +18,7 @@ func TestOptions(t *testing.T) {
 		WithMachineType("c3.large"),
 		WithNetwork("global/defaults/foo"),
 		WithPrivateIP(false),
+		WithServiceAccountEmail("default"),
 		WithProject("my-project"),
 		WithTags("drone", "agent"),
 		WithZone("us-central1-f"),
@@ -58,5 +59,8 @@ func TestOptions(t *testing.T) {
 	}
 	if got, want := len(p.scopes), 2; got != want {
 		t.Errorf("Want %d scopes, got %d", want, got)
+  }
+	if got, want := p.serviceAccountEmail, "default"; got != want {
+		t.Errorf("Want service account name %q, got %q", want, got)
 	}
 }

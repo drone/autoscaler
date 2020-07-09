@@ -43,6 +43,7 @@ type provider struct {
 	labels     map[string]string
 	network    string
 	subnetwork string
+	privateIP  bool
 	project    string
 	scopes     []string
 	size       string

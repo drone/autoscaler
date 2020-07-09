@@ -78,6 +78,13 @@ func WithSubnetwork(subnetwork string) Option {
 	}
 }
 
+// WithPrivateIP returns an option to set the private IP address.
+func WithPrivateIP(private bool) Option {
+	return func(p *provider) {
+		p.privateIP = private
+	}
+}
+
 // WithProject returns an option to set the project.
 func WithProject(project string) Option {
 	return func(p *provider) {

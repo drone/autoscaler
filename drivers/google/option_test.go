@@ -5,10 +5,8 @@
 package google
 
 import (
-  "github.com/google/go-cmp/cmp"
 	"net/http"
 	"testing"
-	"strings"
 )
 
 func TestOptions(t *testing.T) {
@@ -58,7 +56,7 @@ func TestOptions(t *testing.T) {
 	if got, want := p.zone, "us-central1-f"; got != want {
 		t.Errorf("Want zone %q, got %q", want, got)
 	}
-	if got, want := p.scopes, strings.Split("scope1,scope2", ","); ! cmp.Equal(got, want) {
-		t.Errorf("Want scopes %q, got %q", want, got)
+	if got, want := len(p.scopes), 2; got != want {
+		t.Errorf("Want %d scopes, got %d", want, got)
 	}
 }

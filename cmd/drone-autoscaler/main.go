@@ -232,6 +232,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			google.WithNetwork(c.Google.Network),
 			google.WithSubnetwork(c.Google.Subnetwork),
 			google.WithPrivateIP(c.Google.PrivateIP),
+			google.WithServiceAccountEmail(c.Google.ServiceAccountEmail),
 			google.WithProject(c.Google.Project),
 			google.WithTags(c.Google.Tags...),
 			google.WithUserData(c.Google.UserData),

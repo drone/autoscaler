@@ -46,6 +46,7 @@ type provider struct {
 	privateIP  bool
 	project    string
 	scopes     []string
+	serviceAccountEmail string
 	size       string
 	tags       []string
 	zone       string
@@ -86,6 +87,9 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 	}
 	if len(p.scopes) == 0 {
 		p.scopes = defaultScopes
+	}
+	if p.serviceAccountEmail == "" {
+	  p.serviceAccountEmail = "default"
 	}
 	if p.service == nil {
 		client, err := google.DefaultClient(oauth2.NoContext, compute.ComputeScope)

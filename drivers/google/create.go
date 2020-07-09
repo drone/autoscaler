@@ -97,7 +97,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		ServiceAccounts: []*compute.ServiceAccount{
 			{
 				Scopes: p.scopes,
-				Email:  "default",
+				Email:  p.serviceAccountEmail,
 			},
 		},
 	}
@@ -135,6 +135,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		Region:   p.zone,
 		Size:     p.size,
 		Address:  resp.NetworkInterfaces[0].AccessConfigs[0].NatIP,
+		ServiceAccountEmail: p.serviceAccountEmail,
 	}
 
 	logger.

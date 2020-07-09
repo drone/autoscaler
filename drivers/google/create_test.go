@@ -74,6 +74,9 @@ func TestCreate(t *testing.T) {
 	if want, got := instance.Size, "n1-standard-1"; got != want {
 		t.Errorf("Want instance Size %q, got %q", want, got)
 	}
+	if want, got := instance.ServiceAccountEmail, "default"; got != want {
+		t.Errorf("Want service account email  %q, got %q", want, got)
+	}
 }
 
 var insertInstanceMock = &compute.Instance{

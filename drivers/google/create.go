@@ -47,7 +47,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		},
 	}
 
-	if !p.private {
+	if !p.privateIP {
 		networkConfig = publicIPConfig
 	}
 

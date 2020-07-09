@@ -40,15 +40,13 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 
 	networkConfig := []*compute.AccessConfig{}
 
-	publicIPConfig := []*compute.AccessConfig{
-		{
-			Name: "External NAT",
-			Type: "ONE_TO_ONE_NAT",
-		},
-	}
-
 	if !p.privateIP {
-		networkConfig = publicIPConfig
+		networkConfig = []*compute.AccessConfig{
+			{
+				Name: "External NAT",
+				Type: "ONE_TO_ONE_NAT",
+			},
+		}
 	}
 
 	in := &compute.Instance{

@@ -21,7 +21,7 @@ func TestOptions(t *testing.T) {
 		WithProject("my-project"),
 		WithTags("drone", "agent"),
 		WithZone("us-central1-f"),
-		WithScopes("scope1,scope2"),
+		WithScopes("scope1", "scope2"),
 	)
 	if err != nil {
 		t.Error(err)

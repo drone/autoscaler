@@ -155,6 +155,7 @@ type (
 			DiskSize     int64             `envconfig:"DRONE_GOOGLE_DISK_SIZE"`
 			DiskType     string            `envconfig:"DRONE_GOOGLE_DISK_TYPE"`
 			Project      string            `envconfig:"DRONE_GOOGLE_PROJECT"`
+			PrivateIP    bool              `split_words:"true"`
 			Tags         []string          `envconfig:"DRONE_GOOGLE_TAGS"`
 			UserData     string            `envconfig:"DRONE_GOOGLE_USERDATA"`
 			UserDataFile string            `envconfig:"DRONE_GOOGLE_USERDATA_FILE"`

@@ -106,6 +106,7 @@ func TestLoad(t *testing.T) {
 		"DRONE_GOOGLE_DISK_TYPE":           "pd-standard",
 		"DRONE_GOOGLE_NETWORK":             "default",
 		"DRONE_GOOGLE_SUBNETWORK":          "",
+		"DRONE_GOOGLE_PRIVATE_IP":          "false",
 		"DRONE_GOOGLE_PREEMPTIBLE":         "true",
 		"DRONE_GOOGLE_SCOPES":              "devstorage.read_only",
 		"DRONE_GOOGLE_DISK_SIZE":           "10",

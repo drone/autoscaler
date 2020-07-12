@@ -38,6 +38,17 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 
 	logger.Debugln("instance insert")
 
+	networkConfig := []*compute.AccessConfig{}
+
+	if !p.privateIP {
+		networkConfig = []*compute.AccessConfig{
+			{
+				Name: "External NAT",
+				Type: "ONE_TO_ONE_NAT",
+			},
+		}
+	}
+
 	in := &compute.Instance{
 		Name:           name,
 		Zone:           fmt.Sprintf("projects/%s/zones/%s", p.project, p.zone),
@@ -71,14 +82,9 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		CanIpForward: false,
 		NetworkInterfaces: []*compute.NetworkInterface{
 			{
-				Network: p.network,
-				Subnetwork: p.subnetwork,
-				AccessConfigs: []*compute.AccessConfig{
-					{
-						Name: "External NAT",
-						Type: "ONE_TO_ONE_NAT",
-					},
-				},
+				Network:       p.network,
+				Subnetwork:    p.subnetwork,
+				AccessConfigs: networkConfig,
 			},
 		},
 		Labels: p.labels,

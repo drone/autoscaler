@@ -47,10 +47,10 @@ type provider struct {
 	privateIP           bool
 	scopes              []string
 	serviceAccountEmail string
-	size       string
-	tags       []string
-	zone       string
-	userdata   *template.Template
+	size                string
+	tags                []string
+	zone                string
+	userdata            *template.Template
 
 	service *compute.Service
 }

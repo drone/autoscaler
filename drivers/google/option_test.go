@@ -59,7 +59,7 @@ func TestOptions(t *testing.T) {
 	}
 	if got, want := len(p.scopes), 2; got != want {
 		t.Errorf("Want %d scopes, got %d", want, got)
-  }
+	}
 	if got, want := p.serviceAccountEmail, "default"; got != want {
 		t.Errorf("Want service account name %q, got %q", want, got)
 	}

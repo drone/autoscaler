@@ -134,7 +134,7 @@ func WithZone(zone string) Option {
 func WithScopes(scopes ...string) Option {
 	return func(p *provider) {
 		p.scopes = scopes
-  }
+	}
 }
 
 // WithServiceAccountEmail returns an option to set the ServiceAccountEmail.

@@ -37,15 +37,15 @@ var (
 type provider struct {
 	init sync.Once
 
-	diskSize   int64
-	diskType   string
-	image      string
-	labels     map[string]string
-	network    string
-	subnetwork string
-	privateIP  bool
-	project    string
-	scopes     []string
+	diskSize            int64
+	diskType            string
+	image               string
+	labels              map[string]string
+	network             string
+	subnetwork          string
+	project             string
+	privateIP           bool
+	scopes              []string
 	serviceAccountEmail string
 	size       string
 	tags       []string
@@ -89,7 +89,7 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 		p.scopes = defaultScopes
 	}
 	if p.serviceAccountEmail == "" {
-	  p.serviceAccountEmail = "default"
+		p.serviceAccountEmail = "default"
 	}
 	if p.service == nil {
 		client, err := google.DefaultClient(oauth2.NoContext, compute.ComputeScope)

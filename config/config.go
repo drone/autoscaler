@@ -152,7 +152,7 @@ type (
 			Network      string            `envconfig:"DRONE_GOOGLE_NETWORK"`
 			Subnetwork   string            `envconfig:"DRONE_GOOGLE_SUBNETWORK"`
 			Labels       map[string]string `envconfig:"DRONE_GOOGLE_LABELS"`
-			Scopes       string            `envconfig:"DRONE_GOOGLE_SCOPES"`
+			Scopes       []string          `envconfig:"DRONE_GOOGLE_SCOPES"`
 			DiskSize     int64             `envconfig:"DRONE_GOOGLE_DISK_SIZE"`
 			DiskType     string            `envconfig:"DRONE_GOOGLE_DISK_TYPE"`
 			Project      string            `envconfig:"DRONE_GOOGLE_PROJECT"`

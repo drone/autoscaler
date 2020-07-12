@@ -21,6 +21,7 @@ func TestOptions(t *testing.T) {
 		WithProject("my-project"),
 		WithTags("drone", "agent"),
 		WithZone("us-central1-f"),
+		WithScopes("scope1", "scope2"),
 	)
 	if err != nil {
 		t.Error(err)
@@ -54,5 +55,8 @@ func TestOptions(t *testing.T) {
 	}
 	if got, want := p.zone, "us-central1-f"; got != want {
 		t.Errorf("Want zone %q, got %q", want, got)
+	}
+	if got, want := len(p.scopes), 2; got != want {
+		t.Errorf("Want %d scopes, got %d", want, got)
 	}
 }

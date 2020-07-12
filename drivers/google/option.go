@@ -129,3 +129,10 @@ func WithZone(zone string) Option {
 		p.zone = zone
 	}
 }
+
+// WithScopes returns an option to set the scopes.
+func WithScopes(scopes ...string) Option {
+	return func(p *provider) {
+		p.scopes = scopes
+	}
+}

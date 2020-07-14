@@ -100,8 +100,21 @@ func (p *provider) destroy2(ctx context.Context, instance *autoscaler.Instance) 
 			aws.String(instance.ID),
 		},
 	}
-	_, err = p.getClient().DescribeInstances(describe)
-	if awsErr, ok := err.(awserr.Error); ok {
+	_, desErr := p.getClient().DescribeInstances(describe)
+	// if we are able to describe the instance it confirms the
+	// instance still exists and could not be terminated. Return
+	// an error so that the instance is flagged as being in an
+	// error state and requires manual attention.
+	if desErr == nil {
+		logger.Errorln("describe instance was successful. instance still exists")
+		return err
+	}
+
+	// if the ware unable to describe the instance because the
+	// instance no longer exists, we can return a not found error.
+	// this will result in the instance being deleted from the
+	// system, since we will have confirmed it no longer exists.
+	if awsErr, ok := desErr.(awserr.Error); ok {
 		switch awsErr.Code() {
 		case ec2.UnsuccessfulInstanceCreditSpecificationErrorCodeInvalidInstanceIdMalformed:
 			logger.Debugln("instance does not exist")
@@ -112,7 +125,7 @@ func (p *provider) destroy2(ctx context.Context, instance *autoscaler.Instance) 
 		}
 	}
 
-	logger.WithError(err).
-		Errorln("cannot describe instance")
+	// otherwise we return the original error returned when
+	// attempting to delete the instance.
 	return err
 }

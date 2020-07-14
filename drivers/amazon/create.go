@@ -133,7 +133,7 @@ func (p *provider) create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 
 		// update the logger to reflect this is a retry.
 		logger = logger.
-			WithField("size", p.size).
+			WithField("size", p.sizeAlt).
 			WithField("attempt", 2)
 	}
 

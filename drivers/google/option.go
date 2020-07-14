@@ -136,3 +136,10 @@ func WithScopes(scopes ...string) Option {
 		p.scopes = scopes
 	}
 }
+
+// WithServiceAccountEmail returns an option to set the ServiceAccountEmail.
+func WithServiceAccountEmail(email string) Option {
+	return func(p *provider) {
+		p.serviceAccountEmail = email
+	}
+}

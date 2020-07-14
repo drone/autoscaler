@@ -147,20 +147,21 @@ type (
 		}
 
 		Google struct {
-			MachineType  string            `envconfig:"DRONE_GOOGLE_MACHINE_TYPE"`
-			MachineImage string            `envconfig:"DRONE_GOOGLE_MACHINE_IMAGE"`
-			Network      string            `envconfig:"DRONE_GOOGLE_NETWORK"`
-			Subnetwork   string            `envconfig:"DRONE_GOOGLE_SUBNETWORK"`
-			Labels       map[string]string `envconfig:"DRONE_GOOGLE_LABELS"`
-			Scopes       []string          `envconfig:"DRONE_GOOGLE_SCOPES"`
-			DiskSize     int64             `envconfig:"DRONE_GOOGLE_DISK_SIZE"`
-			DiskType     string            `envconfig:"DRONE_GOOGLE_DISK_TYPE"`
-			Project      string            `envconfig:"DRONE_GOOGLE_PROJECT"`
-			PrivateIP    bool              `split_words:"true"`
-			Tags         []string          `envconfig:"DRONE_GOOGLE_TAGS"`
-			UserData     string            `envconfig:"DRONE_GOOGLE_USERDATA"`
-			UserDataFile string            `envconfig:"DRONE_GOOGLE_USERDATA_FILE"`
-			Zone         string            `envconfig:"DRONE_GOOGLE_ZONE"`
+			MachineType         string            `envconfig:"DRONE_GOOGLE_MACHINE_TYPE"`
+			MachineImage        string            `envconfig:"DRONE_GOOGLE_MACHINE_IMAGE"`
+			Network             string            `envconfig:"DRONE_GOOGLE_NETWORK"`
+			Subnetwork          string            `envconfig:"DRONE_GOOGLE_SUBNETWORK"`
+			Labels              map[string]string `envconfig:"DRONE_GOOGLE_LABELS"`
+			Scopes              []string          `envconfig:"DRONE_GOOGLE_SCOPES"`
+			ServiceAccountEmail string            `envconfig:"DRONE_GOOGLE_SERVICE_ACCOUNT_EMAIL"`
+			DiskSize            int64             `envconfig:"DRONE_GOOGLE_DISK_SIZE"`
+			DiskType            string            `envconfig:"DRONE_GOOGLE_DISK_TYPE"`
+			Project             string            `envconfig:"DRONE_GOOGLE_PROJECT"`
+			PrivateIP           bool              `split_words:"true"`
+			Tags                []string          `envconfig:"DRONE_GOOGLE_TAGS"`
+			UserData            string            `envconfig:"DRONE_GOOGLE_USERDATA"`
+			UserDataFile        string            `envconfig:"DRONE_GOOGLE_USERDATA_FILE"`
+			Zone                string            `envconfig:"DRONE_GOOGLE_ZONE"`
 		}
 
 		HetznerCloud struct {

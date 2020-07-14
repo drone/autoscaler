@@ -115,9 +115,10 @@ type (
 
 		Amazon struct {
 			DeviceName    string `envconfig:"DRONE_AMAZON_DEVICE_NAME"`
-			Image         string
-			Instance      string
-			PrivateIP     bool `split_words:"true"`
+			Image         string `envconfig:"DRONE_AMAZON_IMAGE"`
+			Instance      string `envconfig:"DRONE_AMAZON_INSTANCE"`
+			InstanceAlt   string `envconfig:"DRONE_AMAZON_INSTANCE_ALT"`
+			PrivateIP     bool   `split_words:"true"`
 			Region        string
 			Retries       int
 			SSHKey        string

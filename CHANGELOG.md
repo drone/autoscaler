@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+### Added
+- support for aws fallback instance types, by [bradrydzewski](https://github.com/bradrydzewski).
+
+## [1.7.1]
+### Added
+- support for google compute private ip, by [swjclarke](https://github.com/swjclarke).
+- support for google compute service accounts, by [ademariag](https://github.com/ademariag).
+
+### Fixed
+- google compute instance scopes being ignored, by [ademariag](https://github.com/ademariag).
+
 ## [1.7.0]
 ### Added
 - parameter to configure docker stop timeout duration.

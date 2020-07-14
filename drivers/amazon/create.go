@@ -18,6 +18,30 @@ import (
 )
 
 func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpts) (*autoscaler.Instance, error) {
+	instance, err := p.create(ctx, opts, false)
+	// if the instance was successfully provisioned,
+	// return the instance.
+	if err == nil {
+		return instance, err
+	}
+
+	// if the instance was provisioned with errors,
+	// return the instance and the error
+	if instance != nil {
+		return instance, err
+	}
+
+	// if the instance was not provisioned, and fallback
+	// parameters were provided, retry using the fallback
+	if p.sizeAlt != "" {
+		instance, err = p.create(ctx, opts, true)
+	}
+
+	// if there is no fallback logic do not retry
+	return instance, err
+}
+
+func (p *provider) create(ctx context.Context, opts autoscaler.InstanceCreateOpts, retry bool) (*autoscaler.Instance, error) {
 	p.init.Do(func() {
 		p.setup(ctx)
 	})
@@ -91,10 +115,27 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	}
 
 	logger := logger.FromContext(ctx).
+		WithField("attempt", 1).
 		WithField("region", p.region).
 		WithField("image", p.image).
 		WithField("size", p.size).
 		WithField("name", opts.Name)
+
+	// TODO(bradyrdzewski) instead of passing a re-try flag
+	// and then setting parameters, we should instead accept
+	// an struct that specifies the size, image and any other
+	// alternate values that one may want to try
+
+	// if this is our second attempt to create the instance,
+	// re-create using the alternate instance size.
+	if retry {
+		in.InstanceType = aws.String(p.sizeAlt)
+
+		// update the logger to reflect this is a retry.
+		logger = logger.
+			WithField("size", p.size).
+			WithField("attempt", 2)
+	}
 
 	logger.Debug("instance create")
 

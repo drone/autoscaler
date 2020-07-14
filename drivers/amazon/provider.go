@@ -30,6 +30,7 @@ type provider struct {
 	privateIP     bool
 	userdata      *template.Template
 	size          string
+	sizeAlt       string
 	subnet        string
 	groups        []string
 	tags          map[string]string

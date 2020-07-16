@@ -127,6 +127,12 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		return nil, err
 	}
 
+	address := resp.NetworkInterfaces[0].NetworkIP
+
+	if !p.privateIP {
+		address = resp.NetworkInterfaces[0].AccessConfigs[0].NatIP
+	}
+
 	instance := &autoscaler.Instance{
 		Provider:            autoscaler.ProviderGoogle,
 		ID:                  name,
@@ -134,7 +140,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		Image:               p.image,
 		Region:              p.zone,
 		Size:                p.size,
-		Address:             resp.NetworkInterfaces[0].AccessConfigs[0].NatIP,
+		Address:             address,
 		ServiceAccountEmail: p.serviceAccountEmail,
 	}
 

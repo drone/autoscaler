@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - pending instance count is excluded from determining available capacity when reducing pool size, by [bradrydzewski](https://github.com/bradrydzewski).
 
 ## [1.7.2]
-### Changed
-- captuare instance private IP when private IP is enabled, by [ademariag](https://github.com/ademariag). [#68](https://github.com/drone/autoscaler/pull/68).
+### Fixed
+- captuare instance private IP when google compute private IP is enabled, by [ademariag](https://github.com/ademariag). [#68](https://github.com/drone/autoscaler/pull/68).
 
 ## [1.7.2]
 ### Added

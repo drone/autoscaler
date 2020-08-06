@@ -5,8 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Fixed
+- pending instance count is excluded from determining available capacity when reducing pool size, by [bradrydzewski](https://github.com/bradrydzewski).
+
+## [1.7.2]
+### Changed
+- captuare instance private IP when private IP is enabled, by [ademariag](https://github.com/ademariag). [#68](https://github.com/drone/autoscaler/pull/68).
+
+## [1.7.2]
 ### Added
-- support for aws fallback instance types, by [bradrydzewski](https://github.com/bradrydzewski).
+- support for aws fallback instance types, by [bradrydzewski](https://github.com/bradrydzewski). [d524689b].(https://github.com/drone/autoscaler/commit/d524689bbd1ed73ef8ee77cb3e0c5e6e6f786158).
 
 ## [1.7.1]
 ### Added

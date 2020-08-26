@@ -11,7 +11,6 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/docker/docker/api"
 	docker "github.com/docker/docker/client"
 	"github.com/drone/autoscaler"
 )

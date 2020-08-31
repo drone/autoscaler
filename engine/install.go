@@ -170,6 +170,7 @@ poller:
 		fmt.Sprintf("DRONE_RUNNER_NAME=%s", instance.Name),
 		fmt.Sprintf("DRONE_RUNNER_VOLUMES=%s", i.runner.Volumes),
 		fmt.Sprintf("DRONE_RUNNER_DEVICES=%s", i.runner.Devices),
+		fmt.Sprintf("DRONE_RUNNER_ENV_FILE=%s", i.runner.EnvFile),
 		fmt.Sprintf("DRONE_RUNNER_PRIVILEGED_IMAGES=%s", i.runner.Privileged),
 	)
 

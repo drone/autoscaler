@@ -218,5 +218,6 @@ type (
 		Volumes    string
 		Devices    string
 		Privileged string
+		EnvFile    string
 	}
 )

@@ -56,7 +56,7 @@ func TestCreate(t *testing.T) {
 	if want, got := instance.Address, "1.2.3.4"; got != want {
 		t.Errorf("Want instance IP %q, got %q", want, got)
 	}
-	if want, got := instance.Image, "ubuntu-os-cloud/global/images/ubuntu-1604-xenial-v20170721"; got != want {
+	if want, got := instance.Image, "ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20200907"; got != want {
 		t.Errorf("Want instance ID %q, got %q", want, got)
 	}
 	if want, got := instance.ID, "agent-807jvfwj"; got != want {
@@ -103,7 +103,7 @@ var insertInstanceMock = &compute.Instance{
 			AutoDelete: true,
 			DeviceName: "agent-807jvfwj",
 			InitializeParams: &compute.AttachedDiskInitializeParams{
-				SourceImage: "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-1604-xenial-v20170721",
+				SourceImage: "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20200907",
 				DiskType:    "projects/my-project/zones/us-central1-a/diskTypes/pd-standard",
 				DiskSizeGb:  50,
 			},

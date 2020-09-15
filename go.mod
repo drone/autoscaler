@@ -56,11 +56,15 @@ require (
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/tent/http-link-go v0.0.0-20130702225549-ac974c61c2f9 // indirect
 	golang.org/x/crypto v0.0.0-20190621222207-cc06ce4a13d4
+	golang.org/x/lint v0.0.0-20190313153728-d0100b6bd8b3 // indirect
 	golang.org/x/oauth2 v0.0.0-20180821212333-d2e6202438be
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58
 	golang.org/x/time v0.0.0-20200416051211-89c76fbcd5d1 // indirect
+	golang.org/x/tools v0.0.0-20190524140312-2c0ae7006135 // indirect
 	google.golang.org/api v0.0.0-20180921000521-920bb1beccf7
+	google.golang.org/appengine v1.4.0 // indirect
 	google.golang.org/grpc v1.30.0 // indirect
 	gopkg.in/ini.v1 v1.51.0 // indirect
 	gotest.tools v2.2.0+incompatible // indirect
+	honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc // indirect
 )

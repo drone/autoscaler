@@ -171,7 +171,7 @@ poller:
 		fmt.Sprintf("DRONE_RUNNER_VOLUMES=%s", i.runner.Volumes),
 		fmt.Sprintf("DRONE_RUNNER_DEVICES=%s", i.runner.Devices),
 		fmt.Sprintf("DRONE_RUNNER_ENV_FILE=%s", i.runner.EnvFile),
-		fmt.Srpintf("DRONE_RUNNER_MAX_PROCS=%d", i.runner.MacProcs),
+		fmt.Sprintf("DRONE_RUNNER_MAX_PROCS=%d", i.runner.MaxProcs),
 		fmt.Sprintf("DRONE_RUNNER_PRIVILEGED_IMAGES=%s", i.runner.Privileged),
 	)
 

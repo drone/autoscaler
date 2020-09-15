@@ -219,5 +219,6 @@ type (
 		Devices    string
 		Privileged string
 		EnvFile    string
+		MaxProcs   int
 	}
 )

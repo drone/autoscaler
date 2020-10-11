@@ -20,16 +20,17 @@ import (
 // current build volume and plan the creation or termination of
 // server resources accordingly.
 type planner struct {
-	os      string
-	arch    string
-	version string
-	kernel  string
-	min     int           // min number of servers
-	max     int           // max number of servers to allocate
-	cap     int           // capacity per-server
-	buffer  int           // buffer capacity to have warm and ready
-	ttu     time.Duration // minimum server age
-	labels  map[string]string
+	os       string
+	arch     string
+	version  string
+	kernel   string
+	min      int           // min number of servers
+	max      int           // max number of servers to allocate
+	existing int           // existing base capacity of runners available
+	cap      int           // capacity per-server
+	buffer   int           // buffer capacity to have warm and ready
+	ttu      time.Duration // minimum server age
+	labels   map[string]string
 
 	client  drone.Client
 	servers autoscaler.ServerStore
@@ -62,6 +63,7 @@ func (p *planner) Plan(ctx context.Context) error {
 	log.
 		WithField("min-pool", p.min).
 		WithField("max-pool", p.max).
+		WithField("existing-capacity", p.existing).
 		WithField("server-buffer", p.buffer).
 		WithField("server-capacity", capacity).
 		WithField("server-count", servers).
@@ -234,6 +236,7 @@ func (p *planner) capacity(ctx context.Context) (capacity, count int, err error)
 			capacity += server.Capacity
 		}
 	}
+	capacity += p.existing
 	return
 }
 

@@ -32,9 +32,10 @@ type (
 		}
 
 		Pool struct {
-			Min    int           `default:"2"`
-			Max    int           `default:"4"`
-			MinAge time.Duration `default:"55m" split_words:"true"`
+			Min              int           `default:"2"`
+			Max              int           `default:"4"`
+			MinAge           time.Duration `default:"55m" split_words:"true"`
+			ExistingCapacity int           `default:"0"`
 		}
 
 		Check struct {

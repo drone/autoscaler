@@ -34,6 +34,9 @@ func TestDefaults(t *testing.T) {
 	if got, want := conf.Pool.MinAge, time.Minute*55; got != want {
 		t.Errorf("Want default DRONE_POOL_MIN_AGE of %d, got %d", want, got)
 	}
+	if got, want := conf.Pool.ExistingCapacity, 0; got != want {
+		t.Errorf("Want default DRONE_POOL_EXISTING_CAPACITY of %d, got %d", want, got)
+	}
 
 	if got, want := conf.Check.Interval, time.Minute; got != want {
 		t.Errorf("Want default DRONE_INSTALL_CHECK_INTERVAL of %s, got %s", want, got)
@@ -75,6 +78,7 @@ func TestLoad(t *testing.T) {
 		"DRONE_POOL_MIN_AGE":               "1h",
 		"DRONE_POOL_MIN":                   "1",
 		"DRONE_POOL_MAX":                   "5",
+		"DRONE_EXISTING_CAPACITY":          "0",
 		"DRONE_SERVER_HOST":                "drone.company.com",
 		"DRONE_SERVER_PROTO":               "http",
 		"DRONE_SERVER_TOKEN":               "633eb230f5",
@@ -198,7 +202,8 @@ var jsonConfig = []byte(`{
   "Pool": {
     "Min": 1,
     "Max": 5,
-	"MinAge": 3600000000000
+	"MinAge": 3600000000000,
+	"ExistingCapacity": 0
   },
   "Server": {
     "Host": "drone.company.com",

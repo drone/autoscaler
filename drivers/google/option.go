@@ -78,6 +78,13 @@ func WithSubnetwork(subnetwork string) Option {
 	}
 }
 
+// WithPrivateIP returns an option to set the private IP address.
+func WithPrivateIP(private bool) Option {
+	return func(p *provider) {
+		p.privateIP = private
+	}
+}
+
 // WithProject returns an option to set the project.
 func WithProject(project string) Option {
 	return func(p *provider) {
@@ -120,5 +127,19 @@ func WithUserDataFile(filepath string) Option {
 func WithZone(zone string) Option {
 	return func(p *provider) {
 		p.zone = zone
+	}
+}
+
+// WithScopes returns an option to set the scopes.
+func WithScopes(scopes ...string) Option {
+	return func(p *provider) {
+		p.scopes = scopes
+	}
+}
+
+// WithServiceAccountEmail returns an option to set the ServiceAccountEmail.
+func WithServiceAccountEmail(email string) Option {
+	return func(p *provider) {
+		p.serviceAccountEmail = email
 	}
 }

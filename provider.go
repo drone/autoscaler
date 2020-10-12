@@ -49,12 +49,13 @@ type Provider interface {
 // (e.g Digital Ocean Droplet).
 type Instance struct {
 	Provider ProviderType
-	ID       string
-	Name     string
-	Address  string
-	Region   string
-	Image    string
-	Size     string
+	ID                  string
+	Name                string
+	Address             string
+	Region              string
+	Image               string
+	Size                string
+	ServiceAccountEmail string
 }
 
 // InstanceCreateOpts define soptional instructions for

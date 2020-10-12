@@ -38,6 +38,17 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 
 	logger.Debugln("instance insert")
 
+	networkConfig := []*compute.AccessConfig{}
+
+	if !p.privateIP {
+		networkConfig = []*compute.AccessConfig{
+			{
+				Name: "External NAT",
+				Type: "ONE_TO_ONE_NAT",
+			},
+		}
+	}
+
 	in := &compute.Instance{
 		Name:           name,
 		Zone:           fmt.Sprintf("projects/%s/zones/%s", p.project, p.zone),
@@ -71,14 +82,9 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		CanIpForward: false,
 		NetworkInterfaces: []*compute.NetworkInterface{
 			{
-				Network: p.network,
-				Subnetwork: p.subnetwork,
-				AccessConfigs: []*compute.AccessConfig{
-					{
-						Name: "External NAT",
-						Type: "ONE_TO_ONE_NAT",
-					},
-				},
+				Network:       p.network,
+				Subnetwork:    p.subnetwork,
+				AccessConfigs: networkConfig,
 			},
 		},
 		Labels: p.labels,
@@ -91,7 +97,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		ServiceAccounts: []*compute.ServiceAccount{
 			{
 				Scopes: p.scopes,
-				Email:  "default",
+				Email:  p.serviceAccountEmail,
 			},
 		},
 	}
@@ -121,14 +127,21 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		return nil, err
 	}
 
+	address := resp.NetworkInterfaces[0].NetworkIP
+
+	if !p.privateIP {
+		address = resp.NetworkInterfaces[0].AccessConfigs[0].NatIP
+	}
+
 	instance := &autoscaler.Instance{
-		Provider: autoscaler.ProviderGoogle,
-		ID:       name,
-		Name:     opts.Name,
-		Image:    p.image,
-		Region:   p.zone,
-		Size:     p.size,
-		Address:  resp.NetworkInterfaces[0].AccessConfigs[0].NatIP,
+		Provider:            autoscaler.ProviderGoogle,
+		ID:                  name,
+		Name:                opts.Name,
+		Image:               p.image,
+		Region:              p.zone,
+		Size:                p.size,
+		Address:             address,
+		ServiceAccountEmail: p.serviceAccountEmail,
 	}
 
 	logger.

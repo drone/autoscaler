@@ -17,9 +17,12 @@ func TestOptions(t *testing.T) {
 		WithMachineImage("ubuntu-1604-lts"),
 		WithMachineType("c3.large"),
 		WithNetwork("global/defaults/foo"),
+		WithPrivateIP(false),
+		WithServiceAccountEmail("default"),
 		WithProject("my-project"),
 		WithTags("drone", "agent"),
 		WithZone("us-central1-f"),
+		WithScopes("scope1", "scope2"),
 	)
 	if err != nil {
 		t.Error(err)
@@ -39,6 +42,9 @@ func TestOptions(t *testing.T) {
 	if got, want := p.network, "global/defaults/foo"; got != want {
 		t.Errorf("Want network %q, got %q", want, got)
 	}
+	if got, want := p.privateIP, false; got != want {
+		t.Errorf("Want %v privateIP, got %v", want, got)
+	}
 	if got, want := p.project, "my-project"; got != want {
 		t.Errorf("Want project %q, got %q", want, got)
 	}
@@ -50,5 +56,11 @@ func TestOptions(t *testing.T) {
 	}
 	if got, want := p.zone, "us-central1-f"; got != want {
 		t.Errorf("Want zone %q, got %q", want, got)
+	}
+	if got, want := len(p.scopes), 2; got != want {
+		t.Errorf("Want %d scopes, got %d", want, got)
+	}
+	if got, want := p.serviceAccountEmail, "default"; got != want {
+		t.Errorf("Want service account name %q, got %q", want, got)
 	}
 }

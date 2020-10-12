@@ -62,6 +62,15 @@ func WithSize(size string) Option {
 	}
 }
 
+// WithSizeAlt returns an option to set the alternate instance
+// size. If instance creation fails, the system will attempt to
+// provision a second instance using the alternate size.
+func WithSizeAlt(size string) Option {
+	return func(p *provider) {
+		p.sizeAlt = size
+	}
+}
+
 // WithSSHKey returns an option to set the ssh key.
 func WithSSHKey(key string) Option {
 	return func(p *provider) {

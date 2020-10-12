@@ -774,6 +774,47 @@ func TestExistingCapacity_ScaleDownToZero(t *testing.T) {
 	}
 }
 
+func TestPlan_ExcludePendingWhenTerminating(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	servers := []*autoscaler.Server{
+		// x3 capacity
+		{Name: "server1", Capacity: 2, Created: 1, State: autoscaler.StateRunning},
+		{Name: "server2", Capacity: 2, Created: 2, State: autoscaler.StateRunning},
+		{Name: "server3", Capacity: 2, Created: 3, State: autoscaler.StateRunning},
+
+		// x3 pending / staging / starting
+		{Name: "server4", Capacity: 2, Created: 4, State: autoscaler.StateCreating},
+		{Name: "server5", Capacity: 2, Created: 5, State: autoscaler.StateCreated},
+		{Name: "server6", Capacity: 2, Created: 6, State: autoscaler.StateStaging},
+	}
+
+	// x0 running builds
+	// x0 pending builds
+	builds := []*drone.Stage{}
+
+	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().List(gomock.Any()).Return(servers, nil)
+	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers[:3], nil)
+
+	client := mocks.NewMockClient(controller)
+	client.EXPECT().Queue().Return(builds, nil)
+
+	p := planner{
+		cap:     2,
+		min:     3,
+		max:     10,
+		client:  client,
+		servers: store,
+	}
+
+	err := p.Plan(context.TODO())
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 // func TestListBusy(t *testing.T) {
 // 	controller := gomock.NewController(t)
 // 	defer controller.Finish()

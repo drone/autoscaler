@@ -19,10 +19,10 @@ import (
 	"github.com/drone/autoscaler/logger"
 	"github.com/drone/autoscaler/metrics"
 
-	docker "docker.io/go-docker"
-	"docker.io/go-docker/api/types"
-	"docker.io/go-docker/api/types/container"
-	"docker.io/go-docker/api/types/mount"
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/mount"
+	docker "github.com/docker/docker/client"
 )
 
 type installer struct {
@@ -170,6 +170,7 @@ poller:
 		fmt.Sprintf("DRONE_RUNNER_NAME=%s", instance.Name),
 		fmt.Sprintf("DRONE_RUNNER_VOLUMES=%s", i.runner.Volumes),
 		fmt.Sprintf("DRONE_RUNNER_DEVICES=%s", i.runner.Devices),
+		fmt.Sprintf("DRONE_RUNNER_ENV_FILE=%s", i.runner.EnvFile),
 		fmt.Sprintf("DRONE_RUNNER_PRIVILEGED_IMAGES=%s", i.runner.Privileged),
 	)
 

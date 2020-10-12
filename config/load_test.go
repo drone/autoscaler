@@ -101,6 +101,7 @@ func TestLoad(t *testing.T) {
 		"DRONE_DIGITALOCEAN_SIZE":          "s-1vcpu-1gb",
 		"DRONE_DIGITALOCEAN_IPV6":          "true",
 		"DRONE_DIGITALOCEAN_PRIVATE_IP":    "false",
+		"DRONE_DIGITALOCEAN_FIREWALL":      "",
 		"DRONE_DIGITALOCEAN_TAGS":          "drone,agent,prod",
 		"DRONE_DIGITALOCEAN_USERDATA":      "#cloud-init",
 		"DRONE_DIGITALOCEAN_USERDATA_FILE": "/path/to/cloud/init.yml",
@@ -110,8 +111,9 @@ func TestLoad(t *testing.T) {
 		"DRONE_GOOGLE_DISK_TYPE":           "pd-standard",
 		"DRONE_GOOGLE_NETWORK":             "default",
 		"DRONE_GOOGLE_SUBNETWORK":          "",
+		"DRONE_GOOGLE_PRIVATE_IP":          "false",
 		"DRONE_GOOGLE_PREEMPTIBLE":         "true",
-		"DRONE_GOOGLE_SCOPES":              "devstorage.read_only",
+		"DRONE_GOOGLE_SCOPES":              "devstorage.read_only,pubsub",
 		"DRONE_GOOGLE_DISK_SIZE":           "10",
 		"DRONE_GOOGLE_PROJECT":             "project-foo",
 		"DRONE_GOOGLE_TAGS":                "drone,agent,prod",
@@ -281,7 +283,10 @@ var jsonConfig = []byte(`{
     "Network": "default",
     "Subnetwork": "",
     "Preemptible": true,
-    "Scopes": "devstorage.read_only",
+    "Scopes": [
+      "devstorage.read_only",
+      "pubsub"
+      ],
     "DiskSize": 10,
     "Project": "project-foo",
     "Tags": [

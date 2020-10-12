@@ -60,6 +60,15 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		return nil, err
 	}
 
+	if p.firewall != "" {
+		_, err := client.Firewalls.AddDroplets(ctx, p.firewall, droplet.ID)
+		if err != nil {
+			logger.WithError(err).
+				Errorln("cannot assign instance to firewall")
+			return nil, err
+		}
+	}
+
 	instance := &autoscaler.Instance{
 		Provider: autoscaler.ProviderDigitalOcean,
 		ID:       strconv.Itoa(droplet.ID),

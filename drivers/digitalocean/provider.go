@@ -24,6 +24,7 @@ type provider struct {
 	token     string
 	size      string
 	image     string
+	firewall  string
 	privateIP bool
 	userdata  *template.Template
 	tags      []string

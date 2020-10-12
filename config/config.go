@@ -35,7 +35,7 @@ type (
 			Min              int           `default:"2"`
 			Max              int           `default:"4"`
 			MinAge           time.Duration `default:"55m" split_words:"true"`
-			ExistingCapacity int           `envconfig:"DRONE_POOL_EXISTING_CAPACITY" default:"0"`
+			ExistingCapacity int           `default:"0" split_words:"true"`
 		}
 
 		Check struct {

@@ -78,7 +78,7 @@ func TestLoad(t *testing.T) {
 		"DRONE_POOL_MIN_AGE":               "1h",
 		"DRONE_POOL_MIN":                   "1",
 		"DRONE_POOL_MAX":                   "5",
-		"DRONE_EXISTING_CAPACITY":          "0",
+		"DRONE_POOL_EXISTING_CAPACITY":     "0",
 		"DRONE_SERVER_HOST":                "drone.company.com",
 		"DRONE_SERVER_PROTO":               "http",
 		"DRONE_SERVER_TOKEN":               "633eb230f5",

@@ -32,6 +32,7 @@ require (
 	github.com/gophercloud/gophercloud v0.0.0-20181014043407-c8947f7d1c51
 	github.com/gorilla/mux v1.7.4 // indirect
 	github.com/h2non/gock v1.0.7
+	github.com/hashicorp/go-retryablehttp v0.6.7 // indirect
 	github.com/hetznercloud/hcloud-go v1.4.0
 	github.com/jmespath/go-jmespath v0.0.0-20160202185014-0b12d6b521d8 // indirect
 	github.com/jmoiron/sqlx v0.0.0-20180228184624-cf35089a1979
@@ -46,7 +47,7 @@ require (
 	github.com/nbio/st v0.0.0-20140626010706-e9e8d9816f32 // indirect
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
-	github.com/packethost/packngo v0.1.0
+	github.com/packethost/packngo v0.4.1
 	github.com/pkg/errors v0.8.1 // indirect
 	github.com/prometheus/client_golang v0.8.0
 	github.com/prometheus/common v0.0.0-20180110214958-89604d197083 // indirect
@@ -55,7 +56,7 @@ require (
 	github.com/sirupsen/logrus v1.4.2
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/tent/http-link-go v0.0.0-20130702225549-ac974c61c2f9 // indirect
-	golang.org/x/crypto v0.0.0-20190621222207-cc06ce4a13d4
+	golang.org/x/crypto v0.0.0-20200420201142-3c4aac89819a
 	golang.org/x/lint v0.0.0-20190313153728-d0100b6bd8b3 // indirect
 	golang.org/x/oauth2 v0.0.0-20180821212333-d2e6202438be
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58

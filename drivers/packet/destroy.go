@@ -11,6 +11,6 @@ import (
 )
 
 func (p *provider) Destroy(ctx context.Context, instance *autoscaler.Instance) error {
-	_, err := p.client.Devices.Delete(instance.ID)
+	_, err := p.client.Devices.Delete(instance.ID, true)
 	return err
 }

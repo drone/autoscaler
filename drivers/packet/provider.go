@@ -55,7 +55,7 @@ func New(opts ...Option) autoscaler.Provider {
 		p.userdata = userdata.T
 	}
 	if p.client == nil {
-		p.client = packngo.NewClient(
+		p.client = packngo.NewClientWithAuth(
 			consumerToken, p.apikey, nil)
 	}
 	return p

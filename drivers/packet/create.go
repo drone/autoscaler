@@ -35,8 +35,8 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		WithField("hostname", p.hostname)
 
 	cr := &packngo.DeviceCreateRequest{
-		HostName:     p.hostname,
-		Facility:     p.facility,
+		Hostname:     p.hostname,
+		Facility:     []string{p.facility},
 		Plan:         p.plan,
 		OS:           p.os,
 		ProjectID:    p.project,
@@ -79,7 +79,7 @@ poller:
 			logger.WithField("name", instance.Name).
 				Debugln("find instance network")
 
-			d, _, err := p.client.Devices.Get(d.ID)
+			d, _, err := p.client.Devices.Get(d.ID, &packngo.GetOptions{})
 			if err != nil {
 				logger.WithError(err).
 					Errorln("cannot find instance")

@@ -55,8 +55,8 @@ func New(opts ...Option) autoscaler.Provider {
 		p.userdata = userdata.T
 	}
 	if p.client == nil {
-		p.client = packngo.NewClientWithAuth(
-			consumerToken, p.apikey, nil)
+		p.client, _ = packngo.NewClientWithBaseURL(
+			consumerToken, p.apikey, nil, "https://api.equinix.com/metal/v1/")
 	}
 	return p
 }

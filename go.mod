@@ -4,6 +4,8 @@ go 1.12
 
 replace github.com/docker/docker => github.com/docker/engine v17.12.0-ce-rc1.0.20200309214505-aa6a9891b09c+incompatible
 
+replace github.com/h2non/gock => gopkg.in/h2non/gock.v1 v1.0.15
+
 require (
 	cloud.google.com/go v0.28.0 // indirect
 	github.com/99designs/basicauth-go v0.0.0-20160802081356-2a93ba0f464d
@@ -47,7 +49,7 @@ require (
 	github.com/nbio/st v0.0.0-20140626010706-e9e8d9816f32 // indirect
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
-	github.com/packethost/packngo v0.4.1
+	github.com/packethost/packngo v0.2.0
 	github.com/pkg/errors v0.8.1 // indirect
 	github.com/prometheus/client_golang v0.8.0
 	github.com/prometheus/common v0.0.0-20180110214958-89604d197083 // indirect
@@ -55,6 +57,7 @@ require (
 	github.com/scaleway/scaleway-sdk-go v1.0.0-beta.3
 	github.com/sirupsen/logrus v1.4.2
 	github.com/smartystreets/goconvey v1.6.4 // indirect
+	github.com/stretchr/testify v1.5.1 // indirect
 	github.com/tent/http-link-go v0.0.0-20130702225549-ac974c61c2f9 // indirect
 	golang.org/x/crypto v0.0.0-20200420201142-3c4aac89819a
 	golang.org/x/lint v0.0.0-20190313153728-d0100b6bd8b3 // indirect
@@ -68,4 +71,5 @@ require (
 	gopkg.in/ini.v1 v1.51.0 // indirect
 	gotest.tools v2.2.0+incompatible // indirect
 	honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc // indirect
+	launchpad.net/gocheck v0.0.0-20140225173054-000000000087 // indirect
 )

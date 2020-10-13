@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	baseURL      = "https://api.packet.net/"
+	baseURL      = "https://api.equinix.com/metal/v1/"
 	getDevice    = "/devices"
 	getSSH       = "/ssh-keys"
 	projectID    = "x"

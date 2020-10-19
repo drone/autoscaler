@@ -78,8 +78,9 @@ func writeBadRequest(w http.ResponseWriter, err error) {
 // writeJSON writes the json-encoded error message to the response
 // with a 400 bad request status code.
 func writeJSON(w http.ResponseWriter, v interface{}, status int) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.WriteHeader(status)
-	w.Header().Set("Content-Type", "application/json")
 	enc := json.NewEncoder(w)
 	if indent {
 		enc.SetIndent("", "  ")

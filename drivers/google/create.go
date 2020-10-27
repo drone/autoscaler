@@ -142,7 +142,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		Size:                p.size,
 		Address:             address,
 		ServiceAccountEmail: p.serviceAccountEmail,
-		Scopes: p.scopes,
+		Scopes:              p.scopes,
 	}
 
 	logger.

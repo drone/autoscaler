@@ -235,6 +235,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			google.WithServiceAccountEmail(c.Google.ServiceAccountEmail),
 			google.WithProject(c.Google.Project),
 			google.WithTags(c.Google.Tags...),
+			google.WithScopes(c.Google.Scopes...),
 			google.WithUserData(c.Google.UserData),
 			google.WithUserDataFile(c.Google.UserDataFile),
 			google.WithZone(c.Google.Zone),

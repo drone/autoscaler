@@ -45,7 +45,7 @@ func (p *provider) getClient() *ec2.EC2 {
 	return ec2.New(session.New(config))
 }
 
-// New returns a new Digital Ocean provider.
+// New returns a new Amazon provider.
 func New(opts ...Option) autoscaler.Provider {
 	p := new(provider)
 	for _, opt := range opts {

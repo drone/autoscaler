@@ -48,7 +48,7 @@ type Provider interface {
 // An Instance represents a server instance
 // (e.g Digital Ocean Droplet).
 type Instance struct {
-	Provider ProviderType
+	Provider            ProviderType
 	ID                  string
 	Name                string
 	Address             string
@@ -56,6 +56,7 @@ type Instance struct {
 	Image               string
 	Size                string
 	ServiceAccountEmail string
+	Scopes              []string
 }
 
 // InstanceCreateOpts define soptional instructions for

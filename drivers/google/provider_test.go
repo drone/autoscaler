@@ -28,7 +28,7 @@ func TestDefaults(t *testing.T) {
 	if got, want := p.diskType, "pd-standard"; got != want {
 		t.Errorf("Want diskType %s, got %s", want, got)
 	}
-	if got, want := p.image, "ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20200907"; got != want {
+	if got, want := p.image, "ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20201111"; got != want {
 		t.Errorf("Want image %q, got %q", want, got)
 	}
 	if got, want := p.network, "global/networks/default"; got != want {

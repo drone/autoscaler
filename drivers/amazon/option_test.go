@@ -14,7 +14,7 @@ func TestOptions(t *testing.T) {
 		WithRegion("us-west-2"),
 		WithRetries(10),
 		WithSecurityGroup("sg-770eabe1"),
-		WithSize("t2.2xlarge"),
+		WithSize("t3.2xlarge"),
 		WithSSHKey("id_rsa"),
 		WithSubnet("subnet-0b32177f"),
 		WithTags(map[string]string{"foo": "bar", "baz": "qux"}),
@@ -31,7 +31,7 @@ func TestOptions(t *testing.T) {
 	if got, want := p.region, "us-west-2"; got != want {
 		t.Errorf("Want region %q, got %q", want, got)
 	}
-	if got, want := p.size, "t2.2xlarge"; got != want {
+	if got, want := p.size, "t3.2xlarge"; got != want {
 		t.Errorf("Want size %q, got %q", want, got)
 	}
 	if got, want := p.key, "id_rsa"; got != want {

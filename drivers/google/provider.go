@@ -74,7 +74,7 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 		p.size = "n1-standard-1"
 	}
 	if p.image == "" {
-		p.image = "ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20200907"
+		p.image = "ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20201111"
 	}
 	if p.network == "" {
 		p.network = "global/networks/default"

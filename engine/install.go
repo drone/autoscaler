@@ -39,6 +39,7 @@ type installer struct {
 	keepaliveTime    time.Duration
 	keepaliveTimeout time.Duration
 	runner           config.Runner
+	runnerInstall    bool
 	labels           map[string]string
 
 	checkInterval time.Duration
@@ -70,21 +71,34 @@ func (i *installer) Install(ctx context.Context) error {
 	}
 
 	for _, server := range servers {
-		server.State = autoscaler.StateStaging
-		err = i.servers.Update(ctx, server)
-		if err != nil {
-			logger.WithError(err).
-				WithField("server", server.Name).
-				WithField("state", "staging").
-				Errorln("failed to update server state")
-			return err
-		}
+		if i.runnerInstall == false {
+			server.State = autoscaler.StateRunning
+			err := i.servers.Update(ctx, server)
+			if err != nil {
+				i.metrics.IncrServerSetupError()
+				logger.WithError(err).
+					WithField("server", server.Name).
+					WithField("state", "running").
+					Errorln("failed to update server state")
+				return err
+			}
+		} else {
+			server.State = autoscaler.StateStaging
+			err = i.servers.Update(ctx, server)
+			if err != nil {
+				logger.WithError(err).
+					WithField("server", server.Name).
+					WithField("state", "staging").
+					Errorln("failed to update server state")
+				return err
+			}
 
-		i.wg.Add(1)
-		go func(server *autoscaler.Server) {
-			i.install(ctx, server)
-			i.wg.Done()
-		}(server)
+			i.wg.Add(1)
+			go func(server *autoscaler.Server) {
+				i.install(ctx, server)
+				i.wg.Done()
+			}(server)
+		}
 	}
 	return nil
 }

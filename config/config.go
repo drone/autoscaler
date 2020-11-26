@@ -49,17 +49,19 @@ type (
 		}
 
 		Agent struct {
-			Token       string
-			Image       string `default:"drone/drone-runner-docker:1"`
-			Concurrency int    `default:"2"`
-			OS          string `default:"linux"`
-			Arch        string `default:"amd64"`
-			Version     string
-			Kernel      string
-			EnvironFile string `envconfig:"DRONE_AGENT_ENV_FILE"`
-			Environ     []string
-			Volumes     []string
-			Labels      map[string]string `envconfig:"DRONE_AGENT_LABELS"`
+			Token         string
+			Image         string `default:"drone/drone-runner-docker:1"`
+			Concurrency   int    `default:"2"`
+			OS            string `default:"linux"`
+			Arch          string `default:"amd64"`
+			Version       string
+			Kernel        string
+			EnvironFile   string `envconfig:"DRONE_AGENT_ENV_FILE"`
+			Environ       []string
+			Volumes       []string
+			Labels        map[string]string `envconfig:"DRONE_AGENT_LABELS"`
+			RunnerInstall bool              `envconfig:"DRONE_AGENT_RUNNER_INSTALL" default:"true"`
+			RunnerType    string            `envconfig:"DRONE_AGENT_RUNNER_TYPE" default:"docker"`
 		}
 
 		Runner Runner

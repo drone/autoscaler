@@ -214,7 +214,9 @@ var jsonConfig = []byte(`{
     "Image": "drone/drone-runner-docker:latest",
     "Concurrency": 2,
     "KeepaliveTime": 360000000000,
-    "KeepaliveTimeout": 30000000000
+    "KeepaliveTimeout": 30000000000,
+    "RunnerInstall": true,
+    "RunnerType": "docker"
   },
   "HTTP": {
 	"Proto": "http",

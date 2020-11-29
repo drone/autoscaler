@@ -62,6 +62,7 @@ type (
 			Labels        map[string]string `envconfig:"DRONE_AGENT_LABELS"`
 			RunnerInstall bool              `envconfig:"DRONE_AGENT_RUNNER_INSTALL" default:"true"`
 			RunnerType    string            `envconfig:"DRONE_AGENT_RUNNER_TYPE" default:"docker"`
+			SSH           SSH
 		}
 
 		Runner Runner
@@ -221,5 +222,11 @@ type (
 		Devices    string
 		Privileged string
 		EnvFile    string
+	}
+
+	SSH struct {
+		PrivateKeyFile string `envconfig:"DRONE_AGENT_SSH_PRIVATE_KEY_FILE"`
+		User           string `envconfig:"DRONE_AGENT_SSH_USER"`
+		Port           string `envconfig:"DRONE_AGENT_SSH_PORT" default:"22"`
 	}
 )

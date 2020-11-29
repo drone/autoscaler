@@ -216,7 +216,10 @@ var jsonConfig = []byte(`{
     "KeepaliveTime": 360000000000,
     "KeepaliveTimeout": 30000000000,
     "RunnerInstall": true,
-    "RunnerType": "docker"
+    "RunnerType": "docker",
+    "SSH": {
+      "Port": "22"
+	}
   },
   "HTTP": {
 	"Proto": "http",

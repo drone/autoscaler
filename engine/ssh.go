@@ -77,3 +77,12 @@ func (client *sshClient) Run(cmd string) (string, error) {
 
 	return stdoutBuf.String(), err
 }
+
+// Ping
+func (client *sshClient) Ping() (string, error) {
+	out, err := client.Run("ps -C drone-runner-exec -ocomm=")
+	if err != nil {
+		return out, err
+	}
+	return out, nil
+}

@@ -86,8 +86,11 @@ func New(
 			watchtowerInterval: config.Watchtower.Interval,
 		},
 		pinger: &pinger{
-			servers: servers,
-			client:  newDockerClient,
+			servers:    servers,
+			client:     newDockerClient,
+			sshclient:  newSSHClient,
+			sshconfig:  &config.Agent.SSH,
+			runnerType: config.Agent.RunnerType,
 		},
 		planner: &planner{
 			client:  client,

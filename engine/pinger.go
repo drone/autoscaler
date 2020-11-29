@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/drone/autoscaler"
+	"github.com/drone/autoscaler/config"
 	"github.com/drone/autoscaler/logger"
 )
 
@@ -28,8 +29,11 @@ func init() {
 type pinger struct {
 	wg sync.WaitGroup
 
-	servers autoscaler.ServerStore
-	client  clientFunc
+	servers    autoscaler.ServerStore
+	client     clientFunc
+	sshclient  sshClientFunc
+	sshconfig  *config.SSH
+	runnerType string
 }
 
 func (p *pinger) Ping(ctx context.Context) error {
@@ -57,33 +61,63 @@ func (p *pinger) ping(ctx context.Context, server *autoscaler.Server) error {
 		WithField("ip", server.Address).
 		WithField("name", server.Name)
 
-	client, closer, err := p.client(server)
-	if closer != nil {
-		defer closer.Close()
-	}
-	if err != nil {
-		logger.WithError(err).
-			Errorln("cannot create docker client")
-		return nil
-	}
-
-	// the system will attempt to ping the server a maximum of
-	// five times, with a 1 minute timeout for each ping. If the
-	// server cannot be reached, it will be placed in an error
-	// state.
-
-	for i := 0; i < 5; i++ {
-		timeout, cancel := context.WithTimeout(ctx, time.Minute)
-		_, err := client.Ping(timeout)
-		cancel()
-		if err == nil {
-			logger.WithField("state", "healthy").
-				Debugln("server ping successful")
+	// TODO: consider creating a client interface for all types of runners
+	// implementing Ping() etc.
+	if p.runnerType == "docker" {
+		client, closer, err := p.client(server)
+		if closer != nil {
+			defer closer.Close()
+		}
+		if err != nil {
+			logger.WithError(err).
+				Errorln("cannot create docker client")
 			return nil
+		}
+
+		// the system will attempt to ping the server a maximum of
+		// five times, with a 1 minute timeout for each ping. If the
+		// server cannot be reached, it will be placed in an error
+		// state.
+
+		for i := 0; i < 5; i++ {
+			timeout, cancel := context.WithTimeout(ctx, time.Minute)
+			_, err := client.Ping(timeout)
+			cancel()
+			if err == nil {
+				logger.WithField("state", "healthy").
+					Debugln("server ping successful")
+				return nil
+			}
+		}
+	} else if p.runnerType == "exec" {
+		client, closer, err := p.sshclient(server, p.sshconfig)
+		if closer != nil {
+			defer closer.Close()
+		}
+		if err != nil {
+			logger.WithError(err).
+				Errorln("cannot create SSH client")
+			return nil
+		}
+
+		// the system will attempt to ping the server a maximum of
+		// five times, with a 1 minute timeout for each ping. If the
+		// server cannot be reached, it will be placed in an error
+		// state.
+
+		for i := 0; i < 5; i++ {
+			// timeout, cancel := context.WithTimeout(ctx, time.Minute)
+			_, err := client.Ping()
+			// cancel()
+			if err == nil {
+				logger.WithField("state", "healthy").
+					Debugln("server ping successful")
+				return nil
+			}
 		}
 	}
 
-	server, err = p.servers.Find(ctx, server.Name)
+	server, err := p.servers.Find(ctx, server.Name)
 	if err != nil {
 		// if the server no longer exists in the database
 		// it is possible it was mutated by another goroutine.

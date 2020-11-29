@@ -6,24 +6,12 @@ package engine
 
 import (
 	"context"
-	"os"
-	"strconv"
 	"sync"
 	"time"
 
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/logger"
 )
-
-// this is a feature flag that can be used to enable
-// experimental reaping of errored instances.
-var enableReaper = false
-
-func init() {
-	enableReaper, _ = strconv.ParseBool(
-		os.Getenv("DRONE_ENABLE_REAPER"),
-	)
-}
 
 //
 // The reaper looks for and removes errored instances. The
@@ -40,10 +28,13 @@ type reaper struct {
 	servers  autoscaler.ServerStore
 	provider autoscaler.Provider
 	interval time.Duration
+	enabled  bool
 }
 
 func (r *reaper) Reap(ctx context.Context) error {
-	if !enableReaper {
+	// this is a feature flag that can be used to enable
+	// experimental reaping of errored instances.
+	if !r.enabled {
 		return nil
 	}
 

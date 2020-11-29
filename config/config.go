@@ -74,7 +74,7 @@ type (
 		}
 
 		Reaper struct {
-			Enabled  bool          `envconfig:"DRONE_REAPER_ENABLED"`
+			Enabled  bool          `envconfig:"DRONE_REAPER_ENABLED", default:"false"`
 			Interval time.Duration `envconfig:"DRONE_REAPER_INTERVAL" default:"1h"`
 		}
 

@@ -346,6 +346,9 @@ var jsonConfig = []byte(`{
 	"Reaper": {
 		"Interval": 3600000000000
 	},
+	"Pinger": {
+		"Interval": 600000000000
+	},
 	"Check": {
 		"Interval": 60000000000,
 		"Deadline": 1800000000000

@@ -6,8 +6,6 @@ package engine
 
 import (
 	"context"
-	"os"
-	"strconv"
 	"sync"
 	"time"
 
@@ -15,25 +13,19 @@ import (
 	"github.com/drone/autoscaler/logger"
 )
 
-// this is a feature flag that can be used to enable
-// experimental pinging and detection of zombie instances.
-var enablePinger = false
-
-func init() {
-	enablePinger, _ = strconv.ParseBool(
-		os.Getenv("DRONE_ENABLE_PINGER"),
-	)
-}
-
 type pinger struct {
 	wg sync.WaitGroup
 
-	servers autoscaler.ServerStore
-	client  clientFunc
+	servers  autoscaler.ServerStore
+	client   clientFunc
+	interval time.Duration
+	enabled  bool
 }
 
 func (p *pinger) Ping(ctx context.Context) error {
-	if !enablePinger {
+	// this is a feature flag that can be used to enable
+	// experimental pinging and detection of zombie instances.
+	if !p.enabled {
 		return nil
 	}
 

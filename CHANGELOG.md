@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Fixed
+- support colon in map values sourced from environment variables, by [@UnAfraid](https://github.com/kelseyhightower/envconfig/pull/185)
 - pending instance count is excluded from determining available capacity when reducing pool size, by [bradrydzewski](https://github.com/bradrydzewski).
 
 ## [1.7.2]

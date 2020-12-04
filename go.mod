@@ -20,6 +20,7 @@ require (
 	github.com/docker/go-connections v0.3.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/drone/drone-go v1.0.5-0.20190504210458-4d6116b897ba
+	github.com/drone/envconfig v1.4.1
 	github.com/drone/signal v0.0.0-20170915013802-ac5d07ef1315
 	github.com/dustin/go-humanize v0.0.0-20171111073723-bb3d318650d4
 	github.com/go-chi/chi v3.3.2+incompatible
@@ -36,7 +37,6 @@ require (
 	github.com/jmespath/go-jmespath v0.0.0-20160202185014-0b12d6b521d8 // indirect
 	github.com/jmoiron/sqlx v0.0.0-20180228184624-cf35089a1979
 	github.com/joho/godotenv v1.2.0
-	github.com/kelseyhightower/envconfig v1.3.0
 	github.com/kr/pretty v0.0.0-20160823170715-cfb55aafdaf3
 	github.com/kr/text v0.0.0-20160504234017-7cafcd837844 // indirect
 	github.com/lib/pq v1.0.0

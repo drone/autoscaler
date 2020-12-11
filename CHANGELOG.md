@@ -4,10 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [1.7.4]
 ### Fixed
 - support colon in map values sourced from environment variables, by [@UnAfraid](https://github.com/kelseyhightower/envconfig/pull/185)
-- pending instance count is excluded from determining available capacity when reducing pool size, by [bradrydzewski](https://github.com/bradrydzewski).
+
+## [1.7.3]
+### Added
+- parameter to configure env file for remote runners. [#74](https://github.com/drone/autoscaler/pull/74).
+
+### Fixed
+- the content-type should be set before the status is written to the http response. [89780e6](https://github.com/drone/autoscaler/commit/89780e6b9585e8116249524fe6fe6dffe3904fd6).
+- pending instance count is excluded from determining available capacity when reducing pool size. [d26b8e41](https://github.com/drone/autoscaler/commit/d26b8e41fd178595fd00d739d1d3b27f2a870314).
+- custom scopes not passed to google cloud configuration. [#79](https://github.com/drone/autoscaler/pull/79).
+
+### Changed
+- docker.NewClient was deprecated; migrate to docker.NewClientWithOpts. [#72](https://github.com/drone/autoscaler/pull/72).
 
 ## [1.7.2]
 ### Fixed

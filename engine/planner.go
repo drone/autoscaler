@@ -151,7 +151,7 @@ func (p *planner) mark(ctx context.Context, n int) error {
 		logger.WithField("servers-to-terminate", n).
 			WithField("servers-running", len(servers)).
 			WithField("min-pool", p.min).
-			Debugf("abort terminating %d instances to ensure minimum capacity met")
+			Debugf("abort terminating instances to ensure minimum capacity met")
 		return nil
 	}
 

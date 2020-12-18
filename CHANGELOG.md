@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.5]
+### Fixed
+- ignore unset environment variables when configuring runners, by [@bradrydzewski](https://github.com/bradrydzewski). [d26b8e41](https://github.com/drone/autoscaler/commit/6db28505572d90df9a271404440789043c7b378b).
+
 ## [1.7.4]
 ### Fixed
 - support colon in map values sourced from environment variables, by [@UnAfraid](https://github.com/kelseyhightower/envconfig/pull/185)

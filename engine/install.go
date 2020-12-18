@@ -168,11 +168,20 @@ poller:
 		fmt.Sprintf("DRONE_RPC_SECRET=%s", i.secret),
 		fmt.Sprintf("DRONE_RUNNER_CAPACITY=%v", instance.Capacity),
 		fmt.Sprintf("DRONE_RUNNER_NAME=%s", instance.Name),
-		fmt.Sprintf("DRONE_RUNNER_VOLUMES=%s", i.runner.Volumes),
-		fmt.Sprintf("DRONE_RUNNER_DEVICES=%s", i.runner.Devices),
-		fmt.Sprintf("DRONE_RUNNER_ENV_FILE=%s", i.runner.EnvFile),
-		fmt.Sprintf("DRONE_RUNNER_PRIVILEGED_IMAGES=%s", i.runner.Privileged),
 	)
+
+	if s := i.runner.Volumes; s != "" {
+		envs = append(envs, fmt.Sprintf("DRONE_RUNNER_VOLUMES=%s", s))
+	}
+	if s := i.runner.Devices; s != "" {
+		envs = append(envs, fmt.Sprintf("DRONE_RUNNER_DEVICES=%s", s))
+	}
+	if s := i.runner.EnvFile; s != "" {
+		envs = append(envs, fmt.Sprintf("DRONE_RUNNER_ENV_FILE=%s", s))
+	}
+	if s := i.runner.Privileged; s != "" {
+		envs = append(envs, fmt.Sprintf("DRONE_RUNNER_PRIVILEGED_IMAGES=%s", s))
+	}
 
 	if len(i.labels) > 0 {
 		var stringLabels []string

@@ -38,29 +38,34 @@ func defaultImage(region string) string {
 }
 
 var images = map[string]string{
-	"af-south-1":     "ami-0196a23f828d6e619", // Ubuntu Server 20.04 LTS (Release: 20201112.1)
-	"ap-east-1":      "ami-f6511c87",          // Ubuntu Server 20.04 LTS (Release: 20201112.1)
-	"ap-northeast-1": "ami-0e40a27db137d33cb", // Ubuntu Server 20.04 LTS (Release: 20201112.1)
-	"ap-northeast-2": "ami-01ff1255cee8004b8", // Ubuntu Server 20.04 LTS (Release: 20201112.1)
-	"ap-northeast-3": "ami-0b58a665b8d0d720c", // Ubuntu Server 20.04 LTS (Release: 20201112.1)
-	"ap-south-1":     "ami-0cecfffd8cae9481c", // Ubuntu Server 20.04 LTS (Release: 20201112.1)
-	"ap-southeast-1": "ami-0dbb8181cd0ce9cff", // Ubuntu Server 20.04 LTS (Release: 20201112.1)
-	"ap-southeast-2": "ami-0f150e4544fb95045", // Ubuntu Server 20.04 LTS (Release: 20201112.1)
-	"ca-central-1":   "ami-03060448f5c8f2199", // Ubuntu Server 20.04 LTS (Release: 20201112.1)
-	"cn-north-1":     "ami-00cc446c1f9e0b72a", // Ubuntu Server 20.04 LTS (Release: 20201014)
-	"cn-northwest-1": "ami-09f14afb2e15caab5", // Ubuntu Server 20.04 LTS (Release: 20201014)
-	"eu-central-1":   "ami-09f14afb2e15caab5", // Ubuntu Server 20.04 LTS (Release: 20201112.1)
-	"eu-north-1":     "ami-01450210d4ebb3bab", // Ubuntu Server 20.04 LTS (Release: 20201112.1)
-	"eu-south-1":     "ami-0e3c0649c89ccddc9", // Ubuntu Server 20.04 LTS (Release: 20201112.1)
-	"eu-west-1":      "ami-048309a44dad514df", // Ubuntu Server 20.04 LTS (Release: 20201112.1)
-	"eu-west-2":      "ami-099ae17a6a688b1cc", // Ubuntu Server 20.04 LTS (Release: 20201112.1)
-	"eu-west-3":      "ami-098efdd0afb686fd5", // Ubuntu Server 20.04 LTS (Release: 20201112.1)
-	"me-south-1":     "ami-098b94183f8e74ecc", // Ubuntu Server 20.04 LTS (Release: 20201112.1)
-	"sa-east-1":      "ami-0cc03bf224d6eb2fc", // Ubuntu Server 20.04 LTS (Release: 20201112.1)
-	"us-east-1":      "ami-08306577a6694f5e7", // Ubuntu Server 20.04 LTS (Release: 20201112.1)
-	"us-east-2":      "ami-0be9fcdb56a1f1226", // Ubuntu Server 20.04 LTS (Release: 20201112.1)
-	"us-gov-east-1":  "ami-2d658d5c",          // Ubuntu Server 20.04 LTS (Release: 20201026)
-	"us-gov-west-1":  "ami-f482ba95",          // Ubuntu Server 20.04 LTS (Release: 20201026)
-	"us-west-1":      "ami-04d12df4da18327bd", // Ubuntu Server 20.04 LTS (Release: 20201112.1)
-	"us-west-2":      "ami-082e4f383a98efbe9", // Ubuntu Server 20.04 LTS (Release: 20201112.1)
+	// AWS Regions: Ubuntu Server 20.04 LTS
+	"af-south-1":     "ami-08502d6674c2156ed", // Release: 20210108
+	"ap-east-1":      "ami-2c5f135d",          // Release: 20210108
+	"ap-northeast-1": "ami-08c925c2f4fe5aee0", // Release: 20210108
+	"ap-northeast-2": "ami-0de358223fd8dc276", // Release: 20210108
+	"ap-northeast-3": "ami-0598298c1d3a099c2", // Release: 20210108
+	"ap-south-1":     "ami-097b711d946240d58", // Release: 20210108
+	"ap-southeast-1": "ami-03425fe81e8a82dfb", // Release: 20210108
+	"ap-southeast-2": "ami-0b31ea67df6098216", // Release: 20210108
+	"ca-central-1":   "ami-0a20346326d3d1853", // Release: 20210108
+	"eu-central-1":   "ami-0bb75d95f668ff5a7", // Release: 20210108
+	"eu-north-1":     "ami-0000da4d489188a4b", // Release: 20210108
+	"eu-south-1":     "ami-092549ba527b0e05a", // Release: 20210108
+	"eu-west-1":      "ami-04ffbabc7935ec0e9", // Release: 20210108
+	"eu-west-2":      "ami-0d738342f2d2fd5fd", // Release: 20210108
+	"eu-west-3":      "ami-0b209583a4a1146dd", // Release: 20210108
+	"me-south-1":     "ami-0161166adfc549dbf", // Release: 20210108
+	"sa-east-1":      "ami-04ef59610885412b7", // Release: 20210108
+	"us-east-1":      "ami-011899242bb902164", // Release: 20210108
+	"us-east-2":      "ami-07d5003620a5450ee", // Release: 20210108
+	"us-west-1":      "ami-034bf895b736be04a", // Release: 20210108
+	"us-west-2":      "ami-089668cd321f3cf82", // Release: 20210108
+
+	// AWS China: Ubuntu Server 20.04 LTS
+	"cn-north-1":     "ami-0592ccadb56e65f8d", // Release: 20201112.1
+	"cn-northwest-1": "ami-007d0f254ea0f8588", // Release: 20201112.1
+
+	// AWS GovCloud (US): Ubuntu Server 20.04 LTS
+	"us-gov-east-1": "ami-5ce8032d", // Release: 20201112.1
+	"us-gov-west-1": "ami-da2a11bb", // Release: 20201112.1
 }

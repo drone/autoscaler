@@ -15,7 +15,7 @@ import (
 	"github.com/drone/autoscaler"
 )
 
-// clientFunc defines a builder funciton used to build and return
+// clientFunc defines a builder function used to build and return
 // the docker client from a Server. This is primarily used for
 // mock unit testing.
 type clientFunc func(*autoscaler.Server) (docker.APIClient, io.Closer, error)

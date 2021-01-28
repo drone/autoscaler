@@ -49,30 +49,34 @@ type (
 		}
 
 		Agent struct {
-			Token       string
-			Image       string `default:"drone/drone-runner-docker:1"`
-			Concurrency int    `default:"2"`
-			OS          string `default:"linux"`
-			Arch        string `default:"amd64"`
-			Version     string
-			Kernel      string
-			EnvironFile string `envconfig:"DRONE_AGENT_ENV_FILE"`
-			Environ     []string
-			Volumes     []string
-			Ports       []string          `envconfig:"DRONE_AGENT_PUBLISHED_PORTS"`
-			Labels      map[string]string `envconfig:"DRONE_AGENT_LABELS"`
-			NamePrefix  string            `envconfig:"DRONE_AGENT_NAME_PREFIX" default:"agent-"`
+			Token          string
+			Image          string `default:"drone/drone-runner-docker:1"`
+			Concurrency    int    `default:"2"`
+			OS             string `default:"linux"`
+			Arch           string `default:"amd64"`
+			Version        string
+			Kernel         string
+			EnvironFile    string `envconfig:"DRONE_AGENT_ENV_FILE"`
+			Environ        []string
+			Volumes        []string
+			Ports          []string          `envconfig:"DRONE_AGENT_PUBLISHED_PORTS"`
+			Labels         map[string]string `envconfig:"DRONE_AGENT_LABELS"`
+			NamePrefix     string            `envconfig:"DRONE_AGENT_NAME_PREFIX" default:"agent-"`
+			LoggingDriver  string            `envconfig:"DRONE_AGENT_LOGGING_DRIVER"`
+			LoggingOptions map[string]string `envconfig:"DRONE_AGENT_LOGGING_OPTIONS"`
 		}
 
 		Runner Runner
 
 		GC struct {
-			Enabled  bool          `envconfig:"DRONE_GC_ENABLED"`
-			Image    string        `envconfig:"DRONE_GC_IMAGE" default:"drone/gc"`
-			Debug    bool          `envconfig:"DRONE_GC_DEBUG"`
-			Images   []string      `envconfig:"DRONE_GC_IGNORE_IMAGES"`
-			Interval time.Duration `envconfig:"DRONE_GC_INTERVAL" default:"30m"`
-			Cache    string        `envconfig:"DRONE_GC_CACHE" default:"10gb"`
+			Enabled        bool              `envconfig:"DRONE_GC_ENABLED"`
+			Image          string            `envconfig:"DRONE_GC_IMAGE" default:"drone/gc"`
+			Debug          bool              `envconfig:"DRONE_GC_DEBUG"`
+			Images         []string          `envconfig:"DRONE_GC_IGNORE_IMAGES"`
+			Interval       time.Duration     `envconfig:"DRONE_GC_INTERVAL" default:"30m"`
+			Cache          string            `envconfig:"DRONE_GC_CACHE" default:"10gb"`
+			LoggingDriver  string            `envconfig:"DRONE_GC_LOGGING_DRIVER"`
+			LoggingOptions map[string]string `envconfig:"DRONE_GC_LOGGING_OPTIONS"`
 		}
 
 		Reaper struct {
@@ -86,12 +90,14 @@ type (
 		}
 
 		Watchtower struct {
-			Enabled       bool          `envconfig:"DRONE_WATCHTOWER_ENABLED"`
-			SignalEnabled bool          `envconfig:"DRONE_WATCHTOWER_SIGNAL_ENABLED" default:"true"`
-			Signal        string        `envconfig:"DRONE_WATCHTOWER_STOP_SIGNAL" default:"SIGHUP"`
-			Image         string        `envconfig:"DRONE_WATCHTOWER_IMAGE" default:"webhippie/watchtower"`
-			Interval      int           `envconfig:"DRONE_WATCHTOWER_INTERVAL" default:"300"`
-			Timeout       time.Duration `envconfig:"DRONE_WATCHTOWER_TIMEOUT" default:"120m"`
+			Enabled       bool               `envconfig:"DRONE_WATCHTOWER_ENABLED"`
+			SignalEnabled bool               `envconfig:"DRONE_WATCHTOWER_SIGNAL_ENABLED" default:"true"`
+			Signal        string             `envconfig:"DRONE_WATCHTOWER_STOP_SIGNAL" default:"SIGHUP"`
+			Image         string             `envconfig:"DRONE_WATCHTOWER_IMAGE" default:"webhippie/watchtower"`
+			Interval      int                `envconfig:"DRONE_WATCHTOWER_INTERVAL" default:"300"`
+			Timeout       time.Duration      `envconfig:"DRONE_WATCHTOWER_TIMEOUT" default:"120m"`
+			LoggingDriver  string            `envconfig:"DRONE_WATCHTOWER_LOGGING_DRIVER"`
+			LoggingOptions map[string]string `envconfig:"DRONE_WATCHTOWER_LOGGING_OPTIONS"`
 		}
 
 		HTTP struct {

@@ -42,16 +42,20 @@ type installer struct {
 	keepaliveTimeout time.Duration
 	runner           config.Runner
 	labels           map[string]string
+	loggingDriver    string
+	loggingOptions   map[string]string
 
 	checkInterval time.Duration
 	checkDeadline time.Duration
 
-	gcEnabled  bool
-	gcDebug    bool
-	gcImage    string
-	gcIgnore   []string
-	gcInterval time.Duration
-	gcCache    string
+	gcEnabled        bool
+	gcDebug          bool
+	gcImage          string
+	gcIgnore         []string
+	gcInterval       time.Duration
+	gcCache          string
+	gcLoggingDriver  string
+	gcLoggingOptions map[string]string
 
 	watchtowerEnabled       bool
 	watchtowerImage         string
@@ -59,6 +63,8 @@ type installer struct {
 	watchtowerSignalEnabled bool
 	watchtowerInterval      int
 	watchtowerTimeout       time.Duration
+	watchtowerLoggingDriver  string
+	watchtowerLoggingOptions map[string]string
 
 	servers autoscaler.ServerStore
 	metrics metrics.Collector
@@ -227,6 +233,10 @@ poller:
 		return i.errorUpdate(ctx, instance, err)
 	}
 
+	if i.loggingDriver == "" {
+		i.loggingDriver = i.getDaemonLoggingDriver(ctx, client)
+	}
+
 	res, err := client.ContainerCreate(ctx,
 		&container.Config{
 			Image:        i.image,
@@ -251,6 +261,10 @@ poller:
 			PortBindings: portBindings,
 			RestartPolicy: container.RestartPolicy{
 				Name: "always",
+			},
+			LogConfig: container.LogConfig{
+				Type:   i.loggingDriver,
+				Config: i.loggingOptions,
 			},
 		}, nil, "agent")
 
@@ -316,6 +330,11 @@ poller:
 
 func (i *installer) setupWatchtower(ctx context.Context, client docker.APIClient) error {
 	vols := []string{"/var/run/docker.sock:/var/run/docker.sock"}
+
+	if i.watchtowerLoggingDriver == "" {
+		i.watchtowerLoggingDriver = i.getDaemonLoggingDriver(ctx, client)
+	}
+
 	res, err := client.ContainerCreate(ctx,
 		&container.Config{
 			Image:        i.watchtowerImage,
@@ -333,6 +352,10 @@ func (i *installer) setupWatchtower(ctx context.Context, client docker.APIClient
 			Binds: vols,
 			RestartPolicy: container.RestartPolicy{
 				Name: "always",
+			},
+			LogConfig: container.LogConfig{
+				Type:   i.watchtowerLoggingDriver,
+				Config: i.watchtowerLoggingOptions,
 			},
 		}, nil, "watchtower")
 	if err != nil {
@@ -368,6 +391,10 @@ func (i *installer) setupGarbageCollector(ctx context.Context, client docker.API
 	io.Copy(ioutil.Discard, rc)
 	rc.Close()
 
+	if i.gcLoggingDriver == "" {
+		i.gcLoggingDriver = i.getDaemonLoggingDriver(ctx, client)
+	}
+
 	res, err := client.ContainerCreate(ctx,
 		&container.Config{
 			Image:        i.gcImage,
@@ -384,11 +411,26 @@ func (i *installer) setupGarbageCollector(ctx context.Context, client docker.API
 			RestartPolicy: container.RestartPolicy{
 				Name: "always",
 			},
+			LogConfig: container.LogConfig{
+				Type:   i.gcLoggingDriver,
+				Config: i.gcLoggingOptions,
+			},
 		}, nil, "drone-gc")
 	if err != nil {
 		return err
 	}
 	return client.ContainerStart(ctx, res.ID, types.ContainerStartOptions{})
+}
+
+func (i *installer) getDaemonLoggingDriver(ctx context.Context, client docker.APIClient) string {
+	info, err := client.Info(ctx)
+	if err != nil {
+		logger.FromContext(ctx).
+			WithError(err).
+			Warnln("cannot acquire logging driver, using 'json-file'")
+		return "json-file"
+	}
+	return info.LoggingDriver
 }
 
 func (i *installer) errorUpdate(ctx context.Context, server *autoscaler.Server, err error) error {

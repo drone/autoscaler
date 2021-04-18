@@ -5,13 +5,15 @@
 package openstack
 
 import (
-	"github.com/gophercloud/gophercloud"
 	"testing"
+
+	"github.com/gophercloud/gophercloud"
 )
 
 func TestDefaults(t *testing.T) {
 	v, err := New(
 		WithComputeClient(&gophercloud.ServiceClient{}),
+		WithNetworkClient(&gophercloud.ServiceClient{}),
 	)
 	if err != nil {
 		t.Error(err)

@@ -4,11 +4,11 @@
       "name": "m1.tiny",
       "links": [
         {
-          "href": "http://ops.my.cloud/compute/v2.1/flavors/1",
+          "href": "http://ops.my.cloud/compute/v2.1/flavors/20f8acd8-5660-45d2-a176-1dafe98d591f",
           "rel": "self"
         },
         {
-          "href": "http://ops.my.cloud/compute/flavors/1",
+          "href": "http://ops.my.cloud/compute/flavors/20f8acd8-5660-45d2-a176-1dafe98d591f",
           "rel": "bookmark"
         }
       ],
@@ -20,17 +20,17 @@
       "rxtx_factor": 1.0,
       "OS-FLV-EXT-DATA:ephemeral": 0,
       "disk": 1,
-      "id": "1"
+      "id": "20f8acd8-5660-45d2-a176-1dafe98d591f"
     },
     {
       "name": "m1.small",
       "links": [
         {
-          "href": "http://ops.my.cloud/compute/v2.1/flavors/2",
+          "href": "http://ops.my.cloud/compute/v2.1/flavors/29e3cce3-d771-4220-80fe-3edf0e8dd466",
           "rel": "self"
         },
         {
-          "href": "http://ops.my.cloud/compute/flavors/2",
+          "href": "http://ops.my.cloud/compute/flavors/29e3cce3-d771-4220-80fe-3edf0e8dd466",
           "rel": "bookmark"
         }
       ],
@@ -42,17 +42,17 @@
       "rxtx_factor": 1.0,
       "OS-FLV-EXT-DATA:ephemeral": 0,
       "disk": 20,
-      "id": "2"
+      "id": "29e3cce3-d771-4220-80fe-3edf0e8dd466"
     },
     {
       "name": "m1.medium",
       "links": [
         {
-          "href": "http://ops.my.cloud/compute/v2.1/flavors/3",
+          "href": "http://ops.my.cloud/compute/v2.1/flavors/2fe9e665-cf0f-4bff-a2a7-a0c19b15da7b",
           "rel": "self"
         },
         {
-          "href": "http://ops.my.cloud/compute/flavors/3",
+          "href": "http://ops.my.cloud/compute/flavors/2fe9e665-cf0f-4bff-a2a7-a0c19b15da7b",
           "rel": "bookmark"
         }
       ],
@@ -64,17 +64,17 @@
       "rxtx_factor": 1.0,
       "OS-FLV-EXT-DATA:ephemeral": 0,
       "disk": 40,
-      "id": "3"
+      "id": "2fe9e665-cf0f-4bff-a2a7-a0c19b15da7b"
     },
     {
       "name": "m1.large",
       "links": [
         {
-          "href": "http://ops.my.cloud/compute/v2.1/flavors/4",
+          "href": "http://ops.my.cloud/compute/v2.1/flavors/43832d64-56ed-401f-953c-d4d4c156f33a",
           "rel": "self"
         },
         {
-          "href": "http://ops.my.cloud/compute/flavors/4",
+          "href": "http://ops.my.cloud/compute/flavors/43832d64-56ed-401f-953c-d4d4c156f33a",
           "rel": "bookmark"
         }
       ],
@@ -86,17 +86,17 @@
       "rxtx_factor": 1.0,
       "OS-FLV-EXT-DATA:ephemeral": 0,
       "disk": 80,
-      "id": "4"
+      "id": "43832d64-56ed-401f-953c-d4d4c156f33a"
     },
     {
       "name": "m1.xlarge",
       "links": [
         {
-          "href": "http://ops.my.cloud/compute/v2.1/flavors/5",
+          "href": "http://ops.my.cloud/compute/v2.1/flavors/618945e9-beb4-4f20-88fd-e044a228156f",
           "rel": "self"
         },
         {
-          "href": "http://ops.my.cloud/compute/flavors/5",
+          "href": "http://ops.my.cloud/compute/flavors/618945e9-beb4-4f20-88fd-e044a228156f",
           "rel": "bookmark"
         }
       ],
@@ -108,17 +108,17 @@
       "rxtx_factor": 1.0,
       "OS-FLV-EXT-DATA:ephemeral": 0,
       "disk": 160,
-      "id": "5"
+      "id": "618945e9-beb4-4f20-88fd-e044a228156f"
     },
     {
       "name": "cirros256",
       "links": [
         {
-          "href": "http://ops.my.cloud/compute/v2.1/flavors/c1",
+          "href": "http://ops.my.cloud/compute/v2.1/flavors/67a446b2-53c3-460b-a2da-533ce9a0c527",
           "rel": "self"
         },
         {
-          "href": "http://ops.my.cloud/compute/flavors/c1",
+          "href": "http://ops.my.cloud/compute/flavors/67a446b2-53c3-460b-a2da-533ce9a0c527",
           "rel": "bookmark"
         }
       ],
@@ -130,17 +130,17 @@
       "rxtx_factor": 1.0,
       "OS-FLV-EXT-DATA:ephemeral": 0,
       "disk": 0,
-      "id": "c1"
+      "id": "67a446b2-53c3-460b-a2da-533ce9a0c527"
     },
     {
       "name": "ds512M",
       "links": [
         {
-          "href": "http://ops.my.cloud/compute/v2.1/flavors/d1",
+          "href": "http://ops.my.cloud/compute/v2.1/flavors/c7d172c8-96e6-40ab-aaaa-4a555e247c73",
           "rel": "self"
         },
         {
-          "href": "http://ops.my.cloud/compute/flavors/d1",
+          "href": "http://ops.my.cloud/compute/flavors/c7d172c8-96e6-40ab-aaaa-4a555e247c73",
           "rel": "bookmark"
         }
       ],
@@ -152,17 +152,17 @@
       "rxtx_factor": 1.0,
       "OS-FLV-EXT-DATA:ephemeral": 0,
       "disk": 5,
-      "id": "d1"
+      "id": "c7d172c8-96e6-40ab-aaaa-4a555e247c73"
     },
     {
       "name": "ds1G",
       "links": [
         {
-          "href": "http://ops.my.cloud/compute/v2.1/flavors/d2",
+          "href": "http://ops.my.cloud/compute/v2.1/flavors/c3a01655-1b6a-44aa-b095-cc28dd407e70",
           "rel": "self"
         },
         {
-          "href": "http://ops.my.cloud/compute/flavors/d2",
+          "href": "http://ops.my.cloud/compute/flavors/c3a01655-1b6a-44aa-b095-cc28dd407e70",
           "rel": "bookmark"
         }
       ],
@@ -174,17 +174,17 @@
       "rxtx_factor": 1.0,
       "OS-FLV-EXT-DATA:ephemeral": 0,
       "disk": 10,
-      "id": "d2"
+      "id": "c3a01655-1b6a-44aa-b095-cc28dd407e70"
     },
     {
       "name": "ds2G",
       "links": [
         {
-          "href": "http://ops.my.cloud/compute/v2.1/flavors/d3",
+          "href": "http://ops.my.cloud/compute/v2.1/flavors/053dc448-045b-4c15-a4a0-1908b6b9310d",
           "rel": "self"
         },
         {
-          "href": "http://ops.my.cloud/compute/flavors/d3",
+          "href": "http://ops.my.cloud/compute/flavors/053dc448-045b-4c15-a4a0-1908b6b9310d",
           "rel": "bookmark"
         }
       ],
@@ -196,17 +196,17 @@
       "rxtx_factor": 1.0,
       "OS-FLV-EXT-DATA:ephemeral": 0,
       "disk": 10,
-      "id": "d3"
+      "id": "053dc448-045b-4c15-a4a0-1908b6b9310d"
     },
     {
       "name": "ds4G",
       "links": [
         {
-          "href": "http://ops.my.cloud/compute/v2.1/flavors/d4",
+          "href": "http://ops.my.cloud/compute/v2.1/flavors/0e9fe318-568f-417e-b2c1-f1218aa2712f",
           "rel": "self"
         },
         {
-          "href": "http://ops.my.cloud/compute/flavors/d4",
+          "href": "http://ops.my.cloud/compute/flavors/0e9fe318-568f-417e-b2c1-f1218aa2712f",
           "rel": "bookmark"
         }
       ],
@@ -218,7 +218,7 @@
       "rxtx_factor": 1.0,
       "OS-FLV-EXT-DATA:ephemeral": 0,
       "disk": 20,
-      "id": "d4"
+      "id": "0e9fe318-568f-417e-b2c1-f1218aa2712f"
     }
   ]
 }

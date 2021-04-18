@@ -315,6 +315,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			openstack.WithImage(c.OpenStack.Image),
 			openstack.WithRegion(c.OpenStack.Region),
 			openstack.WithFlavor(c.OpenStack.Flavor),
+			openstack.WithNetwork(c.OpenStack.Network),
 			openstack.WithFloatingIpPool(c.OpenStack.Pool),
 			openstack.WithSSHKey(c.OpenStack.SSHKey),
 			openstack.WithSecurityGroup(c.OpenStack.SecurityGroup...),

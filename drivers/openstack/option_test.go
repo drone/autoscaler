@@ -5,22 +5,24 @@
 package openstack
 
 import (
-	"github.com/gophercloud/gophercloud"
 	"testing"
+
+	"github.com/gophercloud/gophercloud"
 )
 
 func TestOptions(t *testing.T) {
 	v, err := New(
 		WithComputeClient(&gophercloud.ServiceClient{}),
+		WithNetworkClient(&gophercloud.ServiceClient{}),
 		WithFloatingIpPool("ext-ips-1"),
-		WithFlavor("t1.medium"),
+		WithFlavor("053dc448-045b-4c15-a4a0-1908b6b9310d"),
 		WithSecurityGroup("drone-ci"),
 		WithSSHKey("drone-ci"),
 		WithRegion("sto-01"),
-		WithImage("ubuntu-16.04-server-latest"),
+		WithImage("0e9fe318-568f-417e-b2c1-f1218aa2712f"),
 		WithMetadata(map[string]string{"foo": "bar", "baz": "qux"}),
-		WithSubnet("subnet-feedface"),
-		)
+		WithNetwork("c7d172c8-96e6-40ab-aaaa-4a555e247c73"),
+	)
 	if err != nil {
 		t.Error(err)
 		return
@@ -33,14 +35,14 @@ func TestOptions(t *testing.T) {
 	if got, want := p.region, "sto-01"; got != want {
 		t.Errorf("Want region %q, got %q", want, got)
 	}
-	if got, want := p.flavor, "t1.medium"; got != want {
+	if got, want := p.flavor, "053dc448-045b-4c15-a4a0-1908b6b9310d"; got != want {
 		t.Errorf("Want flavor %q, got %q", want, got)
 	}
-	if got, want := p.image, "ubuntu-16.04-server-latest"; got != want {
+	if got, want := p.image, "0e9fe318-568f-417e-b2c1-f1218aa2712f"; got != want {
 		t.Errorf("Want image %q, got %q", want, got)
 	}
-	if got, want := p.subnet, "subnet-feedface"; got != want {
-		t.Errorf("Want subnet %q, got %q", want, got)
+	if got, want := p.network, "c7d172c8-96e6-40ab-aaaa-4a555e247c73"; got != want {
+		t.Errorf("Want network %q, got %q", want, got)
 	}
 	if got, want := p.key, "drone-ci"; got != want {
 		t.Errorf("Want key %q, got %q", want, got)

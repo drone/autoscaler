@@ -5,7 +5,6 @@
 package openstack
 
 import (
-	"errors"
 	"regexp"
 	"sync"
 	"text/template"
@@ -17,10 +16,6 @@ import (
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/flavors"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/images"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/networks"
-)
-
-var (
-	ErrMissingPoolOrNetwork = errors.New("missing pool or network")
 )
 
 // provider implements an OpenStack provider

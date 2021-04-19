@@ -143,6 +143,7 @@ func TestLoad(t *testing.T) {
 		"DRONE_PACKET_USERDATA_FILE":       "/path/to/cloud/init.yml",
 		"DRONE_PACKET_HOSTNAME":            "agent",
 		"DRONE_PACKET_TAGS":                "drone,agent,prod",
+		"DRONE_OPENSTACK_NETWORK":          "my-subnet-1",
 		"DRONE_OPENSTACK_IP_POOL":          "ext-ips-1",
 		"DRONE_OPENSTACK_SSHKEY":           "drone-ci",
 		"DRONE_OPENSTACK_SECURITY_GROUP":   "secgrp-feedface",
@@ -321,6 +322,7 @@ var jsonConfig = []byte(`{
     "Region": "sto-01",
     "Image": "ubuntu-16.04-server-latest",
     "Flavor": "t1.medium",
+    "Network": "my-subnet-1",
     "Pool": "ext-ips-1",
     "SecurityGroup": [
       "secgrp-feedface"

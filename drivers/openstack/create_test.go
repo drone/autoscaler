@@ -6,10 +6,11 @@ package openstack
 
 import (
 	"context"
-	"github.com/drone/autoscaler"
-	"github.com/h2non/gock"
 	"os"
 	"testing"
+
+	"github.com/drone/autoscaler"
+	"github.com/h2non/gock"
 )
 
 func TestCreate(t *testing.T) {
@@ -30,6 +31,21 @@ func TestCreate(t *testing.T) {
 		SetHeader("Content-Type", "application/json").
 		SetHeader("X-Subject-Token", authToken).
 		BodyString(string(tokenResp1))
+
+	authResp2 := helperLoad(t, "authresp1.json")
+	gock.New("http://ops.my.cloud").
+		Get("/identity").
+		Reply(300).
+		SetHeader("Content-Type", "application/json").
+		BodyString(string(authResp2))
+
+	tokenResp2 := helperLoad(t, "tokenresp1.json")
+	gock.New("http://ops.my.cloud").
+		Post("/identity/v3/auth/tokens").
+		Reply(201).
+		SetHeader("Content-Type", "application/json").
+		SetHeader("X-Subject-Token", authToken).
+		BodyString(string(tokenResp2))
 
 	fipResp1 := helperLoad(t, "fipresp1.json")
 	gock.New("http://ops.my.cloud").
@@ -113,6 +129,7 @@ func TestAuthFail(t *testing.T) {
 	if err != nil {
 		t.Error("Unable to set OS_PASSWORD")
 	}
+
 	authResp1 := helperLoad(t, "authresp1.json")
 	gock.New("http://ops.my.cloud").
 		Get("/identity").
@@ -160,13 +177,20 @@ func TestCreateFail(t *testing.T) {
 		SetHeader("X-Subject-Token", authToken).
 		BodyString(string(tokenResp1))
 
-	fipResp1 := helperLoad(t, "fipresp1.json")
+	authResp2 := helperLoad(t, "authresp1.json")
 	gock.New("http://ops.my.cloud").
-		Post("/compute/v2.1/os-floating-ips").
-		MatchHeader("X-Auth-Token", authToken).
-		Reply(200).
+		Get("/identity").
+		Reply(300).
 		SetHeader("Content-Type", "application/json").
-		BodyString(string(fipResp1))
+		BodyString(string(authResp2))
+
+	tokenResp2 := helperLoad(t, "tokenresp1.json")
+	gock.New("http://ops.my.cloud").
+		Post("/identity/v3/auth/tokens").
+		Reply(201).
+		SetHeader("Content-Type", "application/json").
+		SetHeader("X-Subject-Token", authToken).
+		BodyString(string(tokenResp2))
 
 	imageListResp := helperLoad(t, "imagelistresp1.json")
 	gock.New("http://ops.my.cloud").
@@ -240,7 +264,7 @@ func testInstance(instance *autoscaler.Instance) func(t *testing.T) {
 		if want, got := instance.Address, "172.24.4.5"; got != want {
 			t.Errorf("Want instance IP %q, got %q", want, got)
 		}
-		if want, got := instance.Image, "ubuntu-16.04-server-latest"; got != want {
+		if want, got := instance.Image, "4ef19958-ee2d-44a7-a100-de0b8afdbc8e"; got != want {
 			t.Errorf("Want instance ID %q, got %q", want, got)
 		}
 		if want, got := instance.ID, "56046f6d-3184-495b-938b-baa450db970d"; got != want {
@@ -255,7 +279,7 @@ func testInstance(instance *autoscaler.Instance) func(t *testing.T) {
 		if want, got := instance.Region, "RegionOne"; got != want {
 			t.Errorf("Want instance Region %q, got %q", want, got)
 		}
-		if want, got := instance.Size, "m1.small"; got != want {
+		if want, got := instance.Size, "29e3cce3-d771-4220-80fe-3edf0e8dd466"; got != want {
 			t.Errorf("Want instance Size %q, got %q", want, got)
 		}
 	}

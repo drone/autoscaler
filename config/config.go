@@ -192,6 +192,7 @@ type (
 			Region        string `envconfig:"OS_REGION_NAME"`
 			Image         string
 			Flavor        string
+			Network       string
 			Pool          string   `envconfig:"DRONE_OPENSTACK_IP_POOL"`
 			SecurityGroup []string `split_words:"true"`
 			SSHKey        string

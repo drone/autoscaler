@@ -7,7 +7,6 @@ package openstack
 import (
 	"bytes"
 	"context"
-	"fmt"
 
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/logger"
@@ -45,7 +44,9 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	if p.network != "" {
 		network, err := networks.Get(p.networkClient, p.network).Extract()
 		if err != nil {
-			return nil, fmt.Errorf("failed to find network: %s", err)
+			logger.WithError(err).
+				Debugln("failed to find network")
+			return nil, err
 		}
 
 		nets = append(nets, servers.Network{
@@ -69,12 +70,16 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	}
 	server, err := servers.Create(p.computeClient, createOpts).Extract()
 	if err != nil {
-		return nil, fmt.Errorf("failed to create server: %s", err)
+		logger.WithError(err).
+			Debugln("failed to create server")
+		return nil, err
 	}
 
 	err = servers.WaitForStatus(p.computeClient, server.ID, "ACTIVE", 300)
 	if err != nil {
-		return nil, fmt.Errorf("timeout waiting for server: %s", err)
+		logger.WithError(err).
+			Debugln("failed waiting for server")
+		return nil, err
 	}
 
 	instance := &autoscaler.Instance{
@@ -89,7 +94,9 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	if p.network != "" {
 		network, err := networks.Get(p.networkClient, p.network).Extract()
 		if err != nil {
-			return nil, fmt.Errorf("failed to find network: %s", err)
+			logger.WithError(err).
+				Debugln("failed to find network")
+			return nil, err
 		}
 
 		if err := servers.ListAddresses(p.computeClient, server.ID).EachPage(func(page pagination.Page) (bool, error) {
@@ -110,7 +117,9 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 
 			return false, nil
 		}); err != nil {
-			return nil, fmt.Errorf("failed to fetch address: %s", err)
+			logger.WithError(err).
+				Debugln("failed to fetch address")
+			return nil, err
 		}
 	}
 
@@ -119,13 +128,17 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 			Pool: p.pool,
 		}).Extract()
 		if err != nil {
-			return nil, fmt.Errorf("failed to create floating ip: %s", err)
+			logger.WithError(err).
+				Debugln("failed to create floating ip")
+			return nil, err
 		}
 
 		if err := floatingips.AssociateInstance(p.computeClient, server.ID, floatingips.AssociateOpts{
 			FloatingIP: ip.IP,
 		}).ExtractErr(); err != nil {
-			return nil, fmt.Errorf("failed to associate floating ip: %s", err)
+			logger.WithError(err).
+				Debugln("failed to associate floating ip")
+			return nil, err
 		}
 
 		instance.Address = ip.IP

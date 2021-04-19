@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/drone/autoscaler"
-	"github.com/drone/autoscaler/config"
 	"github.com/drone/autoscaler/mocks"
 	"github.com/drone/drone-go/drone"
 
@@ -40,11 +39,12 @@ func TestPlan_Noop(t *testing.T) {
 	}, nil)
 
 	p := planner{
-		cap:     2,
-		min:     2,
-		max:     10,
-		client:  client,
-		servers: store,
+		cap:      2,
+		min:      2,
+		max:      10,
+		existing: 0,
+		client:   client,
+		servers:  store,
 	}
 
 	err := p.Plan(context.TODO())
@@ -77,12 +77,13 @@ func TestPlan_MinBufferCapacity(t *testing.T) {
 	client.EXPECT().Queue().Return(builds, nil)
 
 	p := planner{
-		cap:     2,
-		buffer:  1,
-		min:     2,
-		max:     4,
-		client:  client,
-		servers: store,
+		cap:      2,
+		buffer:   1,
+		min:      2,
+		max:      4,
+		existing: 0,
+		client:   client,
+		servers:  store,
 	}
 
 	err := p.Plan(context.TODO())
@@ -122,12 +123,13 @@ func TestPlan_MaxBufferCapacity(t *testing.T) {
 	client.EXPECT().Queue().Return(builds, nil)
 
 	p := planner{
-		cap:     1,
-		buffer:  2,
-		min:     2,
-		max:     4,
-		client:  client,
-		servers: store,
+		cap:      1,
+		buffer:   2,
+		min:      2,
+		max:      4,
+		existing: 0,
+		client:   client,
+		servers:  store,
 	}
 
 	err := p.Plan(context.TODO())
@@ -165,12 +167,13 @@ func TestPlan_MoreBufferCapacity(t *testing.T) {
 	client.EXPECT().Queue().Return(builds, nil)
 
 	p := planner{
-		cap:     2,
-		buffer:  2,
-		min:     2,
-		max:     4,
-		client:  client,
-		servers: store,
+		cap:      2,
+		buffer:   2,
+		min:      2,
+		max:      4,
+		existing: 0,
+		client:   client,
+		servers:  store,
 	}
 
 	err := p.Plan(context.TODO())
@@ -212,17 +215,13 @@ func TestPlan_MaxCapacity(t *testing.T) {
 	client := mocks.NewMockClient(controller)
 	client.EXPECT().Queue().Return(builds, nil)
 
-	config := config.Config{}
-	config.Pool.Min = 2
-	config.Pool.Max = 4
-	config.Agent.Concurrency = 2
-
 	p := planner{
-		cap:     2,
-		min:     2,
-		max:     4,
-		client:  client,
-		servers: store,
+		cap:      2,
+		min:      2,
+		max:      4,
+		existing: 0,
+		client:   client,
+		servers:  store,
 	}
 
 	err := p.Plan(context.TODO())
@@ -269,11 +268,12 @@ func TestPlan_MoreCapacity(t *testing.T) {
 	client.EXPECT().Queue().Return(builds, nil)
 
 	p := planner{
-		cap:     2,
-		min:     2,
-		max:     4,
-		client:  client,
-		servers: store,
+		cap:      2,
+		min:      2,
+		max:      4,
+		existing: 0,
+		client:   client,
+		servers:  store,
 	}
 
 	err := p.Plan(context.TODO())
@@ -306,11 +306,12 @@ func TestPlan_MinPool(t *testing.T) {
 	client.EXPECT().Queue().Return(builds, nil)
 
 	p := planner{
-		cap:     2,
-		min:     2,
-		max:     4,
-		client:  client,
-		servers: store,
+		cap:      2,
+		min:      2,
+		max:      4,
+		existing: 0,
+		client:   client,
+		servers:  store,
 	}
 
 	err := p.Plan(context.TODO())
@@ -347,11 +348,12 @@ func TestPlan_NoIdle(t *testing.T) {
 	client.EXPECT().Queue().Return(builds, nil)
 
 	p := planner{
-		cap:     2,
-		min:     1,
-		max:     4,
-		client:  client,
-		servers: store,
+		cap:      2,
+		min:      1,
+		max:      4,
+		existing: 0,
+		client:   client,
+		servers:  store,
 	}
 
 	err := p.Plan(context.Background())
@@ -385,12 +387,13 @@ func TestScale_MinAge(t *testing.T) {
 	client.EXPECT().Queue().Return(builds, nil)
 
 	p := planner{
-		cap:     2,
-		min:     1,
-		max:     4,
-		ttu:     time.Hour,
-		client:  client,
-		servers: store,
+		cap:      2,
+		min:      1,
+		max:      4,
+		existing: 0,
+		ttu:      time.Hour,
+		client:   client,
+		servers:  store,
 	}
 
 	err := p.Plan(context.TODO())
@@ -425,11 +428,344 @@ func TestPlan_ShutdownIdle(t *testing.T) {
 	client.EXPECT().Queue().Return(builds, nil)
 
 	p := planner{
-		cap:     2,
-		min:     1,
-		max:     4,
-		client:  client,
-		servers: store,
+		cap:      2,
+		min:      1,
+		max:      4,
+		existing: 0,
+		client:   client,
+		servers:  store,
+	}
+
+	err := p.Plan(context.TODO())
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+// This test verifies existing capacity config
+// will only scale up by one
+func TestExistingCapacity_Basic(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	servers := []*autoscaler.Server{}
+	builds := []*drone.Stage{
+		{Status: drone.StatusRunning},
+		{Status: drone.StatusRunning},
+		{Status: drone.StatusRunning},
+		// Below will go to newely created server
+		{Status: drone.StatusPending},
+	}
+
+	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().List(gomock.Any()).Return(servers, nil)
+	store.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil)
+
+	client := mocks.NewMockClient(controller)
+	client.EXPECT().Queue().Return(builds, nil)
+
+	p := planner{
+		cap:      2,
+		min:      0,
+		max:      4,
+		existing: 3,
+		client:   client,
+		servers:  store,
+	}
+
+	err := p.Plan(context.TODO())
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+// This test verifies that even with many pending builds
+// it will only scale up by one as others will be covered
+// by existing capacity
+func TestExistingCapacity_LessBasic(t *testing.T) {
+	// scale, but only enough
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	servers := []*autoscaler.Server{}
+	builds := []*drone.Stage{
+		// These 3 will go to existing runner managed
+		// outside of autoscaler
+		{Status: drone.StatusPending},
+		{Status: drone.StatusPending},
+		{Status: drone.StatusPending},
+		// Below will go to newely created server
+		{Status: drone.StatusPending},
+	}
+
+	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().List(gomock.Any()).Return(servers, nil)
+	store.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil)
+
+	client := mocks.NewMockClient(controller)
+	client.EXPECT().Queue().Return(builds, nil)
+
+	p := planner{
+		cap:      2,
+		min:      0,
+		max:      4,
+		existing: 3,
+		client:   client,
+		servers:  store,
+	}
+
+	err := p.Plan(context.TODO())
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+// This test verifies that even with many pending builds
+// it will only scale up by twice and others will be covered
+// by existing capacity
+func TestExistingCapacity_ManyPendingScaleOne(t *testing.T) {
+	// scale, but only enough
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	servers := []*autoscaler.Server{}
+	builds := []*drone.Stage{
+		{Status: drone.StatusPending},
+		{Status: drone.StatusPending},
+		{Status: drone.StatusPending},
+		// Below two will go to newely created server
+		// and only one will be created
+		{Status: drone.StatusPending},
+		{Status: drone.StatusPending},
+	}
+
+	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().List(gomock.Any()).Return(servers, nil)
+	// scale up by one
+	store.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil)
+
+	client := mocks.NewMockClient(controller)
+	client.EXPECT().Queue().Return(builds, nil)
+
+	p := planner{
+		cap:      2,
+		min:      0,
+		max:      4,
+		existing: 3,
+		client:   client,
+		servers:  store,
+	}
+
+	err := p.Plan(context.TODO())
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+// This test verifies that even with many pending builds
+// it will only scale up by twice and others will be covered
+// by existing capacity
+func TestExistingCapacity_ManyPendingScaleTwo(t *testing.T) {
+	// scale, but only enough
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	servers := []*autoscaler.Server{}
+	builds := []*drone.Stage{
+		{Status: drone.StatusPending},
+		{Status: drone.StatusPending},
+		{Status: drone.StatusPending},
+		// Below two will go to newely created server
+		{Status: drone.StatusPending},
+		{Status: drone.StatusPending},
+		// Below two will go to second created server
+		{Status: drone.StatusPending},
+		{Status: drone.StatusPending},
+	}
+
+	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().List(gomock.Any()).Return(servers, nil)
+	// scale up by two
+	store.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil)
+	store.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil)
+
+	client := mocks.NewMockClient(controller)
+	client.EXPECT().Queue().Return(builds, nil)
+
+	p := planner{
+		cap:      2,
+		min:      0,
+		max:      4,
+		existing: 3,
+		client:   client,
+		servers:  store,
+	}
+
+	err := p.Plan(context.TODO())
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+// This test verifies that even with many pending builds
+// it will only scale up by twice and others will be covered
+// by existing capacity
+func TestExistingCapacity_DontScalePastMax(t *testing.T) {
+	// scale, but only enough
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	servers := []*autoscaler.Server{}
+	builds := []*drone.Stage{
+		{Status: drone.StatusPending},
+		{Status: drone.StatusPending},
+		{Status: drone.StatusPending},
+		// Below two will go to newely created server
+		{Status: drone.StatusPending},
+		{Status: drone.StatusPending},
+		// Below two will remain pending
+		{Status: drone.StatusPending},
+		{Status: drone.StatusPending},
+	}
+
+	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().List(gomock.Any()).Return(servers, nil)
+	// only scale up by one
+	store.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil)
+
+	client := mocks.NewMockClient(controller)
+	client.EXPECT().Queue().Return(builds, nil)
+
+	p := planner{
+		cap:      2,
+		min:      0,
+		max:      1,
+		existing: 3,
+		client:   client,
+		servers:  store,
+	}
+
+	err := p.Plan(context.TODO())
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+// This test verifies that even with many pending builds
+// it will only scale up by twice and others will be covered
+// by existing capacity
+func TestExistingCapacity_DontScaleWithMin(t *testing.T) {
+	// scale, but only enough
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	servers := []*autoscaler.Server{
+		{Name: "server1", Capacity: 2, State: autoscaler.StateRunning},
+	}
+	builds := []*drone.Stage{
+		// These three will go to existing capacity
+		{Status: drone.StatusPending},
+		{Status: drone.StatusPending},
+		{Status: drone.StatusPending},
+		// Below two will go to min capacity server
+		{Status: drone.StatusPending},
+		{Status: drone.StatusPending},
+		// No scaling should happen
+	}
+
+	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().List(gomock.Any()).Return(servers, nil)
+
+	client := mocks.NewMockClient(controller)
+	client.EXPECT().Queue().Return(builds, nil)
+
+	p := planner{
+		cap:      2,
+		min:      1,
+		max:      200, // wildly large number
+		existing: 3,
+		client:   client,
+		servers:  store,
+	}
+
+	err := p.Plan(context.TODO())
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+// This test verifies that it ensures that autoscaler
+// wont destroy min capacity even with existing capacity
+// also defined
+func TestExistingCapacity_MinCapDontDestroyWhenQueueEmpty(t *testing.T) {
+	// scale, but only enough
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	servers := []*autoscaler.Server{
+		{Name: "server1", Capacity: 2, State: autoscaler.StateRunning},
+	}
+	builds := []*drone.Stage{
+		// No builds
+	}
+
+	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().List(gomock.Any()).Return(servers, nil)
+
+	client := mocks.NewMockClient(controller)
+	client.EXPECT().Queue().Return(builds, nil)
+
+	p := planner{
+		cap:      2,
+		min:      1,
+		max:      200, // wildly large number
+		existing: 4,
+		client:   client,
+		servers:  store,
+	}
+
+	err := p.Plan(context.TODO())
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+// This test verifies that it ensures that autoscaler
+// wont destroy min capacity even with existing capacity
+// also defined
+func TestExistingCapacity_ScaleDownToZero(t *testing.T) {
+	// scale, but only enough
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	servers := []*autoscaler.Server{
+		// as existing capacity is in place this extra runner is not needed
+		// and will be destroyed
+		{Name: "server1", Capacity: 2, State: autoscaler.StateRunning},
+	}
+	builds := []*drone.Stage{
+		// these three will go to existing capacity
+		{Status: drone.StatusPending},
+		{Status: drone.StatusPending},
+		{Status: drone.StatusPending},
+	}
+
+	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().List(gomock.Any()).Return(servers, nil)
+	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
+	store.EXPECT().Update(gomock.Any(), servers[0]).Return(nil)
+
+	client := mocks.NewMockClient(controller)
+	client.EXPECT().Queue().Return(builds, nil)
+	client.EXPECT().Queue().Return(builds, nil)
+
+	p := planner{
+		cap:      2,
+		min:      0,
+		max:      200, // wildly large number
+		existing: 3,
+		client:   client,
+		servers:  store,
 	}
 
 	err := p.Plan(context.TODO())

@@ -427,7 +427,6 @@ func splitVolumeParts(volumeParts string) ([]string, error) {
 			}
 		}
 		return cleanResults, nil
-	} else {
-		return strings.Split(volumeParts, ":"), nil
 	}
+	return strings.Split(volumeParts, ":"), nil
 }

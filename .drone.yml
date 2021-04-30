@@ -57,7 +57,9 @@ steps:
   image: plugins/docker
   settings:
     auto_tag: true
-    repo: drone/autoscaler
+    repo: ghcr.io/chainflip-io/autoscaler
+    registry: ghcr.io
+    cache_from: ghcr.io/chainflip-io/autoscaler:latest
     password:
       from_secret: docker_password
     username:

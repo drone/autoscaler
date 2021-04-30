@@ -8,3 +8,4 @@ vendor
 *.out
 *.db
 *.env
+.idea

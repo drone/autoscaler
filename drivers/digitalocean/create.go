@@ -36,6 +36,8 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		PrivateNetworking: p.privateIP,
 		UserData:          buf.String(),
 
+		VPCUUID: 		   p.vpc,
+
 		SSHKeys: []godo.DropletCreateSSHKey{
 			{Fingerprint: p.key},
 		},

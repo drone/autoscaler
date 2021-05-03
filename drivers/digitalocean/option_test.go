@@ -14,6 +14,7 @@ func TestOptions(t *testing.T) {
 		WithSSHKey("58:8e:30:66:fc:e2:ff:ad:4f:6f:02:4b:af:28:0d:c7"),
 		WithTags("drone", "agent"),
 		WithFirewall("f33e7128-f3e7-4229-b6cc-a4751381a104"),
+		WithVpc("b5bc3aa3-374e-449f-a954-1ed2b6b5537f"),
 		WithToken("77e027c7447f468068a7d4fea41e7149a75a94088082c66fcf555de3977f69d3"),
 		WithPrivateIP(false),
 	).(*provider)
@@ -34,7 +35,10 @@ func TestOptions(t *testing.T) {
 		t.Errorf("Want token %q, got %q", want, got)
 	}
 	if got, want := p.firewall, "f33e7128-f3e7-4229-b6cc-a4751381a104"; got != want {
-		t.Errorf("Want token %q, got %q", want, got)
+		t.Errorf("Want firewall %q, got %q", want, got)
+	}
+	if got, want := p.vpc, "b5bc3aa3-374e-449f-a954-1ed2b6b5537f"; got != want {
+		t.Errorf("Want vpc %q, got %q", want, got)
 	}
 	if got, want := p.privateIP, false; got != want {
 		t.Errorf("Want %v privateIP, got %v", want, got)

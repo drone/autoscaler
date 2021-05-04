@@ -59,6 +59,8 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		WithField("name", req.Name)
 
 	if p.firewall != 0 {
+		logger.Infoln("firewall specified")
+
 		// Check provided FirewallID exists
 		firewall, _, err := p.client.Firewall.GetByID(ctx, p.firewall)
 		if err != nil {
@@ -71,7 +73,9 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 				WithField("id", p.firewall).Errorf("cannot find firewall")
 			return nil, err
 		}
-		_ = append(req.Firewalls, &hcloud.ServerCreateFirewall{
+
+		logger.WithField("firewall",firewall.Name).Debugln("firewall found")
+		req.Firewalls = append(req.Firewalls, &hcloud.ServerCreateFirewall{
 			Firewall: hcloud.Firewall{
 				ID: firewall.ID,
 			},

@@ -128,6 +128,7 @@ func TestLoad(t *testing.T) {
 		"DRONE_AMAZON_USERDATA_FILE":       "/path/to/cloud/init.yml",
 		"DRONE_HETZNERCLOUD_TOKEN":         "12345678",
 		"DRONE_HETZNERCLOUD_IMAGE":         "ubuntu-16.04",
+		"DRONE_HETZNERCLOUD_FIREWALL":      "2345",
 		"DRONE_HETZNERCLOUD_DATACENTER":    "nbg1-dc3",
 		"DRONE_HETZNERCLOUD_SSHKEY":        "12345",
 		"DRONE_HETZNERCLOUD_TYPE":          "cx11",
@@ -298,6 +299,7 @@ var jsonConfig = []byte(`{
     "Image": "ubuntu-16.04",
     "Datacenter": "nbg1-dc3",
     "SSHKey": 12345,
+    "Firewall": 2345,
     "Type": "cx11",
     "UserData": "#cloud-init",
     "UserDataFile": "/path/to/cloud/init.yml"

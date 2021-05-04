@@ -35,6 +35,13 @@ func WithImage(image string) Option {
 	}
 }
 
+// WithFirewall returns an option to set the firewall.
+func WithFirewall(firewall int) Option {
+	return func(p *provider) {
+		p.firewall = firewall
+	}
+}
+
 // WithServerType returns an option to set the server type.
 func WithServerType(serverType string) Option {
 	return func(p *provider) {

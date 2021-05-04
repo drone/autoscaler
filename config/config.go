@@ -168,6 +168,7 @@ type (
 		HetznerCloud struct {
 			Datacenter   string
 			Image        string
+			Firewall     int	`envconfig:"DRONE_HETZNERCLOUD_FIREWALL" default:"0"`
 			SSHKey       int
 			Token        string
 			Type         string

@@ -63,12 +63,12 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		firewall, _, err := p.client.Firewall.GetByID(ctx, p.firewall)
 		if err != nil {
 			logger.WithError(err).
-				Errorln("error retrieving firewall")
+				Errorln("failed to retrieve firewall")
 			return nil, err
 		}
 		if firewall == nil {
 			logger.WithError(err).
-				Errorf("cannot find firewall with id `%d`", p.firewall)
+				WithField("id", p.firewall).Errorf("cannot find firewall")
 			return nil, err
 		}
 		_ = append(req.Firewalls, &hcloud.ServerCreateFirewall{

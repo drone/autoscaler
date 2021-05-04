@@ -24,6 +24,7 @@ type provider struct {
 	image      string
 	userdata   *template.Template
 	key        int
+	firewall   int
 
 	client *hcloud.Client
 }

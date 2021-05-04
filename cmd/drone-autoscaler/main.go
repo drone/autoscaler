@@ -270,6 +270,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 		return hetznercloud.New(
 			hetznercloud.WithDatacenter(c.HetznerCloud.Datacenter),
 			hetznercloud.WithImage(c.HetznerCloud.Image),
+			hetznercloud.WithFirewall(c.HetznerCloud.Firewall),
 			hetznercloud.WithUserDataFile(c.HetznerCloud.UserDataFile),
 			hetznercloud.WithUserData(c.HetznerCloud.UserData),
 			hetznercloud.WithServerType(c.HetznerCloud.Type),

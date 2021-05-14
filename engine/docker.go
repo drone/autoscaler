@@ -39,9 +39,9 @@ func newDockerClient(server *autoscaler.Server) (docker.APIClient, io.Closer, er
 		},
 	}
 	dockerClient, err := docker.NewClientWithOpts(
-	   docker.WithAPIVersionNegotiation(),
-	   docker.WithHTTPClient(client),
-	   docker.WithHost(fmt.Sprintf("https://%s:2376", server.Address)),
+		docker.WithAPIVersionNegotiation(),
+		docker.WithHTTPClient(client),
+		docker.WithHost(fmt.Sprintf("https://%s:2376", server.Address)),
 	)
 	return dockerClient, dockerClient, err
 }

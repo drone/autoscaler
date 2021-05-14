@@ -168,6 +168,8 @@ type (
 		HetznerCloud struct {
 			Datacenter   string
 			Image        string
+			Firewall     int
+			Network      int
 			SSHKey       int
 			Token        string
 			Type         string

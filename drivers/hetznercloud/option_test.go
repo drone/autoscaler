@@ -12,7 +12,8 @@ func TestOptions(t *testing.T) {
 		WithDatacenter("fsn1-dc8"),
 		WithServerType("cx20"),
 		WithSSHKey(23234),
-		WithFirewall(2345),
+		WithFirewall(12345),
+		WithNetwork(23456),
 	).(*provider)
 
 	if got, want := p.image, "ubuntu-17.04"; got != want {
@@ -27,7 +28,10 @@ func TestOptions(t *testing.T) {
 	if got, want := p.key, 23234; got != want {
 		t.Errorf("Want key %d, got %d", want, got)
 	}
-	if got, want := p.firewall, 2345; got != want {
+	if got, want := p.firewall, 12345; got != want {
 		t.Errorf("Want firewall %d, got %d", want, got)
+	}
+	if got, want := p.network, 23456; got != want {
+		t.Errorf("Want network %d, got %d", want, got)
 	}
 }

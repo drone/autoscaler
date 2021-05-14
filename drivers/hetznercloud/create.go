@@ -7,10 +7,9 @@ package hetznercloud
 import (
 	"bytes"
 	"context"
-	"strconv"
-
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/logger"
+	"strconv"
 
 	"github.com/hetznercloud/hcloud-go/hcloud"
 )
@@ -74,13 +73,14 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 			return nil, err
 		}
 
-		logger.WithField("firewall",firewall.Name).Debugln("firewall found")
+		logger.WithField("firewall", firewall.Name).Debugln("firewall found")
 		req.Firewalls = append(req.Firewalls, &hcloud.ServerCreateFirewall{
 			Firewall: hcloud.Firewall{
 				ID: firewall.ID,
 			},
 		})
 	}
+
 	logger.Debugln("instance create")
 
 	resp, _, err := p.client.Server.Create(ctx, req)
@@ -90,17 +90,80 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		return nil, err
 	}
 
+	err = p.WatchActionProgress(ctx, resp.Action)
+	if err != nil {
+		return nil, err
+	}
+
 	logger.
 		WithField("name", req.Name).
 		Infoln("instance created")
+
+	address := resp.Server.PublicNet.IPv4.IP.String()
+	if p.network != 0 {
+		logger.Infoln("network specified")
+
+		network, _, err := p.client.Network.GetByID(ctx, p.network)
+		if err != nil {
+			logger.WithError(err).
+				Errorln("failed to retrieve network")
+			return nil, err
+		}
+		if network == nil {
+			logger.WithError(err).
+				WithField("id", p.network).Errorf("cannot find network")
+			return nil, err
+		}
+		logger.WithField("network", network.Name).Debugln("network found")
+
+		action, _, err := p.client.Server.AttachToNetwork(ctx, resp.Server, hcloud.ServerAttachToNetworkOpts{
+			Network: network,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		logger.Infoln("Waiting for IP to be assigned")
+		err = p.WatchActionProgress(ctx, action)
+		if err != nil {
+			return nil, err
+		}
+		server, _, err := p.client.Server.GetByID(ctx, resp.Server.ID)
+		if err != nil {
+			logger.WithError(err).
+				Errorln("cannot find instance")
+			return nil, err
+		}
+		address = server.PrivateNet[0].IP.String()
+	}
+
+	logger.
+		WithField("name", req.Name).
+		Infoln("instance created in network")
 
 	return &autoscaler.Instance{
 		Provider: autoscaler.ProviderHetznerCloud,
 		ID:       strconv.Itoa(resp.Server.ID),
 		Name:     resp.Server.Name,
-		Address:  resp.Server.PublicNet.IPv4.IP.String(),
+		Address:  address,
 		Size:     req.ServerType.Name,
 		Region:   datacenter,
 		Image:    req.Image.Name,
 	}, nil
+}
+
+func (p *provider) WatchActionProgress(ctx context.Context, action *hcloud.Action) error {
+	progressCh, errCh := p.client.Action.WatchProgress(ctx, action)
+outer:
+	for {
+		select {
+		case err := <-errCh:
+			return err
+		case p := <-progressCh:
+			if int64(p) == 100 {
+				break outer
+			}
+		}
+	}
+	return nil
 }

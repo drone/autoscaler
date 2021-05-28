@@ -66,6 +66,7 @@ func New(
 			secret:             config.Agent.Token,
 			envs:               config.Agent.Environ,
 			volumes:            config.Agent.Volumes,
+			ports:              config.Agent.Ports,
 			labels:             config.Agent.Labels,
 			proto:              config.Server.Proto,
 			host:               config.Server.Host,

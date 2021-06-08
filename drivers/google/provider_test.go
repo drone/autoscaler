@@ -46,6 +46,9 @@ func TestDefaults(t *testing.T) {
 	if p.userdata != userdata.T {
 		t.Errorf("Want default userdata template")
 	}
+	if p.userdataKey != "user-data" {
+		t.Errorf("Want default userdata key")
+	}
 	if got, want := p.zone, "us-central1-a"; got != want {
 		t.Errorf("Want region %q, got %q", want, got)
 	}

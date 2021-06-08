@@ -57,7 +57,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		Metadata: &compute.Metadata{
 			Items: []*compute.MetadataItems{
 				{
-					Key:   "user-data",
+					Key:   p.userdataKey,
 					Value: googleapi.String(buf.String()),
 				},
 			},

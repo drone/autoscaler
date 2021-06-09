@@ -196,7 +196,7 @@ poller:
 	}
 
 	var mounts []mount.Mount
-	var volumes []string
+	volumes := i.volumes
 	switch i.os {
 	case "windows":
 		mounts = append(mounts, mount.Mount{
@@ -205,7 +205,7 @@ poller:
 			Type:   mount.TypeNamedPipe,
 		})
 	default:
-		volumes = append(i.volumes,
+		volumes = append(volumes,
 			"/var/run/docker.sock:/var/run/docker.sock",
 		)
 

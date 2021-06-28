@@ -106,6 +106,7 @@ func New(
 			servers:  servers,
 			provider: provider,
 			interval: config.Reaper.Interval,
+			enabled:  config.Reaper.Enabled,
 		},
 	}
 }

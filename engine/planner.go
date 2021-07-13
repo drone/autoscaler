@@ -81,7 +81,7 @@ func (p *planner) Plan(ctx context.Context) error {
 	// if the server differential to handle the build volume
 	// is positive, we can reduce server capacity.
 	if diff < 0 {
-		return p.mark(ctx,
+		return p.markForTermination(ctx,
 			// we should adjust the desired capacity to ensure
 			// we maintain the minimum required server count.
 			serverFloor(servers, abs(diff), p.min),
@@ -127,11 +127,11 @@ func (p *planner) alloc(ctx context.Context, n int) error {
 }
 
 // helper function marks instances for termination.
-func (p *planner) mark(ctx context.Context, n int) error {
+func (p *planner) markForTermination(ctx context.Context, serversToTerminate int) error {
 	logger := logger.FromContext(ctx)
-	logger.Debugf("terminate %d servers", n)
+	logger.Debugf("terminate %d servers", serversToTerminate)
 
-	if n == 0 {
+	if serversToTerminate == 0 {
 		return nil
 	}
 
@@ -142,16 +142,22 @@ func (p *planner) mark(ctx context.Context, n int) error {
 		return err
 	}
 	sort.Sort(sort.Reverse(byCreated(servers)))
+	err = p.markErroredServersForTermination(ctx)
+	if err != nil {
+		logger.WithError(err).
+			Errorln("could not terminate servers in error state")
+		return err
+	}
 
 	// Abort marking servers for termination if the total
 	// number of running servers, minus the total number
 	// of servers to terminate, falls below the minimum
 	// number of servers (including the buffer).
-	if len(servers)-n < p.min {
-		logger.WithField("servers-to-terminate", n).
+	if len(servers)-serversToTerminate < p.min {
+		logger.WithField("servers-to-terminate", serversToTerminate).
 			WithField("servers-running", len(servers)).
 			WithField("min-pool", p.min).
-			Debugf("abort terminating instances to ensure minimum capacity met")
+			Debugf("abort terminating healthy instances to ensure minimum capacity met")
 		return nil
 	}
 
@@ -170,7 +176,14 @@ func (p *planner) mark(ctx context.Context, n int) error {
 				Debugln("server is busy")
 			continue
 		}
-
+		// ignore servers in the error state
+		if server.State == autoscaler.StateError {
+			continue
+		}
+		// or servers that have just been told to shut down
+		if server.State == autoscaler.StateShutdown {
+			continue
+		}
 		// skip servers less than minage
 		if time.Now().Before(time.Unix(server.Created, 0).Add(p.ttu)) {
 			logger.
@@ -180,7 +193,6 @@ func (p *planner) mark(ctx context.Context, n int) error {
 				Debugln("server min-age not reached")
 			continue
 		}
-
 		idle = append(idle, server)
 		logger.WithField("server", server.Name).
 			Debugln("server is idle")
@@ -192,10 +204,10 @@ func (p *planner) mark(ctx context.Context, n int) error {
 		logger.Debugln("no idle servers to shutdown")
 	}
 
-	if len(idle) > n {
-		idle = idle[:n]
+	if len(idle) > serversToTerminate {
+		idle = idle[:serversToTerminate]
 	}
-
+	
 	for _, server := range idle {
 		server.State = autoscaler.StateShutdown
 		err := p.servers.Update(ctx, server)
@@ -207,6 +219,47 @@ func (p *planner) mark(ctx context.Context, n int) error {
 		}
 	}
 
+	return nil
+}
+
+func (p *planner) markErroredServersForTermination(ctx context.Context) (err error) {
+	logger := logger.FromContext(ctx)
+	errorServers, err := p.servers.ListState(ctx, autoscaler.StateError)
+	if err != nil {
+		logger.WithError(err).
+			Errorln("cannot determine servers in error state")
+		return err
+	}
+	var agedErrorServers []*autoscaler.Server
+	for _, errorServer := range errorServers {
+		// skip servers in errror state less than minage
+		// this prevents us from constantly terminating and spawning new agents when something is wrong
+		// and gives enough time to investigate failed agents
+		if time.Now().Before(time.Unix(errorServer.Created, 0).Add(p.ttu)) {
+			logger.
+				WithField("server", errorServer.Name).
+				WithField("age", timeDiff(time.Now(), time.Unix(errorServer.Created, 0))).
+				WithField("min-age", p.ttu).
+				Debugln("server min-age not reached")
+			continue
+		}
+
+		agedErrorServers = append(agedErrorServers, errorServer)
+		logger.WithField("server", errorServer.Name).
+			Debugln("server is in error")
+	}
+
+	for _, server := range agedErrorServers {
+		// terminate server
+		server.State = autoscaler.StateShutdown
+		err := p.servers.Update(ctx, server)
+		if err != nil {
+			logger.WithError(err).
+				WithField("server", server.Name).
+				WithField("state", "shutdown").
+				Errorln("cannot update server state")
+		}
+	}
 	return nil
 }
 
@@ -241,6 +294,8 @@ func (p *planner) capacity(ctx context.Context) (capacity, count int, err error)
 		switch server.State {
 		case autoscaler.StateStopped:
 			// ignore state
+		case autoscaler.StateError:
+			// ignore servers in an error state for determining capacity
 		default:
 			count++
 			capacity += server.Capacity

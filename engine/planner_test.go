@@ -341,6 +341,7 @@ func TestPlan_NoIdle(t *testing.T) {
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
 	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
+	store.EXPECT().ListState(gomock.Any(), autoscaler.StateError).Return(nil, nil)
 
 	client := mocks.NewMockClient(controller)
 	client.EXPECT().Queue().Return(builds, nil)
@@ -379,6 +380,7 @@ func TestScale_MinAge(t *testing.T) {
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
 	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
+	store.EXPECT().ListState(gomock.Any(), autoscaler.StateError).Return(nil, nil)
 
 	client := mocks.NewMockClient(controller)
 	client.EXPECT().Queue().Return(builds, nil)
@@ -417,6 +419,8 @@ func TestPlan_ShutdownIdle(t *testing.T) {
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
 	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
+	store.EXPECT().ListState(gomock.Any(), autoscaler.StateError).Return(nil, nil)
+
 	store.EXPECT().Update(gomock.Any(), servers[2]).Return(nil)
 	store.EXPECT().Update(gomock.Any(), servers[1]).Return(nil)
 
@@ -461,6 +465,7 @@ func TestPlan_ExcludePendingWhenTerminating(t *testing.T) {
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
 	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers[:3], nil)
+	store.EXPECT().ListState(gomock.Any(), autoscaler.StateError).Return(nil, nil)
 
 	client := mocks.NewMockClient(controller)
 	client.EXPECT().Queue().Return(builds, nil)
@@ -468,6 +473,130 @@ func TestPlan_ExcludePendingWhenTerminating(t *testing.T) {
 	p := planner{
 		cap:     2,
 		min:     3,
+		max:     10,
+		client:  client,
+		servers: store,
+	}
+
+	err := p.Plan(context.TODO())
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+// this test verifies errored servers are not destroyed until they are aged out
+func TestPlan_ExcludeNewErroredWhenTerminating(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	servers := []*autoscaler.Server{
+		// x3 capacity
+		{Name: "server1", Capacity: 1, State: autoscaler.StateError, Created: time.Now().Unix()},
+		{Name: "server2", Capacity: 1, State: autoscaler.StateError, Created: time.Now().Unix()},
+		{Name: "server3", Capacity: 1, State: autoscaler.StateError, Created: time.Now().Unix()},
+	}
+
+	// x0 running builds
+	// x0 pending builds
+	builds := []*drone.Stage{}
+
+	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().List(gomock.Any()).Return(servers, nil)
+
+	client := mocks.NewMockClient(controller)
+	client.EXPECT().Queue().Return(builds, nil)
+
+	p := planner{
+		cap:     2,
+		min:     2,
+		max:     10,
+		client:  client,
+		servers: store,
+	}
+
+	err := p.Plan(context.TODO())
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+// this test verifies errored servers are destroyed once they are aged out
+func TestPlan_IncludeAgedErroredWhenTerminating(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	servers := []*autoscaler.Server{
+		// x3 capacity
+		{Name: "server1", Capacity: 1, State: autoscaler.StateError, Created: 3},
+		{Name: "server2", Capacity: 1, State: autoscaler.StateError, Created: 3},
+		{Name: "server3", Capacity: 1, State: autoscaler.StateError, Created: 3},
+	}
+
+	// x0 running builds
+	// x0 pending builds
+	builds := []*drone.Stage{}
+
+	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().List(gomock.Any()).Return(servers, nil)
+
+	client := mocks.NewMockClient(controller)
+	client.EXPECT().Queue().Return(builds, nil)
+
+	p := planner{
+		cap:     2,
+		min:     2,
+		max:     10,
+		client:  client,
+		servers: store,
+	}
+
+	err := p.Plan(context.TODO())
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+// this test verifies that a combination of aged and unaged servers are destroyed correctly
+func TestPlan_ConsiderErroredServersWhenTerminating(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	servers := []*autoscaler.Server{
+		// x3 capacity
+		{Name: "server1", Capacity: 1, State: autoscaler.StateError, Created: 3},
+		{Name: "server2", Capacity: 1, State: autoscaler.StateError, Created: 3},
+		{Name: "server3", Capacity: 1, State: autoscaler.StateError, Created: 3},
+		{Name: "server4", Capacity: 1, State: autoscaler.StateRunning, Created: 3},
+		{Name: "server5", Capacity: 1, State: autoscaler.StateRunning, Created: 3},
+		{Name: "server6", Capacity: 1, State: autoscaler.StateRunning, Created: 3},
+		{Name: "server7", Capacity: 1, State: autoscaler.StateRunning, Created: 3},
+	}
+
+	// x0 running builds
+	// x0 pending builds
+	builds := []*drone.Stage{}
+
+	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().List(gomock.Any()).Return(servers, nil)
+	store.EXPECT().ListState(gomock.Any(), autoscaler.StateError).Return(servers[:3], nil)
+	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers[:], nil)
+
+	client := mocks.NewMockClient(controller)
+	client.EXPECT().Queue().Return(builds, nil).MaxTimes(2)
+
+	// expect errored servers to be terminated
+	first := store.EXPECT().Update(gomock.Any(), servers[0]).Return(nil)
+	second := store.EXPECT().Update(gomock.Any(), servers[1]).Return(nil)
+	third := store.EXPECT().Update(gomock.Any(), servers[2]).Return(nil)
+	fourth := store.EXPECT().Update(gomock.Any(), servers[3]).Return(nil)
+	fifth := store.EXPECT().Update(gomock.Any(), servers[4]).Return(nil)
+
+
+	gomock.InOrder(first, second, third, fourth, fifth)
+
+	p := planner{
+		cap:     1,
+		min:     2,
 		max:     10,
 		client:  client,
 		servers: store,

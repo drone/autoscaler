@@ -106,6 +106,9 @@ func (p *provider) create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 				},
 			},
 		},
+		MetadataOptions: &ec2.InstanceMetadataOptionsRequest{
+			HttpTokens: aws.String(p.imdsTokens),
+		},
 	}
 
 	if p.volumeType == "io1" {

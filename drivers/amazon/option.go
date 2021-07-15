@@ -151,3 +151,14 @@ func WithMarketType(t string) Option {
 		p.spotInstance = t == "spot"
 	}
 }
+
+// WithInstanceMetadataTokens returns an option to set the instance metadata service tokens requiment.
+func WithInstanceMetadataTokens(t string) Option {
+	return func(p *provider) {
+		if t == "required" || t == "optional" {
+			p.imdsTokens = t
+		} else {
+			panic("WithInstanceMetadataTokens option must either \"optional\" or \"required\"")
+		}
+	}
+}

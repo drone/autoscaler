@@ -36,6 +36,7 @@ type provider struct {
 	tags          map[string]string
 	iamProfileArn string
 	spotInstance  bool
+	imdsTokens    string
 }
 
 func (p *provider) getClient() *ec2.EC2 {
@@ -77,6 +78,9 @@ func New(opts ...Option) autoscaler.Provider {
 	}
 	if p.userdata == nil {
 		p.userdata = userdata.T
+	}
+	if p.imdsTokens == "" {
+		p.imdsTokens = "optional"
 	}
 	return p
 }

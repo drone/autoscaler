@@ -36,6 +36,7 @@ type provider struct {
 	tags          map[string]string
 	iamProfileArn string
 	spotInstance  bool
+	imdsTokens    string
 }
 
 func (p *provider) getClient() *ec2.EC2 {

@@ -6,6 +6,8 @@ package userdata
 
 import (
 	"encoding/base64"
+	"os"
+	"strings"
 	"text/template"
 )
 
@@ -13,6 +15,9 @@ var funcs = map[string]interface{}{
 	"base64": func(src []byte) string {
 		return base64.StdEncoding.EncodeToString(src)
 	},
+	"lower":  strings.ToLower,
+	"upper":  strings.ToUpper,
+	"getenv": os.Getenv,
 }
 
 // Parse parses the userdata template.

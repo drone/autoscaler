@@ -6,6 +6,7 @@ package config
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"os"
 	"reflect"
 	"testing"
@@ -353,3 +354,45 @@ var jsonConfig = []byte(`{
 		"Deadline": 1800000000000
 	}
 }`)
+
+func TestLoadEnvVariables(t *testing.T) {
+	f, err := ioutil.TempFile("", "autoscaler-env-file-test")
+	if err != nil {
+		t.Error(err)
+	}
+	f.WriteString("ENV_FROM_FILE=FILE_VALUE")
+	defer os.Remove(f.Name())
+
+	environ := map[string]string{
+		"ENV_FROM_HOST":        "HOST_VALUE",
+		"DRONE_AGENT_ENVIRON":  `ENV=VALUE,ENV_FROM_HOST`,
+		"DRONE_AGENT_ENV_FILE": f.Name(),
+	}
+
+	defer func() {
+		// reset the environment.
+		for k := range environ {
+			os.Unsetenv(k)
+		}
+	}()
+
+	// set test environment variables
+	for k, v := range environ {
+		os.Setenv(k, v)
+	}
+
+	a := MustLoad()
+	want := []string{
+		"ENV=VALUE",
+		"ENV_FROM_HOST=HOST_VALUE",
+		"ENV_FROM_FILE=FILE_VALUE",
+	}
+	if got, want := len(a.Agent.Environ), len(want); got != want {
+		t.Errorf("Should have an environment of length %d, got %d", want, got)
+	}
+	for i := range a.Agent.Environ {
+		if got, wantV := a.Agent.Environ[i], want[i]; got != wantV {
+			t.Errorf("Wanted environ %s at index %d, got %s", wantV, i, got)
+		}
+	}
+}

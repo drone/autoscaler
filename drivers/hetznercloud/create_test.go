@@ -60,7 +60,7 @@ func testInstance(instance *autoscaler.Instance) func(t *testing.T) {
 		if got, want := instance.ID, "544037"; got != want {
 			t.Errorf("Want instance ID %v, got %v", want, got)
 		}
-		if got, want := instance.Image, "ubuntu-16.04"; got != want {
+		if got, want := instance.Image, "ubuntu-20.04"; got != want {
 			t.Errorf("Want instance Image %v, got %v", want, got)
 		}
 		if got, want := instance.Name, "test"; got != want {

@@ -8,7 +8,7 @@ import "testing"
 
 func TestDefaults(t *testing.T) {
 	p := New().(*provider)
-	if got, want := p.image, "ubuntu-16.04"; got != want {
+	if got, want := p.image, "ubuntu-20.04"; got != want {
 		t.Errorf("Want image %q, got %q", want, got)
 	}
 	if got, want := p.datacenter, ""; got != want {

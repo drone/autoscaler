@@ -28,12 +28,12 @@ require (
 	github.com/go-sql-driver/mysql v1.3.0
 	github.com/gogo/protobuf v0.0.0-20170307180453-100ba4e88506 // indirect
 	github.com/golang/mock v1.3.1
-	github.com/google/go-cmp v0.4.0
+	github.com/google/go-cmp v0.5.0
 	github.com/google/go-querystring v0.0.0-20170111101155-53e6ce116135 // indirect
 	github.com/gophercloud/gophercloud v0.0.0-20181014043407-c8947f7d1c51
 	github.com/gorilla/mux v1.7.4 // indirect
 	github.com/h2non/gock v1.0.7
-	github.com/hetznercloud/hcloud-go v1.4.0
+	github.com/hetznercloud/hcloud-go v1.25.0
 	github.com/jmespath/go-jmespath v0.0.0-20160202185014-0b12d6b521d8 // indirect
 	github.com/jmoiron/sqlx v0.0.0-20180228184624-cf35089a1979
 	github.com/joho/godotenv v1.2.0

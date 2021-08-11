@@ -247,6 +247,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			digitalocean.WithRegion(c.DigitalOcean.Region),
 			digitalocean.WithSize(c.DigitalOcean.Size),
 			digitalocean.WithFirewall(c.DigitalOcean.Firewall),
+			digitalocean.WithVpc(c.DigitalOcean.Vpc),
 			digitalocean.WithUserDataFile(c.DigitalOcean.UserDataFile),
 			digitalocean.WithUserData(c.DigitalOcean.UserData),
 			digitalocean.WithToken(c.DigitalOcean.Token),

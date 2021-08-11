@@ -62,6 +62,13 @@ func WithFirewall(firewall string) Option {
 	}
 }
 
+// WithVpc returns an option to set the droplet vpc.
+func WithVpc(vpc string) Option {
+	return func(p *provider) {
+		p.vpc = vpc
+	}
+}
+
 // WithPrivateIP returns an option to set the private IP address.
 func WithPrivateIP(private bool) Option {
 	return func(p *provider) {

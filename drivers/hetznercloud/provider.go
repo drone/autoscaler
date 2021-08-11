@@ -38,7 +38,7 @@ func New(opts ...Option) autoscaler.Provider {
 		p.serverType = "cx11"
 	}
 	if p.image == "" {
-		p.image = "ubuntu-16.04"
+		p.image = "ubuntu-20.04"
 	}
 	if p.userdata == nil {
 		p.userdata = userdata.T

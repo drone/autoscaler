@@ -130,6 +130,13 @@ func WithZone(zone string) Option {
 	}
 }
 
+// WithZone returns an option to set the target zone.
+func WithRegion(region string) Option {
+	return func(p *provider) {
+		p.region = region
+	}
+}
+
 // WithScopes returns an option to set the scopes.
 func WithScopes(scopes ...string) Option {
 	return func(p *provider) {

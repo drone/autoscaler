@@ -50,6 +50,7 @@ type provider struct {
 	size                string
 	tags                []string
 	zone                string
+	region              string
 	userdata            *template.Template
 
 	service *compute.Service

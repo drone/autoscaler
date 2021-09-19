@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"math/rand"
 	"strings"
 
 	"github.com/drone/autoscaler"
@@ -36,7 +37,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		WithField("size", p.size).
 		WithField("name", opts.Name)
 
-	logger.Debugln("instance insert")
+	fmt.Println("instance insert")
 
 	networkConfig := []*compute.AccessConfig{}
 
@@ -47,6 +48,20 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 				Type: "ONE_TO_ONE_NAT",
 			},
 		}
+	}
+
+	if p.region != "" {
+		// If region was specified, use region to choose a random zone
+		region, err := p.service.Regions.Get(p.project, p.region).Do()
+		if err != nil {
+			logger.WithError(err).
+				Errorln("cannot get region details")
+			return nil, err
+		}
+		randomZoneIndex := rand.Intn(len(region.Zones))
+		zoneSelfLink := region.Zones[randomZoneIndex]
+		p.zone = zoneSelfLink[strings.LastIndex(zoneSelfLink, "/")+1:]
+		fmt.Printf("Zone chosen: %s", p.zone)
 	}
 
 	in := &compute.Instance{
@@ -101,6 +116,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 			},
 		},
 	}
+	fmt.Printf("\nUsing zone: %s\n", p.zone)
 
 	op, err := p.service.Instances.Insert(p.project, p.zone, in).Context(ctx).Do()
 	if err != nil {
@@ -109,7 +125,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		return nil, err
 	}
 
-	logger.Debugln("pending instance insert operation")
+	fmt.Println("pending instance insert operation")
 
 	err = p.waitZoneOperation(ctx, op.Name)
 	if err != nil {
@@ -118,7 +134,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		return nil, err
 	}
 
-	logger.Debugln("instance insert operation complete")
+	fmt.Println("instance insert operation complete")
 
 	resp, err := p.service.Instances.Get(p.project, p.zone, name).Do()
 	if err != nil {

@@ -79,6 +79,55 @@ func TestCreate(t *testing.T) {
 	}
 }
 
+func TestCreateWithRegion(t *testing.T) {
+	defer gock.Off()
+
+	gock.New("https://www.googleapis.com").
+		Post("/compute/v1/projects/my-project/zones/us-central1-b/instances").
+		JSON(insertInstanceMockB).
+		Reply(200).
+		BodyString(`{ "name": "operation-name" }`)
+
+	gock.New("https://www.googleapis.com").
+		Get("/compute/v1/projects/my-project/regions/us-central1").
+		Reply(200).
+		BodyString(`{ "zones": [
+			"https://www.googleapis.com/compute/v1/projects/my-project/zones/us-central1-b"
+		] }`)
+
+	gock.New("https://www.googleapis.com").
+		Get("/compute/v1/projects/my-project/zones/us-central1-b/instances/agent-807jvfwj").
+		Reply(200).
+		BodyString(`{ "networkInterfaces": [ { "accessConfigs": [ { "natIP": "1.2.3.4" } ] } ] }`)
+
+	gock.New("https://www.googleapis.com").
+		Get("/compute/v1/projects/my-project/zones/us-central1-b/operations/operation-name").
+		Reply(200).
+		BodyString(`{ "status": "DONE" }`)
+
+	v, err := New(
+		WithClient(http.DefaultClient),
+		WithRegion("us-central1"),
+		WithProject("my-project"),
+		WithUserData("#cloud-init"),
+	)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	p := v.(*provider)
+	p.init.Do(func() {})
+
+	instance, err := p.Create(context.TODO(), autoscaler.InstanceCreateOpts{Name: "agent-807jVFwj"})
+	if err != nil {
+		t.Error(err)
+	}
+
+	if want, got := instance.Region, "us-central1-b"; got != want {
+		t.Errorf("Want service account email  %q, got %q", want, got)
+	}
+}
+
 var insertInstanceMock = &compute.Instance{
 	Name:           "agent-807jvfwj",
 	Zone:           "projects/my-project/zones/us-central1-a",
@@ -105,6 +154,68 @@ var insertInstanceMock = &compute.Instance{
 			InitializeParams: &compute.AttachedDiskInitializeParams{
 				SourceImage: "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-1604-xenial-v20170721",
 				DiskType:    "projects/my-project/zones/us-central1-a/diskTypes/pd-standard",
+				DiskSizeGb:  50,
+			},
+		},
+	},
+	CanIpForward: false,
+	NetworkInterfaces: []*compute.NetworkInterface{
+		{
+			Network: "global/networks/default",
+			AccessConfigs: []*compute.AccessConfig{
+				{
+					Name: "External NAT",
+					Type: "ONE_TO_ONE_NAT",
+				},
+			},
+		},
+	},
+	Labels: map[string]string{},
+	Scheduling: &compute.Scheduling{
+		Preemptible:       false,
+		OnHostMaintenance: "MIGRATE",
+		AutomaticRestart:  googleapi.Bool(true),
+	},
+	DeletionProtection: false,
+	ServiceAccounts: []*compute.ServiceAccount{
+		{
+			Email: "default",
+			Scopes: []string{
+				"https://www.googleapis.com/auth/devstorage.read_only",
+				"https://www.googleapis.com/auth/logging.write",
+				"https://www.googleapis.com/auth/monitoring.write",
+				"https://www.googleapis.com/auth/trace.append",
+			},
+		},
+	},
+}
+
+var insertInstanceMockB = &compute.Instance{
+	Name:           "agent-807jvfwj",
+	Zone:           "projects/my-project/zones/us-central1-b",
+	MinCpuPlatform: "Automatic",
+	MachineType:    "projects/my-project/zones/us-central1-b/machineTypes/n1-standard-1",
+	Metadata: &compute.Metadata{
+		Items: []*compute.MetadataItems{
+			{
+				Key:   "user-data",
+				Value: googleapi.String(`#cloud-init`),
+			},
+		},
+	},
+	Tags: &compute.Tags{
+		Items: []string{"allow-docker"},
+	},
+	Disks: []*compute.AttachedDisk{
+		{
+			Type:       "PERSISTENT",
+			Boot:       true,
+			Mode:       "READ_WRITE",
+			AutoDelete: true,
+			DeviceName: "agent-807jvfwj",
+			InitializeParams: &compute.AttachedDiskInitializeParams{
+				SourceImage: "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-1604-xenial-v20170721",
+				DiskType:    "projects/my-project/zones/us-central1-b/diskTypes/pd-standard",
 				DiskSizeGb:  50,
 			},
 		},

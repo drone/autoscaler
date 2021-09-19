@@ -28,7 +28,8 @@ func TestDestroy(t *testing.T) {
 
 	mockContext := context.TODO()
 	mockInstance := &autoscaler.Instance{
-		ID: "my-instance",
+		ID:     "my-instance",
+		Region: "us-central1-a",
 	}
 
 	p, err := New(
@@ -56,7 +57,8 @@ func TestDestroy_Error(t *testing.T) {
 
 	mockContext := context.TODO()
 	mockInstance := &autoscaler.Instance{
-		ID: "my-instance",
+		ID:     "my-instance",
+		Region: "us-central1-a",
 	}
 
 	p, err := New(

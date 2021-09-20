@@ -124,7 +124,7 @@ func TestCreateWithRegion(t *testing.T) {
 	}
 
 	if want, got := instance.Region, "us-central1-b"; got != want {
-		t.Errorf("Want service account email  %q, got %q", want, got)
+		t.Errorf("Want region %q, got %q", want, got)
 	}
 }
 

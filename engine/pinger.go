@@ -72,14 +72,27 @@ func (p *pinger) ping(ctx context.Context, server *autoscaler.Server) error {
 	// server cannot be reached, it will be placed in an error
 	// state.
 
-	for i := 0; i < 5; i++ {
+	const pingRetries = 5
+	for i := 0; i < pingRetries; i++ {
 		timeout, cancel := context.WithTimeout(ctx, time.Minute)
 		_, err := client.Ping(timeout)
 		cancel()
 		if err == nil {
 			logger.WithField("state", "healthy").
+				WithField("server", server.Name).
 				Debugln("server ping successful")
 			return nil
+		}
+		if i < pingRetries-1 {
+			logger.WithError(err).
+				WithField("state", "maybe-unhealthy").
+				WithField("server", server.Name).
+				Debugln("server ping failed, will retry")
+		} else {
+			logger.WithError(err).
+				WithField("state", "unhealthy").
+				WithField("server", server.Name).
+				Warnf("server failed to ping %d times, will try to mark as errored...", pingRetries)
 		}
 	}
 

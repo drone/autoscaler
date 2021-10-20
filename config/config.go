@@ -60,6 +60,7 @@ type (
 			Environ     []string
 			Volumes     []string
 			Labels      map[string]string `envconfig:"DRONE_AGENT_LABELS"`
+			Prefix      string            `envconfig:"DRONE_AGENT_PREFIX" default:"agent-"`
 		}
 
 		Runner Runner

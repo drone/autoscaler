@@ -125,7 +125,7 @@ func HandleServerCreate(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		server := &autoscaler.Server{
-			Name:     "agent-" + uniuri.NewLen(8),
+			Name:     config.Agent.Prefix + uniuri.NewLen(8),
 			State:    autoscaler.StatePending,
 			Capacity: config.Agent.Concurrency,
 		}

@@ -7,6 +7,8 @@ package userdata
 import (
 	"encoding/base64"
 	"text/template"
+
+	"github.com/drone/funcmap"
 )
 
 var funcs = map[string]interface{}{
@@ -19,12 +21,12 @@ var funcs = map[string]interface{}{
 func Parse(text string) *template.Template {
 	if decoded, err := base64.StdEncoding.DecodeString(text); err == nil {
 		return template.Must(
-			template.New("_").Funcs(funcs).Parse(string(decoded)),
+			template.New("_").Funcs(funcs).Funcs(funcmap.Funcs).Parse(string(decoded)),
 		)
 	}
 
 	return template.Must(
-		template.New("_").Funcs(funcs).Parse(text),
+		template.New("_").Funcs(funcs).Funcs(funcmap.Funcs).Parse(text),
 	)
 }
 

@@ -21,3 +21,5 @@ func TestConnectionReset(t *testing.T) {
 		t.Errorf("Expect connection reset by peer return true")
 	}
 }
+
+// connect: connection timed out

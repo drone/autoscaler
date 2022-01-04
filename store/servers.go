@@ -64,9 +64,10 @@ func (s *serverStore) ListState(_ context.Context, state autoscaler.ServerState)
 }
 
 func (s *serverStore) Create(_ context.Context, server *autoscaler.Server) (err error) {
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 30; i++ {
 		err = s.create(server)
 		if isConnReset(err) {
+			time.Sleep(time.Second)
 			continue
 		} else {
 			break
@@ -90,9 +91,10 @@ func (s *serverStore) create(server *autoscaler.Server) error {
 }
 
 func (s *serverStore) Update(_ context.Context, server *autoscaler.Server) (err error) {
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 30; i++ {
 		err = s.update(server)
 		if isConnReset(err) {
+			time.Sleep(time.Second)
 			continue
 		} else {
 			break

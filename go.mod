@@ -39,7 +39,7 @@ require (
 	github.com/joho/godotenv v1.2.0
 	github.com/kr/pretty v0.0.0-20160823170715-cfb55aafdaf3
 	github.com/kr/text v0.0.0-20160504234017-7cafcd837844 // indirect
-	github.com/lib/pq v1.0.0
+	github.com/lib/pq v1.10.4
 	github.com/mattn/go-sqlite3 v1.6.0
 	github.com/matttproud/golang_protobuf_extensions v1.0.0 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect

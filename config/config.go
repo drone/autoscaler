@@ -109,8 +109,10 @@ type (
 		}
 
 		Database struct {
-			Driver     string `default:"sqlite3"`
-			Datasource string `default:"database.sqlite?cache=shared&mode=rwc&_busy_timeout=9999999"`
+			Driver      string        `default:"sqlite3"`
+			Datasource  string        `default:"database.sqlite?cache=shared&mode=rwc&_busy_timeout=9999999"`
+			MaxIdle     int           `envconfig:"DRONE_DATABASE_MAX_IDLE" default:"0"`
+			MaxLifetime time.Duration `envconfig:"DRONE_DATABASE_MAX_LIFETIME"`
 		}
 
 		Amazon struct {

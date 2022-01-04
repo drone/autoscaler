@@ -17,14 +17,15 @@ import (
 var noContext = context.Background()
 
 // Connect to a database and verify with a ping.
-func Connect(driver, datasource string) (*sqlx.DB, error) {
+func Connect(driver, datasource string, maxconn int, maxlifetime time.Duration) (*sqlx.DB, error) {
 	db, err := sql.Open(driver, datasource)
 	if err != nil {
 		return nil, err
 	}
 	switch driver {
 	case "postgres":
-		db.SetMaxIdleConns(0)
+		db.SetMaxIdleConns(maxconn)
+		db.SetConnMaxLifetime(maxlifetime)
 	case "mysql":
 		db.SetMaxIdleConns(0)
 	case "sqlite3":

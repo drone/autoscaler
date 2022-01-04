@@ -63,7 +63,19 @@ func (s *serverStore) ListState(_ context.Context, state autoscaler.ServerState)
 	return dest, err
 }
 
-func (s *serverStore) Create(_ context.Context, server *autoscaler.Server) error {
+func (s *serverStore) Create(_ context.Context, server *autoscaler.Server) (err error) {
+	for i := 0; i < 10; i++ {
+		err = s.create(server)
+		if isConnReset(err) {
+			continue
+		} else {
+			break
+		}
+	}
+	return err
+}
+
+func (s *serverStore) create(server *autoscaler.Server) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -77,11 +89,22 @@ func (s *serverStore) Create(_ context.Context, server *autoscaler.Server) error
 	return err
 }
 
-func (s *serverStore) Update(_ context.Context, server *autoscaler.Server) error {
+func (s *serverStore) Update(_ context.Context, server *autoscaler.Server) (err error) {
+	for i := 0; i < 10; i++ {
+		err = s.update(server)
+		if isConnReset(err) {
+			continue
+		} else {
+			break
+		}
+	}
+	return err
+}
+
+func (s *serverStore) update(server *autoscaler.Server) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	// before := server.Updated
 	server.Updated = time.Now().Unix()
 	stmt, args, err := s.db.BindNamed(serverUpdateStmt, server)
 	if err != nil {

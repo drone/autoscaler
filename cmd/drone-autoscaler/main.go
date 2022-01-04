@@ -66,7 +66,12 @@ func main() {
 	provider = metrics.ServerCreate(provider)
 	provider = metrics.ServerDelete(provider)
 
-	db, err := store.Connect(conf.Database.Driver, conf.Database.Datasource)
+	db, err := store.Connect(
+		conf.Database.Driver,
+		conf.Database.Datasource,
+		conf.Database.MaxIdle,
+		conf.Database.MaxLifetime,
+	)
 	if err != nil {
 		logrus.WithError(err).
 			Fatalln("Cannot establish database connection")

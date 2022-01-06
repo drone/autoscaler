@@ -64,21 +64,18 @@ func (s *serverStore) ListState(_ context.Context, state autoscaler.ServerState)
 	return dest, err
 }
 
-func (s *serverStore) Create(_ context.Context, server *autoscaler.Server) (err error) {
-	err = retry.Do(
+func (s *serverStore) Create(_ context.Context, server *autoscaler.Server) error {
+	return retry.Do(
 		func() error {
-			serverErr := s.create(server)
-
-			if !isConnReset(serverErr) {
-				return retry.Unrecoverable(serverErr)
+			if err := s.create(server); isConnReset(err) {
+				return err
 			}
-			return serverErr
+			return retry.Unrecoverable(err)
 		},
 		retry.Attempts(5),
 		retry.MaxDelay(time.Second*5),
 		retry.LastErrorOnly(true),
 	)
-	return err
 }
 
 func (s *serverStore) create(server *autoscaler.Server) error {
@@ -95,21 +92,18 @@ func (s *serverStore) create(server *autoscaler.Server) error {
 	return err
 }
 
-func (s *serverStore) Update(_ context.Context, server *autoscaler.Server) (err error) {
-	err = retry.Do(
+func (s *serverStore) Update(_ context.Context, server *autoscaler.Server) error {
+	return retry.Do(
 		func() error {
-			serverErr := s.update(server)
-
-			if !isConnReset(serverErr) {
-				return retry.Unrecoverable(serverErr)
+			if err := s.update(server); isConnReset(err) {
+				return err
 			}
-			return serverErr
+			return retry.Unrecoverable(err)
 		},
 		retry.Attempts(5),
 		retry.MaxDelay(time.Second*5),
 		retry.LastErrorOnly(true),
 	)
-	return err
 }
 
 func (s *serverStore) update(server *autoscaler.Server) error {

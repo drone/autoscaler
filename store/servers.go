@@ -69,8 +69,9 @@ func (s *serverStore) Create(_ context.Context, server *autoscaler.Server) error
 		func() error {
 			if err := s.create(server); isConnReset(err) {
 				return err
+			} else {
+				return retry.Unrecoverable(err)
 			}
-			return retry.Unrecoverable(err)
 		},
 		retry.Attempts(5),
 		retry.MaxDelay(time.Second*5),
@@ -97,8 +98,9 @@ func (s *serverStore) Update(_ context.Context, server *autoscaler.Server) error
 		func() error {
 			if err := s.update(server); isConnReset(err) {
 				return err
+			} else {
+				return retry.Unrecoverable(err)
 			}
-			return retry.Unrecoverable(err)
 		},
 		retry.Attempts(5),
 		retry.MaxDelay(time.Second*5),

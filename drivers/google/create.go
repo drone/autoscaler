@@ -9,6 +9,7 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"path"
 	"strings"
 
 	"github.com/drone/autoscaler"
@@ -61,7 +62,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		}
 		randomZoneIndex := rand.Intn(len(region.Zones))
 		zoneSelfLink := region.Zones[randomZoneIndex]
-		zone = zoneSelfLink[strings.LastIndex(zoneSelfLink, "/")+1:] // path.Base(zoneSelfLink)
+		zone = path.Base(zoneSelfLink)
 		fmt.Println("zone:", zone)
 	}
 

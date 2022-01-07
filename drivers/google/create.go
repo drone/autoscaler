@@ -9,7 +9,6 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
-	"path"
 	"strings"
 
 	"github.com/drone/autoscaler"
@@ -33,7 +32,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	name := strings.ToLower(opts.Name)
 
 	logger := logger.FromContext(ctx).
-		WithField("zone", p.zone).
+		WithField("zones", p.zones).
 		WithField("image", p.image).
 		WithField("size", p.size).
 		WithField("name", opts.Name)
@@ -51,20 +50,8 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		}
 	}
 
-	zone := p.zone
-	if p.region != "" {
-		// If region was specified, use region to choose a random zone
-		region, err := p.service.Regions.Get(p.project, p.region).Do()
-		if err != nil {
-			logger.WithError(err).
-				Errorln("cannot get region details")
-			return nil, err
-		}
-		randomZoneIndex := rand.Intn(len(region.Zones))
-		zoneSelfLink := region.Zones[randomZoneIndex]
-		zone = path.Base(zoneSelfLink)
-		fmt.Println("zone:", zone)
-	}
+	randomZoneIndex := rand.Intn(len(p.zones))
+	zone := p.zones[randomZoneIndex]
 
 	in := &compute.Instance{
 		Name:           name,

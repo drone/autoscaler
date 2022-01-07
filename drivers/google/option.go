@@ -124,9 +124,9 @@ func WithUserDataFile(filepath string) Option {
 }
 
 // WithZone returns an option to set the target zone.
-func WithZone(zone string) Option {
+func WithZones(zones []string) Option {
 	return func(p *provider) {
-		p.zone = zone
+		p.zones = zones
 	}
 }
 

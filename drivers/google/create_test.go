@@ -37,7 +37,7 @@ func TestCreate(t *testing.T) {
 
 	v, err := New(
 		WithClient(http.DefaultClient),
-		WithZone("us-central1-a"),
+		WithZones([]string{"us-central1-a"}),
 		WithProject("my-project"),
 		WithUserData("#cloud-init"),
 	)
@@ -79,7 +79,7 @@ func TestCreate(t *testing.T) {
 	}
 }
 
-func TestCreateWithRegion(t *testing.T) {
+func TestCreateWithMultiZones(t *testing.T) {
 	defer gock.Off()
 
 	gock.New("https://www.googleapis.com").
@@ -87,13 +87,6 @@ func TestCreateWithRegion(t *testing.T) {
 		JSON(insertInstanceMockB).
 		Reply(200).
 		BodyString(`{ "name": "operation-name" }`)
-
-	gock.New("https://www.googleapis.com").
-		Get("/compute/v1/projects/my-project/regions/us-central1").
-		Reply(200).
-		BodyString(`{ "zones": [
-			"https://www.googleapis.com/compute/v1/projects/my-project/zones/us-central1-b"
-		] }`)
 
 	gock.New("https://www.googleapis.com").
 		Get("/compute/v1/projects/my-project/zones/us-central1-b/instances/agent-807jvfwj").
@@ -107,7 +100,7 @@ func TestCreateWithRegion(t *testing.T) {
 
 	v, err := New(
 		WithClient(http.DefaultClient),
-		WithRegion("us-central1"),
+		WithZones([]string{"us-central1-b"}),
 		WithProject("my-project"),
 		WithUserData("#cloud-init"),
 	)

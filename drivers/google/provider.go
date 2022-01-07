@@ -49,7 +49,7 @@ type provider struct {
 	serviceAccountEmail string
 	size                string
 	tags                []string
-	zone                string
+	zones               []string
 	region              string
 	userdata            *template.Template
 
@@ -68,8 +68,8 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 	if p.diskType == "" {
 		p.diskType = "pd-standard"
 	}
-	if p.zone == "" {
-		p.zone = "us-central1-a"
+	if len(p.zones) == 0 {
+		p.zones = []string{"us-central1-a"}
 	}
 	if p.size == "" {
 		p.size = "n1-standard-1"

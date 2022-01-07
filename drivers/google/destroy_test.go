@@ -34,7 +34,7 @@ func TestDestroy(t *testing.T) {
 
 	p, err := New(
 		WithClient(http.DefaultClient),
-		WithZone("us-central1-a"),
+		WithZones([]string{"us-central1-a"}),
 		WithProject("my-project"),
 	)
 	if err != nil {
@@ -63,7 +63,7 @@ func TestDestroy_Error(t *testing.T) {
 
 	p, err := New(
 		WithClient(http.DefaultClient),
-		WithZone("us-central1-a"),
+		WithZones([]string{"us-central1-a"}),
 		WithProject("my-project"),
 	)
 	if err != nil {

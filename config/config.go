@@ -164,7 +164,7 @@ type (
 			Tags                []string          `envconfig:"DRONE_GOOGLE_TAGS"`
 			UserData            string            `envconfig:"DRONE_GOOGLE_USERDATA"`
 			UserDataFile        string            `envconfig:"DRONE_GOOGLE_USERDATA_FILE"`
-			Zone                string            `envconfig:"DRONE_GOOGLE_ZONE"`
+			Zone                []string          `envconfig:"DRONE_GOOGLE_ZONE"`
 			Region              string            `envconfig:"DRONE_GOOGLE_REGION"`
 		}
 

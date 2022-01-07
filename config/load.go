@@ -13,6 +13,23 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// legacy environment variables. the key is the legacy
+// variable name, and the value is the new variable name.
+var legacy = map[string]string{
+	"DRONE_ENABLE_PINGER": "DRONE_PINGER_ENABLED",
+	"DRONE_ENABLE_REAPER": "DRONE_REAPER_ENABLED",
+}
+
+func init() {
+	// loop through legacy environment variable and, if set
+	// rewrite to the new variable name.
+	for k, v := range legacy {
+		if s, ok := os.LookupEnv(k); ok {
+			os.Setenv(v, s)
+		}
+	}
+}
+
 // Load loads the configuration from the environment.
 func Load() (Config, error) {
 	config := Config{}

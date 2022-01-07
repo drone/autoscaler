@@ -284,7 +284,7 @@ var jsonConfig = []byte(`{
     "Scopes": [
       "devstorage.read_only",
       "pubsub"
-      ],
+    ],
     "DiskSize": 10,
     "Project": "project-foo",
     "Tags": [
@@ -350,6 +350,9 @@ var jsonConfig = []byte(`{
   },
   "Reaper": {
     "Interval": 3600000000000
+  },
+  "Pinger": {
+    "Interval": 600000000000
   },
   "Check": {
     "Interval": 60000000000,

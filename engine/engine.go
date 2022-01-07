@@ -85,8 +85,10 @@ func New(
 			watchtowerInterval: config.Watchtower.Interval,
 		},
 		pinger: &pinger{
-			servers: servers,
-			client:  newDockerClient,
+			servers:  servers,
+			client:   newDockerClient,
+			enabled:  config.Pinger.Enabled,
+			interval: config.Pinger.Interval,
 		},
 		planner: &planner{
 			client:     client,
@@ -107,6 +109,7 @@ func New(
 			servers:  servers,
 			provider: provider,
 			interval: config.Reaper.Interval,
+			enabled:  config.Reaper.Enabled,
 		},
 	}
 }
@@ -223,12 +226,12 @@ func (e *engine) plan(ctx context.Context) {
 
 // runs the ping process.
 func (e *engine) ping(ctx context.Context) {
-	const interval = time.Minute * 10
+	// by default, run the pinger every 10m.
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		case <-time.After(interval):
+		case <-time.After(e.pinger.interval):
 			e.pinger.Ping(ctx)
 		}
 	}

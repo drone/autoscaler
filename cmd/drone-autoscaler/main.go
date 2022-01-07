@@ -243,7 +243,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			google.WithScopes(c.Google.Scopes...),
 			google.WithUserData(c.Google.UserData),
 			google.WithUserDataFile(c.Google.UserDataFile),
-			google.WithZones(c.Google.Zone),
+			google.WithZones(c.Google.Zone...),
 			google.WithUserDataKey(c.Google.UserDataKey),
 		)
 	case c.DigitalOcean.Token != "":

@@ -22,7 +22,7 @@ func TestOptions(t *testing.T) {
 		WithServiceAccountEmail("default"),
 		WithProject("my-project"),
 		WithTags("drone", "agent"),
-		WithZones([]string{"us-central1-f"}),
+		WithZones("us-central1-f"),
 		WithScopes("scope1", "scope2"),
 		WithUserDataKey("test-key"),
 	)

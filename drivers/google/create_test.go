@@ -37,7 +37,7 @@ func TestCreate(t *testing.T) {
 
 	v, err := New(
 		WithClient(http.DefaultClient),
-		WithZones([]string{"us-central1-a"}),
+		WithZones("us-central1-a"),
 		WithProject("my-project"),
 		WithUserData("#cloud-init"),
 	)
@@ -100,7 +100,7 @@ func TestCreateWithMultiZones(t *testing.T) {
 
 	v, err := New(
 		WithClient(http.DefaultClient),
-		WithZones([]string{"us-central1-b"}),
+		WithZones("us-central1-b"),
 		WithProject("my-project"),
 		WithUserData("#cloud-init"),
 	)

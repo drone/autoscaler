@@ -134,16 +134,9 @@ func WithUserDataKey(text string) Option {
 }
 
 // WithZone returns an option to set the target zone.
-func WithZones(zones []string) Option {
+func WithZones(zones ...string) Option {
 	return func(p *provider) {
 		p.zones = zones
-	}
-}
-
-// WithZone returns an option to set the target zone.
-func WithRegion(region string) Option {
-	return func(p *provider) {
-		p.region = region
 	}
 }
 

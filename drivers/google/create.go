@@ -50,6 +50,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		}
 	}
 
+	zone := p.zone
 	if p.region != "" {
 		// If region was specified, use region to choose a random zone
 		region, err := p.service.Regions.Get(p.project, p.region).Do()
@@ -60,14 +61,15 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		}
 		randomZoneIndex := rand.Intn(len(region.Zones))
 		zoneSelfLink := region.Zones[randomZoneIndex]
-		p.zone = zoneSelfLink[strings.LastIndex(zoneSelfLink, "/")+1:]
+		zone = zoneSelfLink[strings.LastIndex(zoneSelfLink, "/")+1:] // path.Base(zoneSelfLink)
+		fmt.Println("zone:", zone)
 	}
 
 	in := &compute.Instance{
 		Name:           name,
-		Zone:           fmt.Sprintf("projects/%s/zones/%s", p.project, p.zone),
+		Zone:           fmt.Sprintf("projects/%s/zones/%s", p.project, zone),
 		MinCpuPlatform: "Automatic",
-		MachineType:    fmt.Sprintf("projects/%s/zones/%s/machineTypes/%s", p.project, p.zone, p.size),
+		MachineType:    fmt.Sprintf("projects/%s/zones/%s/machineTypes/%s", p.project, zone, p.size),
 		Metadata: &compute.Metadata{
 			Items: []*compute.MetadataItems{
 				{
@@ -88,7 +90,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 				DeviceName: name,
 				InitializeParams: &compute.AttachedDiskInitializeParams{
 					SourceImage: fmt.Sprintf("https://www.googleapis.com/compute/v1/projects/%s", p.image),
-					DiskType:    fmt.Sprintf("projects/%s/zones/%s/diskTypes/%s", p.project, p.zone, p.diskType),
+					DiskType:    fmt.Sprintf("projects/%s/zones/%s/diskTypes/%s", p.project, zone, p.diskType),
 					DiskSizeGb:  p.diskSize,
 				},
 			},
@@ -116,7 +118,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		},
 	}
 
-	op, err := p.service.Instances.Insert(p.project, p.zone, in).Context(ctx).Do()
+	op, err := p.service.Instances.Insert(p.project, zone, in).Context(ctx).Do()
 	if err != nil {
 		logger.WithError(err).
 			Errorln("instance insert failed")
@@ -125,7 +127,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 
 	logger.Debugln("pending instance insert operation")
 
-	err = p.waitZoneOperation(ctx, op.Name)
+	err = p.waitZoneOperation(ctx, op.Name, zone)
 	if err != nil {
 		logger.WithError(err).
 			Errorln("instance insert operation failed")
@@ -134,7 +136,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 
 	logger.Debugln("instance insert operation complete")
 
-	resp, err := p.service.Instances.Get(p.project, p.zone, name).Do()
+	resp, err := p.service.Instances.Get(p.project, zone, name).Do()
 	if err != nil {
 		logger.WithError(err).
 			Errorln("cannot get instance details")
@@ -152,7 +154,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		ID:                  name,
 		Name:                opts.Name,
 		Image:               p.image,
-		Region:              p.zone,
+		Region:              zone,
 		Size:                p.size,
 		Address:             address,
 		ServiceAccountEmail: p.serviceAccountEmail,

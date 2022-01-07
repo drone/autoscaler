@@ -105,9 +105,9 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 	return p, nil
 }
 
-func (p *provider) waitZoneOperation(ctx context.Context, name string) error {
+func (p *provider) waitZoneOperation(ctx context.Context, name string, zone string) error {
 	for {
-		op, err := p.service.ZoneOperations.Get(p.project, p.zone, name).Context(ctx).Do()
+		op, err := p.service.ZoneOperations.Get(p.project, zone, name).Context(ctx).Do()
 		if err != nil {
 			if gerr, ok := err.(*googleapi.Error); ok &&
 				gerr.Code == http.StatusNotFound {

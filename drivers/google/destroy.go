@@ -22,5 +22,5 @@ func (p *provider) Destroy(ctx context.Context, instance *autoscaler.Instance) e
 		}
 		return err
 	}
-	return p.waitZoneOperation(ctx, op.Name)
+	return p.waitZoneOperation(ctx, op.Name, instance.Region)
 }

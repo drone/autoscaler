@@ -123,6 +123,16 @@ func WithUserDataFile(filepath string) Option {
 	}
 }
 
+// WithUserDataKey allows to set the user data key for Google Cloud Platform
+// This allows user to set either user-data or a startup script
+func WithUserDataKey(text string) Option {
+	return func(p *provider) {
+		if text != "" {
+			p.userdataKey = text
+		}
+	}
+}
+
 // WithZone returns an option to set the target zone.
 func WithZone(zone string) Option {
 	return func(p *provider) {

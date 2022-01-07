@@ -51,6 +51,7 @@ type provider struct {
 	tags                []string
 	zone                string
 	userdata            *template.Template
+	userdataKey         string
 
 	service *compute.Service
 }
@@ -81,6 +82,9 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 	}
 	if p.userdata == nil {
 		p.userdata = userdata.T
+	}
+	if p.userdataKey == "" {
+		p.userdataKey = "user-data"
 	}
 	if len(p.tags) == 0 {
 		p.tags = defaultTags

@@ -292,7 +292,8 @@ var jsonConfig = []byte(`{
       "prod"
     ],
     "UserData": "#cloud-init",
-    "UserDataFile": "/path/to/cloud/init.yml"
+    "UserDataFile": "/path/to/cloud/init.yml",
+    "UserDataKey": "user-data"
   },
   "HetznerCloud": {
     "Token": "12345678",

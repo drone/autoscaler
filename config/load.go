@@ -7,9 +7,10 @@ package config
 import (
 	"fmt"
 	"os"
+	"strings"
 
+	"github.com/drone/envconfig"
 	"github.com/joho/godotenv"
-	"github.com/kelseyhightower/envconfig"
 )
 
 // legacy environment variables. the key is the legacy
@@ -42,6 +43,12 @@ func Load() (Config, error) {
 				config.Agent.Environ,
 				fmt.Sprintf("%s=%s", k, v),
 			)
+		}
+	}
+	// If environment variables don't contain `=`, we consider that it's an environment name, we fetch and expose the value
+	for i, env := range config.Agent.Environ {
+		if !strings.Contains(env, "=") {
+			config.Agent.Environ[i] = fmt.Sprintf("%s=%s", env, os.Getenv(env))
 		}
 	}
 	godotenv.Load()

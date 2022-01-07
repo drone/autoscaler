@@ -20,16 +20,17 @@ import (
 // current build volume and plan the creation or termination of
 // server resources accordingly.
 type planner struct {
-	os      string
-	arch    string
-	version string
-	kernel  string
-	min     int           // min number of servers
-	max     int           // max number of servers to allocate
-	cap     int           // capacity per-server
-	buffer  int           // buffer capacity to have warm and ready
-	ttu     time.Duration // minimum server age
-	labels  map[string]string
+	os         string
+	arch       string
+	version    string
+	kernel     string
+	namePrefix string
+	min        int           // min number of servers
+	max        int           // max number of servers to allocate
+	cap        int           // capacity per-server
+	buffer     int           // buffer capacity to have warm and ready
+	ttu        time.Duration // minimum server age
+	labels     map[string]string
 
 	client  drone.Client
 	servers autoscaler.ServerStore
@@ -108,9 +109,13 @@ func (p *planner) alloc(ctx context.Context, n int) error {
 	logger := logger.FromContext(ctx)
 	logger.Debugf("allocate %d servers", n)
 
+	namePrefix := p.namePrefix
+	if namePrefix == "" {
+		namePrefix = "agent-"
+	}
 	for i := 0; i < n; i++ {
 		server := &autoscaler.Server{
-			Name:     "agent-" + uniuri.NewLen(8),
+			Name:     p.namePrefix + uniuri.NewLen(8),
 			State:    autoscaler.StatePending,
 			Secret:   uniuri.New(),
 			Capacity: p.cap,
@@ -151,7 +156,7 @@ func (p *planner) mark(ctx context.Context, n int) error {
 		logger.WithField("servers-to-terminate", n).
 			WithField("servers-running", len(servers)).
 			WithField("min-pool", p.min).
-			Debugf("abort terminating %d instances to ensure minimum capacity met")
+			Debugf("abort terminating instances to ensure minimum capacity met")
 		return nil
 	}
 

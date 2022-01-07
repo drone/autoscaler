@@ -60,6 +60,7 @@ type (
 			Environ     []string
 			Volumes     []string
 			Labels      map[string]string `envconfig:"DRONE_AGENT_LABELS"`
+			NamePrefix  string            `envconfig:"DRONE_AGENT_NAME_PREFIX" default:"agent-"`
 		}
 
 		Runner Runner
@@ -114,8 +115,10 @@ type (
 		}
 
 		Database struct {
-			Driver     string `default:"sqlite3"`
-			Datasource string `default:"database.sqlite?cache=shared&mode=rwc&_busy_timeout=9999999"`
+			Driver      string        `default:"sqlite3"`
+			Datasource  string        `default:"database.sqlite?cache=shared&mode=rwc&_busy_timeout=9999999"`
+			MaxIdle     int           `envconfig:"DRONE_DATABASE_MAX_IDLE" default:"0"`
+			MaxLifetime time.Duration `envconfig:"DRONE_DATABASE_MAX_LIFETIME"`
 		}
 
 		Amazon struct {
@@ -167,6 +170,7 @@ type (
 			Tags                []string          `envconfig:"DRONE_GOOGLE_TAGS"`
 			UserData            string            `envconfig:"DRONE_GOOGLE_USERDATA"`
 			UserDataFile        string            `envconfig:"DRONE_GOOGLE_USERDATA_FILE"`
+			UserDataKey         string            `envconfig:"DRONE_GOOGLE_USERDATA_KEY" default:"user-data"`
 			Zone                string            `envconfig:"DRONE_GOOGLE_ZONE"`
 		}
 
@@ -197,6 +201,7 @@ type (
 			Region        string `envconfig:"OS_REGION_NAME"`
 			Image         string
 			Flavor        string
+			Network       string
 			Pool          string   `envconfig:"DRONE_OPENSTACK_IP_POOL"`
 			SecurityGroup []string `split_words:"true"`
 			SSHKey        string

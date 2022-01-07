@@ -12,6 +12,7 @@ import (
 
 	"github.com/drone/autoscaler"
 
+	"github.com/avast/retry-go"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -64,6 +65,21 @@ func (s *serverStore) ListState(_ context.Context, state autoscaler.ServerState)
 }
 
 func (s *serverStore) Create(_ context.Context, server *autoscaler.Server) error {
+	return retry.Do(
+		func() error {
+			if err := s.create(server); isConnReset(err) {
+				return err
+			} else {
+				return retry.Unrecoverable(err)
+			}
+		},
+		retry.Attempts(5),
+		retry.MaxDelay(time.Second*5),
+		retry.LastErrorOnly(true),
+	)
+}
+
+func (s *serverStore) create(server *autoscaler.Server) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -78,10 +94,24 @@ func (s *serverStore) Create(_ context.Context, server *autoscaler.Server) error
 }
 
 func (s *serverStore) Update(_ context.Context, server *autoscaler.Server) error {
+	return retry.Do(
+		func() error {
+			if err := s.update(server); isConnReset(err) {
+				return err
+			} else {
+				return retry.Unrecoverable(err)
+			}
+		},
+		retry.Attempts(5),
+		retry.MaxDelay(time.Second*5),
+		retry.LastErrorOnly(true),
+	)
+}
+
+func (s *serverStore) update(server *autoscaler.Server) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	// before := server.Updated
 	server.Updated = time.Now().Unix()
 	stmt, args, err := s.db.BindNamed(serverUpdateStmt, server)
 	if err != nil {

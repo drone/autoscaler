@@ -25,7 +25,7 @@ func connect() (*sqlx.DB, error) {
 		driver = os.Getenv("DATABASE_DRIVER")
 		config = os.Getenv("DATABASE_CONFIG")
 	}
-	return Connect(driver, config)
+	return Connect(driver, config, 0, 0)
 }
 
 // locker returns a new text locker.

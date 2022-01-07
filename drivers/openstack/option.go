@@ -5,9 +5,10 @@
 package openstack
 
 import (
+	"io/ioutil"
+
 	"github.com/drone/autoscaler/drivers/internal/userdata"
 	"github.com/gophercloud/gophercloud"
-	"io/ioutil"
 )
 
 type Option func(*provider)
@@ -39,11 +40,20 @@ func WithSecurityGroup(group ...string) Option {
 		p.groups = group
 	}
 }
+
 // WithComputeClient returns an option to set the
 // GopherCloud ServiceClient.
 func WithComputeClient(computeClient *gophercloud.ServiceClient) Option {
 	return func(p *provider) {
 		p.computeClient = computeClient
+	}
+}
+
+// WithNetworkClient returns an option to set the
+// GopherCloud ServiceClient.
+func WithNetworkClient(networkClient *gophercloud.ServiceClient) Option {
+	return func(p *provider) {
+		p.networkClient = networkClient
 	}
 }
 
@@ -54,10 +64,10 @@ func WithSSHKey(key string) Option {
 	}
 }
 
-// WithSubnet returns an option to set the subnet id.
-func WithSubnet(id string) Option {
+// WithNetwork returns an option to set the network id.
+func WithNetwork(id string) Option {
 	return func(p *provider) {
-		p.subnet = id
+		p.network = id
 	}
 }
 

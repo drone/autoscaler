@@ -6,6 +6,7 @@ package userdata
 
 import (
 	"bytes"
+	"fmt"
 	"testing"
 
 	"github.com/drone/autoscaler"
@@ -22,6 +23,21 @@ func TestUserdata(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 		return
+	}
+}
+
+func TestUserdataFuncmap(t *testing.T) {
+	buf := new(bytes.Buffer)
+	err := UD.Execute(buf, &map[string]interface{}{
+		"Content": "foo",
+	})
+	fmt.Println(buf.String())
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if buf.String() != UDExpected {
+		t.Errorf("expected '%s', got '%s'", UDExpected, buf.String())
 	}
 }
 
@@ -48,3 +64,26 @@ bGFuIFNhbXBsZSBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkxIjAgBgkqhkiG9w0BCQEW
 E2NvbnRhY3RAZnJlZWxhbi5vcmcwHhcNMTIwNDI3MTAzMTE4WhcNMjIwNDI1MTAz
 DiH5uEqBXExjrj0FslxcVKdVj5glVcSmkLwZKbEU1OKwleT/iXFhvooWhQ==
 -----END CERTIFICATE-----`
+
+var UD = Parse(`#cloud-config
+
+apt_reboot_if_required: 
+package_update: false
+package_upgrade: false
+
+write_files:
+  - path: /etc/systemd/system/docker.service.d/override.conf
+    content: | {{nindent .Content 6 }}
+`)
+
+var UDExpected = `#cloud-config
+
+apt_reboot_if_required: 
+package_update: false
+package_upgrade: false
+
+write_files:
+  - path: /etc/systemd/system/docker.service.d/override.conf
+    content: | 
+      foo
+`

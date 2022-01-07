@@ -66,7 +66,12 @@ func main() {
 	provider = metrics.ServerCreate(provider)
 	provider = metrics.ServerDelete(provider)
 
-	db, err := store.Connect(conf.Database.Driver, conf.Database.Datasource)
+	db, err := store.Connect(
+		conf.Database.Driver,
+		conf.Database.Datasource,
+		conf.Database.MaxIdle,
+		conf.Database.MaxLifetime,
+	)
 	if err != nil {
 		logrus.WithError(err).
 			Fatalln("Cannot establish database connection")
@@ -238,6 +243,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			google.WithScopes(c.Google.Scopes...),
 			google.WithUserData(c.Google.UserData),
 			google.WithUserDataFile(c.Google.UserDataFile),
+			google.WithUserDataKey(c.Google.UserDataKey),
 			google.WithZone(c.Google.Zone),
 		)
 	case c.DigitalOcean.Token != "":
@@ -315,6 +321,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			openstack.WithImage(c.OpenStack.Image),
 			openstack.WithRegion(c.OpenStack.Region),
 			openstack.WithFlavor(c.OpenStack.Flavor),
+			openstack.WithNetwork(c.OpenStack.Network),
 			openstack.WithFloatingIpPool(c.OpenStack.Pool),
 			openstack.WithSSHKey(c.OpenStack.SSHKey),
 			openstack.WithSecurityGroup(c.OpenStack.SecurityGroup...),

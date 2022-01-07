@@ -60,7 +60,7 @@ func testInstance(instance *autoscaler.Instance) func(t *testing.T) {
 		if got, want := instance.ID, "544037"; got != want {
 			t.Errorf("Want instance ID %v, got %v", want, got)
 		}
-		if got, want := instance.Image, "ubuntu-16.04"; got != want {
+		if got, want := instance.Image, "ubuntu-20.04"; got != want {
 			t.Errorf("Want instance Image %v, got %v", want, got)
 		}
 		if got, want := instance.Name, "test"; got != want {
@@ -184,15 +184,15 @@ const respInstanceCreate = `
       "id": 1,
       "type": "system",
       "status": "available",
-      "name": "ubuntu-16.04",
-      "description": "Ubuntu 16.04",
+      "name": "ubuntu-20.04",
+      "description": "Ubuntu 20.04",
       "image_size": null,
       "disk_size": 5,
       "created": "2018-01-15T11:34:45+00:00",
       "created_from": null,
       "bound_to": null,
       "os_flavor": "ubuntu",
-      "os_version": "16.04",
+      "os_version": "20.04",
       "rapid_deploy": true
     },
     "iso": null,

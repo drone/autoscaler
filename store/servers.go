@@ -12,6 +12,7 @@ import (
 
 	"github.com/drone/autoscaler"
 
+	"github.com/avast/retry-go"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -63,17 +64,19 @@ func (s *serverStore) ListState(_ context.Context, state autoscaler.ServerState)
 	return dest, err
 }
 
-func (s *serverStore) Create(_ context.Context, server *autoscaler.Server) (err error) {
-	for i := 0; i < 30; i++ {
-		err = s.create(server)
-		if isConnReset(err) {
-			time.Sleep(time.Second)
-			continue
-		} else {
-			break
-		}
-	}
-	return err
+func (s *serverStore) Create(_ context.Context, server *autoscaler.Server) error {
+	return retry.Do(
+		func() error {
+			if err := s.create(server); isConnReset(err) {
+				return err
+			} else {
+				return retry.Unrecoverable(err)
+			}
+		},
+		retry.Attempts(5),
+		retry.MaxDelay(time.Second*5),
+		retry.LastErrorOnly(true),
+	)
 }
 
 func (s *serverStore) create(server *autoscaler.Server) error {
@@ -90,17 +93,19 @@ func (s *serverStore) create(server *autoscaler.Server) error {
 	return err
 }
 
-func (s *serverStore) Update(_ context.Context, server *autoscaler.Server) (err error) {
-	for i := 0; i < 30; i++ {
-		err = s.update(server)
-		if isConnReset(err) {
-			time.Sleep(time.Second)
-			continue
-		} else {
-			break
-		}
-	}
-	return err
+func (s *serverStore) Update(_ context.Context, server *autoscaler.Server) error {
+	return retry.Do(
+		func() error {
+			if err := s.update(server); isConnReset(err) {
+				return err
+			} else {
+				return retry.Unrecoverable(err)
+			}
+		},
+		retry.Attempts(5),
+		retry.MaxDelay(time.Second*5),
+		retry.LastErrorOnly(true),
+	)
 }
 
 func (s *serverStore) update(server *autoscaler.Server) error {

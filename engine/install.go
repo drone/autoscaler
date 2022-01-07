@@ -23,6 +23,7 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
 	docker "github.com/docker/docker/client"
+	"github.com/docker/go-connections/nat"
 )
 
 type installer struct {
@@ -33,6 +34,7 @@ type installer struct {
 	image            string
 	secret           string
 	volumes          []string
+	ports            []string
 	host             string
 	proto            string
 	envs             []string
@@ -196,7 +198,7 @@ poller:
 	}
 
 	var mounts []mount.Mount
-	var volumes []string
+	volumes := i.volumes
 	switch i.os {
 	case "windows":
 		mounts = append(mounts, mount.Mount{
@@ -205,7 +207,7 @@ poller:
 			Type:   mount.TypeNamedPipe,
 		})
 	default:
-		volumes = append(i.volumes,
+		volumes = append(volumes,
 			"/var/run/docker.sock:/var/run/docker.sock",
 		)
 
@@ -216,6 +218,13 @@ poller:
 		mounts = nil
 	}
 
+	exposedPorts, portBindings, err := nat.ParsePortSpecs(i.ports)
+	if err != nil {
+		i.metrics.IncrServerInitError()
+		logger.WithError(err).Errorln("could not create port binding")
+		return i.errorUpdate(ctx, instance, err)
+	}
+
 	res, err := client.ContainerCreate(ctx,
 		&container.Config{
 			Image:        i.image,
@@ -223,6 +232,7 @@ poller:
 			AttachStderr: true,
 			Env:          envs,
 			Volumes:      toVol(volumes),
+			ExposedPorts: exposedPorts,
 			Labels: map[string]string{
 				"com.centurylinklabs.watchtower.enable":      "true",
 				"com.centurylinklabs.watchtower.stop-signal": "SIGHUP",
@@ -234,8 +244,9 @@ poller:
 			},
 		},
 		&container.HostConfig{
-			Binds:  volumes,
-			Mounts: mounts,
+			Binds:        volumes,
+			Mounts:       mounts,
+			PortBindings: portBindings,
 			RestartPolicy: container.RestartPolicy{
 				Name: "always",
 			},

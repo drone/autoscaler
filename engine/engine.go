@@ -66,6 +66,7 @@ func New(
 			secret:             config.Agent.Token,
 			envs:               config.Agent.Environ,
 			volumes:            config.Agent.Volumes,
+			ports:              config.Agent.Ports,
 			labels:             config.Agent.Labels,
 			proto:              config.Server.Proto,
 			host:               config.Server.Host,
@@ -85,27 +86,31 @@ func New(
 			watchtowerInterval: config.Watchtower.Interval,
 		},
 		pinger: &pinger{
-			servers: servers,
-			client:  newDockerClient,
+			servers:  servers,
+			client:   newDockerClient,
+			enabled:  config.Pinger.Enabled,
+			interval: config.Pinger.Interval,
 		},
 		planner: &planner{
-			client:  client,
-			servers: servers,
-			os:      config.Agent.OS,
-			arch:    config.Agent.Arch,
-			version: config.Agent.Version,
-			kernel:  config.Agent.Kernel,
-			buffer:  config.CapacityBuffer,
-			ttu:     config.Pool.MinAge,
-			min:     config.Pool.Min,
-			max:     config.Pool.Max,
-			cap:     config.Agent.Concurrency,
-			labels:  config.Agent.Labels,
+			client:     client,
+			servers:    servers,
+			os:         config.Agent.OS,
+			arch:       config.Agent.Arch,
+			version:    config.Agent.Version,
+			kernel:     config.Agent.Kernel,
+			buffer:     config.CapacityBuffer,
+			ttu:        config.Pool.MinAge,
+			min:        config.Pool.Min,
+			max:        config.Pool.Max,
+			cap:        config.Agent.Concurrency,
+			labels:     config.Agent.Labels,
+			namePrefix: config.Agent.NamePrefix,
 		},
 		reaper: &reaper{
 			servers:  servers,
 			provider: provider,
 			interval: config.Reaper.Interval,
+			enabled:  config.Reaper.Enabled,
 		},
 	}
 }
@@ -222,12 +227,12 @@ func (e *engine) plan(ctx context.Context) {
 
 // runs the ping process.
 func (e *engine) ping(ctx context.Context) {
-	const interval = time.Minute * 10
+	// by default, run the pinger every 10m.
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		case <-time.After(interval):
+		case <-time.After(e.pinger.interval):
 			e.pinger.Ping(ctx)
 		}
 	}

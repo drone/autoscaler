@@ -24,6 +24,7 @@ func TestOptions(t *testing.T) {
 		WithTags("drone", "agent"),
 		WithZones([]string{"us-central1-f"}),
 		WithScopes("scope1", "scope2"),
+		WithUserDataKey("test-key"),
 	)
 	if err != nil {
 		t.Error(err)
@@ -63,5 +64,8 @@ func TestOptions(t *testing.T) {
 	}
 	if got, want := p.serviceAccountEmail, "default"; got != want {
 		t.Errorf("Want service account name %q, got %q", want, got)
+	}
+	if got, want := p.userdataKey, "test-key"; got != want {
+		t.Errorf("Want userdata key %q, got %q", want, got)
 	}
 }

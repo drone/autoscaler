@@ -6,6 +6,7 @@ package config
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"os"
 	"reflect"
 	"testing"
@@ -185,7 +186,7 @@ var jsonConfig = []byte(`{
   "Interval": 60000000000,
   "CapacityBuffer": 3,
   "Timeout": {
-	  "Stop": 3600000000000
+    "Stop": 3600000000000
   },
   "Slack": {
     "Webhook": "https://hooks.slack.com/services/XXX/YYY/ZZZ",
@@ -201,7 +202,7 @@ var jsonConfig = []byte(`{
   "Pool": {
     "Min": 1,
     "Max": 5,
-	"MinAge": 3600000000000
+    "MinAge": 3600000000000
   },
   "Server": {
     "Host": "drone.company.com",
@@ -209,22 +210,23 @@ var jsonConfig = []byte(`{
     "Token": "633eb230f5"
   },
   "Agent": {
-		"OS": "linux",
-		"Arch": "amd64",
+    "OS": "linux",
+    "Arch": "amd64",
     "Token": "f5064039f5",
     "Image": "drone/drone-runner-docker:latest",
     "Concurrency": 2,
     "KeepaliveTime": 360000000000,
-    "KeepaliveTimeout": 30000000000
+    "KeepaliveTimeout": 30000000000,
+    "NamePrefix": "agent-"
   },
   "HTTP": {
-	"Proto": "http",
+    "Proto": "http",
     "Host": "autoscaler.drone.company.com",
     "Port": "633eb230f5",
     "Root": "/autoscaler"
   },
   "UI": {
-	  "Realm": "Autoscaler"
+    "Realm": "Autoscaler"
   },
   "TLS": {
     "Autocert": true,
@@ -255,18 +257,18 @@ var jsonConfig = []byte(`{
   "Amazon": {
     "Image": "ami-80ca47e6",
     "Instance": "t2.medium",
-		"PrivateIP": true,
-		"Retries": 1,
+    "PrivateIP": true,
+    "Retries": 1,
     "Region": "us-east-2",
     "SSHKey": "id_rsa",
     "SubnetID": "subnet-0b32177f",
     "SecurityGroup": [
       "sg-770eabe1"
-		],
-		"tags": {
-			"os": "linux",
-			"arch": "amd64"
-		},
+    ],
+    "tags": {
+      "os": "linux",
+      "arch": "amd64"
+    },
     "UserData": "#cloud-init",
     "UserDataFile": "/path/to/cloud/init.yml"
   },
@@ -282,7 +284,7 @@ var jsonConfig = []byte(`{
     "Scopes": [
       "devstorage.read_only",
       "pubsub"
-      ],
+    ],
     "DiskSize": 10,
     "Project": "project-foo",
     "Tags": [
@@ -291,7 +293,8 @@ var jsonConfig = []byte(`{
       "prod"
     ],
     "UserData": "#cloud-init",
-    "UserDataFile": "/path/to/cloud/init.yml"
+    "UserDataFile": "/path/to/cloud/init.yml",
+    "UserDataKey": "user-data"
   },
   "HetznerCloud": {
     "Token": "12345678",
@@ -334,22 +337,67 @@ var jsonConfig = []byte(`{
     },
     "UserData": "#cloud-init",
     "UserDataFile": "/path/to/cloud/init.yml"
-	},
-	"Watchtower": {
-		"Image": "webhippie/watchtower",
-		"Interval": 300,
-		"Timeout": 7200000000000
-	},
-	"GC": {
-		"Image": "drone/gc",
-		"Interval": 1800000000000,
-		"Cache": "10gb"
-	},
-	"Reaper": {
-		"Interval": 3600000000000
-	},
-	"Check": {
-		"Interval": 60000000000,
-		"Deadline": 1800000000000
-	}
+  },
+  "Watchtower": {
+    "Image": "webhippie/watchtower",
+    "Interval": 300,
+    "Timeout": 7200000000000
+  },
+  "GC": {
+    "Image": "drone/gc",
+    "Interval": 1800000000000,
+    "Cache": "10gb"
+  },
+  "Reaper": {
+    "Interval": 3600000000000
+  },
+  "Pinger": {
+    "Interval": 600000000000
+  },
+  "Check": {
+    "Interval": 60000000000,
+    "Deadline": 1800000000000
+  }
 }`)
+
+func TestLoadEnvVariables(t *testing.T) {
+	f, err := ioutil.TempFile("", "autoscaler-env-file-test")
+	if err != nil {
+		t.Error(err)
+	}
+	f.WriteString("ENV_FROM_FILE=FILE_VALUE")
+	defer os.Remove(f.Name())
+
+	environ := map[string]string{
+		"ENV_FROM_HOST":        "HOST_VALUE",
+		"DRONE_AGENT_ENVIRON":  `ENV=VALUE,ENV_FROM_HOST`,
+		"DRONE_AGENT_ENV_FILE": f.Name(),
+	}
+
+	defer func() {
+		// reset the environment.
+		for k := range environ {
+			os.Unsetenv(k)
+		}
+	}()
+
+	// set test environment variables
+	for k, v := range environ {
+		os.Setenv(k, v)
+	}
+
+	a := MustLoad()
+	want := []string{
+		"ENV=VALUE",
+		"ENV_FROM_HOST=HOST_VALUE",
+		"ENV_FROM_FILE=FILE_VALUE",
+	}
+	if got, want := len(a.Agent.Environ), len(want); got != want {
+		t.Errorf("Should have an environment of length %d, got %d", want, got)
+	}
+	for i := range a.Agent.Environ {
+		if got, wantV := a.Agent.Environ[i], want[i]; got != wantV {
+			t.Errorf("Wanted environ %s at index %d, got %s", wantV, i, got)
+		}
+	}
+}

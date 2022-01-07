@@ -59,7 +59,9 @@ type (
 			EnvironFile string `envconfig:"DRONE_AGENT_ENV_FILE"`
 			Environ     []string
 			Volumes     []string
+			Ports       []string          `envconfig:"DRONE_AGENT_PUBLISHED_PORTS"`
 			Labels      map[string]string `envconfig:"DRONE_AGENT_LABELS"`
+			NamePrefix  string            `envconfig:"DRONE_AGENT_NAME_PREFIX" default:"agent-"`
 		}
 
 		Runner Runner
@@ -74,8 +76,13 @@ type (
 		}
 
 		Reaper struct {
-			Enabled  bool          `envconfig:"DRONE_REAPER_ENABLED"`
+			Enabled  bool          `envconfig:"DRONE_REAPER_ENABLED", default:"false"`
 			Interval time.Duration `envconfig:"DRONE_REAPER_INTERVAL" default:"1h"`
+		}
+
+		Pinger struct {
+			Enabled  bool          `envconfig:"DRONE_PINGER_ENABLED", default:"false"`
+			Interval time.Duration `envconfig:"DRONE_PINGER_INTERVAL" default:"10m"`
 		}
 
 		Watchtower struct {
@@ -165,6 +172,7 @@ type (
 			UserData            string            `envconfig:"DRONE_GOOGLE_USERDATA"`
 			UserDataFile        string            `envconfig:"DRONE_GOOGLE_USERDATA_FILE"`
 			Zone                []string          `envconfig:"DRONE_GOOGLE_ZONE"`
+			UserDataKey         string            `envconfig:"DRONE_GOOGLE_USERDATA_KEY" default:"user-data"`
 		}
 
 		HetznerCloud struct {

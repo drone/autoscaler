@@ -30,9 +30,12 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	}
 
 	name := strings.ToLower(opts.Name)
-
+	
+	// select random zone from the list
+	zone := p.zones[rand.Intn(len(p.zones))]
+	
 	logger := logger.FromContext(ctx).
-		WithField("zones", p.zones).
+		WithField("zone", zone).
 		WithField("image", p.image).
 		WithField("size", p.size).
 		WithField("name", opts.Name)
@@ -49,9 +52,6 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 			},
 		}
 	}
-
-	randomZoneIndex := rand.Intn(len(p.zones))
-	zone := p.zones[randomZoneIndex]
 
 	in := &compute.Instance{
 		Name:           name,

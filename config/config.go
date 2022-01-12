@@ -53,7 +53,7 @@ type (
 			Image       string `default:"drone/drone-runner-docker:1"`
 			Concurrency int    `default:"2"`
 			OS          string `default:"linux"`
-			Arch        string `default:"amd64"`
+			Arch        string `envconfig:"DRONE_AGENT_ARCH" default:"amd64"`
 			Version     string
 			Kernel      string
 			EnvironFile string `envconfig:"DRONE_AGENT_ENV_FILE"`

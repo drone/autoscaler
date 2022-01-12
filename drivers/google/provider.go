@@ -50,7 +50,6 @@ type provider struct {
 	size                string
 	tags                []string
 	zones               []string
-	region              string
 	userdata            *template.Template
 	userdataKey         string
 

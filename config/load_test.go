@@ -85,6 +85,7 @@ func TestLoad(t *testing.T) {
 		"DRONE_AGENT_TOKEN":                "f5064039f5",
 		"DRONE_AGENT_IMAGE":                "drone/drone-runner-docker:latest",
 		"DRONE_AGENT_CONCURRENCY":          "2",
+		"DRONE_AGENT_ARCH":                 "arm64",
 		"DRONE_TLS_AUTOCERT":               "true",
 		"DRONE_TLS_CERT":                   "/path/to/cert.crt",
 		"DRONE_TLS_KEY":                    "/path/to/cert.key",
@@ -211,7 +212,7 @@ var jsonConfig = []byte(`{
   },
   "Agent": {
     "OS": "linux",
-    "Arch": "amd64",
+    "Arch": "arm64",
     "Token": "f5064039f5",
     "Image": "drone/drone-runner-docker:latest",
     "Concurrency": 2,

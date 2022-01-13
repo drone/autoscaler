@@ -103,7 +103,7 @@ func TestLoad(t *testing.T) {
 		"DRONE_DIGITALOCEAN_TAGS":          "drone,agent,prod",
 		"DRONE_DIGITALOCEAN_USERDATA":      "#cloud-init",
 		"DRONE_DIGITALOCEAN_USERDATA_FILE": "/path/to/cloud/init.yml",
-		"DRONE_GOOGLE_ZONE":                "us-central1-b",
+		"DRONE_GOOGLE_ZONE":                "us-central1-b,us-central1-a",
 		"DRONE_GOOGLE_MACHINE_TYPE":        "f1-micro",
 		"DRONE_GOOGLE_MACHINE_IMAGE":       "ubuntu-1510-wily-v20151114",
 		"DRONE_GOOGLE_DISK_TYPE":           "pd-standard",
@@ -274,7 +274,7 @@ var jsonConfig = []byte(`{
     "UserDataFile": "/path/to/cloud/init.yml"
   },
   "Google": {
-    "Zone": "us-central1-b",
+    "Zone": ["us-central1-b","us-central1-a"],
     "MachineType": "f1-micro",
     "MachineImage": "ubuntu-1510-wily-v20151114",
     "DiskType": "pd-standard",

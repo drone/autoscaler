@@ -207,7 +207,7 @@ var insertInstanceMockB = &compute.Instance{
 			AutoDelete: true,
 			DeviceName: "agent-807jvfwj",
 			InitializeParams: &compute.AttachedDiskInitializeParams{
-				SourceImage: "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-1604-xenial-v20170721",
+				SourceImage: "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20220110",
 				DiskType:    "projects/my-project/zones/us-central1-b/diskTypes/pd-standard",
 				DiskSizeGb:  50,
 			},

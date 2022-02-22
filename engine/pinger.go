@@ -65,6 +65,8 @@ func (p *pinger) ping(ctx context.Context, server *autoscaler.Server) error {
 	// state.
 
 	for i := 0; i < 5; i++ {
+		logger.Debugln("pinging the server")
+
 		timeout, cancel := context.WithTimeout(ctx, time.Minute)
 		_, err := client.Ping(timeout)
 		cancel()
@@ -72,6 +74,9 @@ func (p *pinger) ping(ctx context.Context, server *autoscaler.Server) error {
 			logger.WithField("state", "healthy").
 				Debugln("server ping successful")
 			return nil
+		} else {
+			logger.WithError(err).
+				Warnln("server ping unsuccessful")
 		}
 	}
 
@@ -87,6 +92,9 @@ func (p *pinger) ping(ctx context.Context, server *autoscaler.Server) error {
 		// we should exit without making any changes.
 		return nil
 	}
+
+	logger.WithField("state", "unhealthy").
+		Debugln("failed to reach server")
 
 	server.Error = "Failed to ping the server"
 	server.Stopped = time.Now().Unix()

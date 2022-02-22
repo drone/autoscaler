@@ -13,7 +13,8 @@ import (
 )
 
 func (p *provider) Destroy(ctx context.Context, instance *autoscaler.Instance) error {
-	op, err := p.service.Instances.Delete(p.project, p.zone, instance.ID).Context(ctx).Do()
+	// An instance's Region is actually a Zone in the google provider
+	op, err := p.service.Instances.Delete(p.project, instance.Region, instance.ID).Context(ctx).Do()
 	if err != nil {
 		// https://github.com/googleapis/google-api-go-client/blob/master/googleapi/googleapi.go#L135
 		if gerr, ok := err.(*googleapi.Error); ok &&
@@ -22,5 +23,5 @@ func (p *provider) Destroy(ctx context.Context, instance *autoscaler.Instance) e
 		}
 		return err
 	}
-	return p.waitZoneOperation(ctx, op.Name)
+	return p.waitZoneOperation(ctx, op.Name, instance.Region)
 }

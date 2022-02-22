@@ -33,7 +33,7 @@ func TestSetupFirewall(t *testing.T) {
 
 	p, err := New(
 		WithClient(http.DefaultClient),
-		WithZone("us-central1-a"),
+		WithZones("us-central1-a"),
 		WithProject("my-project"),
 	)
 	if err != nil {
@@ -57,7 +57,7 @@ func TestSetupFirewall_Exists(t *testing.T) {
 
 	p, err := New(
 		WithClient(http.DefaultClient),
-		WithZone("us-central1-a"),
+		WithZones("us-central1-a"),
 		WithProject("my-project"),
 	)
 	if err != nil {

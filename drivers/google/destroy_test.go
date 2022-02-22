@@ -28,12 +28,13 @@ func TestDestroy(t *testing.T) {
 
 	mockContext := context.TODO()
 	mockInstance := &autoscaler.Instance{
-		ID: "my-instance",
+		ID:     "my-instance",
+		Region: "us-central1-a",
 	}
 
 	p, err := New(
 		WithClient(http.DefaultClient),
-		WithZone("us-central1-a"),
+		WithZones("us-central1-a"),
 		WithProject("my-project"),
 	)
 	if err != nil {
@@ -56,12 +57,13 @@ func TestDestroy_Error(t *testing.T) {
 
 	mockContext := context.TODO()
 	mockInstance := &autoscaler.Instance{
-		ID: "my-instance",
+		ID:     "my-instance",
+		Region: "us-central1-a",
 	}
 
 	p, err := New(
 		WithClient(http.DefaultClient),
-		WithZone("us-central1-a"),
+		WithZones("us-central1-a"),
 		WithProject("my-project"),
 	)
 	if err != nil {

@@ -9,6 +9,8 @@ import (
 	"testing"
 )
 
+const expectedGetHeaderTextPlain = "text/plain; version=0.0.4; charset=utf-8"
+
 func TestHandleMetrics(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/", nil)
@@ -20,7 +22,7 @@ func TestHandleMetrics(t *testing.T) {
 		t.Errorf("Want status code %d, got %d", want, got)
 	}
 
-	if got, want := w.HeaderMap.Get("Content-Type"), "text/plain; version=0.0.4"; got != want {
+	if got, want := w.HeaderMap.Get("Content-Type"), expectedGetHeaderTextPlain; got != want {
 		t.Errorf("Want prometheus header %q, got %q", want, got)
 	}
 }
@@ -35,7 +37,7 @@ func TestHandleMetricsUnprotected(t *testing.T) {
 		t.Errorf("Want status code %d, got %d", want, got)
 	}
 
-	if got, want := w.HeaderMap.Get("Content-Type"), "text/plain; version=0.0.4"; got != want {
+	if got, want := w.HeaderMap.Get("Content-Type"), expectedGetHeaderTextPlain; got != want {
 		t.Errorf("Want prometheus header %q, got %q", want, got)
 	}
 }

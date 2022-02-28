@@ -176,13 +176,14 @@ type (
 		}
 
 		HetznerCloud struct {
-			Datacenter   string
-			Image        string
-			SSHKey       int
-			Token        string
-			Type         string
-			UserData     string `envconfig:"DRONE_HETZNERCLOUD_USERDATA"`
-			UserDataFile string `envconfig:"DRONE_HETZNERCLOUD_USERDATA_FILE"`
+			Datacenter     string
+			Image          string
+			SSHKey         int
+			Token          string
+			Type           string
+			UserData       string `envconfig:"DRONE_HETZNERCLOUD_USERDATA"`
+			UserDataFile   string `envconfig:"DRONE_HETZNERCLOUD_USERDATA_FILE"`
+			PrivateNetwork string
 		}
 
 		Packet struct {

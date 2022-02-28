@@ -5,6 +5,7 @@
 package hetznercloud
 
 import (
+	"net"
 	"sync"
 	"text/template"
 
@@ -24,6 +25,7 @@ type provider struct {
 	image      string
 	userdata   *template.Template
 	key        int
+	priv       *net.IPNet
 
 	client *hcloud.Client
 }

@@ -6,6 +6,7 @@ package hetznercloud
 
 import (
 	"io/ioutil"
+	"net"
 
 	"github.com/drone/autoscaler/drivers/internal/userdata"
 	"github.com/hetznercloud/hcloud-go/hcloud"
@@ -80,6 +81,20 @@ func WithUserDataFile(filepath string) Option {
 				panic(err)
 			}
 			p.userdata = userdata.Parse(string(b))
+		}
+	}
+}
+
+// WithPrivateNetwork returns an option to use private network.
+// It sets the first network to match the subnet mask
+func WithPrivateNetwork(cidr string) Option {
+	return func(p *provider) {
+		if cidr != "" {
+			_, ipNet, err := net.ParseCIDR(cidr)
+			if err != nil {
+				panic(err)
+			}
+			p.priv = ipNet
 		}
 	}
 }

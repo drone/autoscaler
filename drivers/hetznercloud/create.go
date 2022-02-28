@@ -71,11 +71,23 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		WithField("name", req.Name).
 		Infoln("instance created")
 
+	var ip string
+	if p.priv != nil {
+		for _, net := range resp.Server.PrivateNet {
+			if p.priv.Contains(net.IP) {
+				ip = net.IP.String()
+				break
+			}
+		}
+	} else {
+		ip = resp.Server.PublicNet.IPv4.IP.String()
+	}
+
 	return &autoscaler.Instance{
 		Provider: autoscaler.ProviderHetznerCloud,
 		ID:       strconv.Itoa(resp.Server.ID),
 		Name:     resp.Server.Name,
-		Address:  resp.Server.PublicNet.IPv4.IP.String(),
+		Address:  ip,
 		Size:     req.ServerType.Name,
 		Region:   datacenter,
 		Image:    req.Image.Name,

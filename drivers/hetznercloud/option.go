@@ -83,3 +83,17 @@ func WithUserDataFile(filepath string) Option {
 		}
 	}
 }
+
+// WithNetwork creates the VM attached to a hetzner network
+func WithNetwork(name string) Option {
+	return func(p *provider) {
+		p.network = name
+	}
+}
+
+// WithPrivateIP uses a private IP, input is the network the IP belong to. Implies WithNetwork (you can also use both)
+func WithPrivateIP(name string) Option {
+	return func(p *provider) {
+		p.private = name
+	}
+}

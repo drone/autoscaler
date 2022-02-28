@@ -183,6 +183,8 @@ type (
 			Type         string
 			UserData     string `envconfig:"DRONE_HETZNERCLOUD_USERDATA"`
 			UserDataFile string `envconfig:"DRONE_HETZNERCLOUD_USERDATA_FILE"`
+			Network      string
+			Private      string
 		}
 
 		Packet struct {

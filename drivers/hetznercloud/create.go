@@ -7,6 +7,8 @@ package hetznercloud
 import (
 	"bytes"
 	"context"
+	"errors"
+	"fmt"
 	"strconv"
 
 	"github.com/drone/autoscaler"
@@ -42,6 +44,32 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		},
 	}
 
+	for _, netName := range []string{
+		p.network,
+		p.private,
+	} {
+		if err := func() error {
+			if netName == "" {
+				return nil
+			}
+			for _, oldNet := range req.Networks {
+				if oldNet.Name == netName {
+					return nil
+				}
+			}
+			net, _, err := p.client.Network.GetByName(ctx, netName)
+			if err != nil {
+				return err
+			} else if net == nil {
+				return errors.New(fmt.Sprintf("Network %s not found.", netName))
+			}
+			req.Networks = append(req.Networks, net)
+			return nil
+		}(); err != nil {
+			return nil, err
+		}
+	}
+
 	datacenter := "unknown"
 
 	if p.datacenter != "" {
@@ -69,13 +97,49 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 
 	logger.
 		WithField("name", req.Name).
+		WithField("full", req).
 		Infoln("instance created")
+
+	var ip string
+	if p.private != "" {
+		_, errC := p.client.Action.WatchOverallProgress(ctx, resp.NextActions)
+		if err := <-errC; err != nil {
+			logger.WithError(err).
+				Errorln("Instance failed to start.")
+			return nil, err
+		}
+		s, _, err := p.client.Server.GetByID(context.Background(), resp.Server.ID)
+		if err != nil {
+			logger.WithError(err).
+				Errorln("Failed to retrieve created server.")
+			return nil, err
+		}
+		// for some reason GetByID returns Networks without Name set, so we need to get the ID of the private network
+		var id int
+		for _, net := range req.Networks {
+			if net.Name == p.private {
+				id = net.ID
+				break
+			}
+		}
+		for _, net := range s.PrivateNet {
+			if net.Network.ID == id {
+				ip = net.IP.String()
+				break
+			}
+		}
+	} else {
+		ip = resp.Server.PublicNet.IPv4.IP.String()
+	}
+	if ip == "" {
+		return nil, errors.New("Instance address not set (Private network not found on instance?).")
+	}
 
 	return &autoscaler.Instance{
 		Provider: autoscaler.ProviderHetznerCloud,
 		ID:       strconv.Itoa(resp.Server.ID),
 		Name:     resp.Server.Name,
-		Address:  resp.Server.PublicNet.IPv4.IP.String(),
+		Address:  ip,
 		Size:     req.ServerType.Name,
 		Region:   datacenter,
 		Image:    req.Image.Name,

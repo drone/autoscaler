@@ -67,7 +67,7 @@ func (p *pinger) ping(ctx context.Context, server *autoscaler.Server) error {
 	for i := 0; i < 5; i++ {
 		logger.Debugln("pinging the server")
 
-		timeout, cancel := context.WithTimeout(ctx, time.Minute)
+		timeout, cancel := context.WithTimeout(nocontext, time.Minute)
 		_, err := client.Ping(timeout)
 		cancel()
 		if err == nil {

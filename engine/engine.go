@@ -20,6 +20,9 @@ import (
 // purged from the database.
 const purge = time.Hour * 24
 
+// defines an empty context.
+var nocontext = context.Background()
+
 type engine struct {
 	mu sync.Mutex
 

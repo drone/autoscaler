@@ -154,6 +154,7 @@ func main() {
 
 	ctx := context.Background()
 	ctx = signal.WithContextFunc(ctx, func() {
+		logrus.Println("Program terminating, interrupt received")
 		srv.Shutdown(ctx)
 	})
 
@@ -187,7 +188,10 @@ func main() {
 	})
 
 	if err := g.Wait(); err != nil {
+		// terminate with non-zero exit code on error
 		logrus.WithError(err).Fatalln("Program terminated")
+	} else {
+		logrus.Println("Program terminated")
 	}
 }
 

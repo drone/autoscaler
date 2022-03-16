@@ -62,9 +62,11 @@ func main() {
 			Fatalln("Invalid or missing hosting provider")
 	}
 
+	collector := metrics.New()
+
 	// instruments the provider with prometheus metrics.
 	provider = metrics.ServerCreate(provider)
-	provider = metrics.ServerDelete(provider)
+	provider = metrics.ServerDelete(provider, collector)
 
 	db, err := store.Connect(
 		conf.Database.Driver,
@@ -95,7 +97,7 @@ func main() {
 		conf,
 		servers,
 		provider,
-		metrics.New(),
+		collector,
 	)
 
 	//

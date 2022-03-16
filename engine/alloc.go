@@ -123,5 +123,7 @@ func (a *allocator) allocate(ctx context.Context, server *autoscaler.Server) err
 		return err
 	}
 
+	a.metrics.RegisterKnownInstance(instance)
+
 	return nil
 }

@@ -20,7 +20,7 @@ func TestHandleMetrics(t *testing.T) {
 		t.Errorf("Want status code %d, got %d", want, got)
 	}
 
-	if got, want := w.HeaderMap.Get("Content-Type"), "text/plain; version=0.0.4"; got != want {
+	if got, want := w.Result().Header.Get("Content-Type"), "text/plain; version=0.0.4; charset=utf-8"; got != want {
 		t.Errorf("Want prometheus header %q, got %q", want, got)
 	}
 }
@@ -35,7 +35,7 @@ func TestHandleMetricsUnprotected(t *testing.T) {
 		t.Errorf("Want status code %d, got %d", want, got)
 	}
 
-	if got, want := w.HeaderMap.Get("Content-Type"), "text/plain; version=0.0.4"; got != want {
+	if got, want := w.Result().Header.Get("Content-Type"), "text/plain; version=0.0.4; charset=utf-8"; got != want {
 		t.Errorf("Want prometheus header %q, got %q", want, got)
 	}
 }

@@ -30,10 +30,10 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	}
 
 	name := strings.ToLower(opts.Name)
-	
+
 	// select random zone from the list
 	zone := p.zones[rand.Intn(len(p.zones))]
-	
+
 	logger := logger.FromContext(ctx).
 		WithField("zone", zone).
 		WithField("image", p.image).
@@ -106,7 +106,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		},
 	}
 
-	op, err := p.service.Instances.Insert(p.project, zone, in).Context(ctx).Do()
+	op, err := p.service.Instances.Insert(p.project, zone, in).Do()
 	if err != nil {
 		logger.WithError(err).
 			Errorln("instance insert failed")

@@ -67,10 +67,11 @@ func (p *pinger) ping(ctx context.Context, server *autoscaler.Server) error {
 	for i := 0; i < 5; i++ {
 		logger.Debugln("pinging the server")
 
+		// TODO should this be moved outside of the loop
 		timeout, cancel := context.WithTimeout(nocontext, time.Minute)
-		_, err := client.Ping(timeout)
-		cancel()
-		if err == nil {
+		defer cancel()
+
+		if _, err := client.Ping(timeout); err == nil {
 			logger.WithField("state", "healthy").
 				Debugln("server ping successful")
 			return nil

@@ -185,6 +185,7 @@ type (
 			UserDataFile string `envconfig:"DRONE_HETZNERCLOUD_USERDATA_FILE"`
 			Network      string
 			Private      string
+			Labels       map[string]string
 		}
 
 		Packet struct {

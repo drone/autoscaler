@@ -26,6 +26,7 @@ type provider struct {
 	key        int
 	network    string
 	private    string
+	labels     map[string]string
 
 	client *hcloud.Client
 }

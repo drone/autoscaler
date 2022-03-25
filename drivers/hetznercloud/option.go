@@ -97,3 +97,12 @@ func WithPrivateIP(name string) Option {
 		p.private = name
 	}
 }
+
+// Set hetzner labels
+func WithLabels(labels map[string]string) Option {
+	return func(p *provider) {
+		if labels != nil {
+			p.labels = labels
+		}
+	}
+}

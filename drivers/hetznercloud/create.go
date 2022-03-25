@@ -42,6 +42,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 				ID: p.key,
 			},
 		},
+		Labels: p.labels,
 	}
 
 	for _, netName := range []string{

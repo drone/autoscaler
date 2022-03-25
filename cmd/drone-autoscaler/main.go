@@ -283,6 +283,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			hetznercloud.WithToken(c.HetznerCloud.Token),
 			hetznercloud.WithNetwork(c.HetznerCloud.Network),
 			hetznercloud.WithPrivateIP(c.HetznerCloud.Private),
+			hetznercloud.WithLabels(c.HetznerCloud.Labels),
 		), nil
 	case c.Packet.APIKey != "":
 		return packet.New(

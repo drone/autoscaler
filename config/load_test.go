@@ -135,6 +135,7 @@ func TestLoad(t *testing.T) {
 		"DRONE_HETZNERCLOUD_TYPE":          "cx11",
 		"DRONE_HETZNERCLOUD_USERDATA":      "#cloud-init",
 		"DRONE_HETZNERCLOUD_USERDATA_FILE": "/path/to/cloud/init.yml",
+		"DRONE_HETZNERCLOUD_LABELS":        "key:value,k:v",
 		"DRONE_PACKET_APIKEY":              "12345678",
 		"DRONE_PACKET_FACILITY":            "facility",
 		"DRONE_PACKET_PROJECT_ID":          "project",
@@ -304,7 +305,11 @@ var jsonConfig = []byte(`{
     "SSHKey": 12345,
     "Type": "cx11",
     "UserData": "#cloud-init",
-    "UserDataFile": "/path/to/cloud/init.yml"
+    "UserDataFile": "/path/to/cloud/init.yml",
+    "Labels": {
+      "key": "value",
+      "k": "v"
+    }
   },
   "Packet": {
     "APIKey": "12345678",

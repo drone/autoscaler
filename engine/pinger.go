@@ -67,11 +67,20 @@ func (p *pinger) ping(ctx context.Context, server *autoscaler.Server) error {
 	for i := 0; i < 5; i++ {
 		logger.Debugln("pinging the server")
 
-		// TODO should this be moved outside of the loop
-		timeout, cancel := context.WithTimeout(nocontext, time.Minute)
-		defer cancel()
+		timeout, cancel := context.WithTimeout(ctx, time.Minute)
+		_, err := client.Ping(timeout)
+		cancel()
 
-		if _, err := client.Ping(timeout); err == nil {
+		// If the global context is in an error state we
+		// should assume this is because the program is
+		// being gracefully terminated. This could cause
+		// false positive ping errors, so we ignore and
+		// exit the routine.
+		if ctx.Err() != nil {
+			return nil
+		}
+
+		if err == nil {
 			logger.WithField("state", "healthy").
 				Debugln("server ping successful")
 			return nil

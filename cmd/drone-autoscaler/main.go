@@ -249,6 +249,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			google.WithUserDataFile(c.Google.UserDataFile),
 			google.WithZones(c.Google.Zone...),
 			google.WithUserDataKey(c.Google.UserDataKey),
+			google.WithRateLimit(c.Google.RateLimit),
 		)
 	case c.DigitalOcean.Token != "":
 		return digitalocean.New(

@@ -16,6 +16,7 @@ import (
 	"github.com/drone/autoscaler/drivers/internal/userdata"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	"golang.org/x/time/rate"
 	compute "google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
 )
@@ -52,6 +53,8 @@ type provider struct {
 	zones               []string
 	userdata            *template.Template
 	userdataKey         string
+
+	rateLimiter *rate.Limiter
 
 	service *compute.Service
 }
@@ -95,6 +98,13 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 	if p.serviceAccountEmail == "" {
 		p.serviceAccountEmail = "default"
 	}
+
+	if p.rateLimiter == nil {
+		// If unspecified, set to the max read rate limit for the API 25/s
+		// Source: https://cloud.google.com/compute/docs/api-rate-limits
+		p.rateLimiter = rate.NewLimiter(rate.Every(time.Second/25), 1)
+	}
+
 	if p.service == nil {
 		client, err := google.DefaultClient(oauth2.NoContext, compute.ComputeScope)
 		if err != nil {
@@ -110,19 +120,21 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 
 func (p *provider) waitZoneOperation(ctx context.Context, name string, zone string) error {
 	for {
-		op, err := p.service.ZoneOperations.Get(p.project, zone, name).Context(ctx).Do()
-		if err != nil {
-			if gerr, ok := err.(*googleapi.Error); ok &&
-				gerr.Code == http.StatusNotFound {
-				return autoscaler.ErrInstanceNotFound
+		if p.rateLimiter.Allow() {
+			op, err := p.service.ZoneOperations.Get(p.project, zone, name).Context(ctx).Do()
+			if err != nil {
+				if gerr, ok := err.(*googleapi.Error); ok &&
+					gerr.Code == http.StatusNotFound {
+					return autoscaler.ErrInstanceNotFound
+				}
+				return err
 			}
-			return err
-		}
-		if op.Error != nil {
-			return errors.New(op.Error.Errors[0].Message)
-		}
-		if op.Status == "DONE" {
-			return nil
+			if op.Error != nil {
+				return errors.New(op.Error.Errors[0].Message)
+			}
+			if op.Status == "DONE" {
+				return nil
+			}
 		}
 		time.Sleep(time.Second)
 	}
@@ -130,15 +142,17 @@ func (p *provider) waitZoneOperation(ctx context.Context, name string, zone stri
 
 func (p *provider) waitGlobalOperation(ctx context.Context, name string) error {
 	for {
-		op, err := p.service.GlobalOperations.Get(p.project, name).Context(ctx).Do()
-		if err != nil {
-			return err
-		}
-		if op.Error != nil {
-			return errors.New(op.Error.Errors[0].Message)
-		}
-		if op.Status == "DONE" {
-			return nil
+		if p.rateLimiter.Allow() {
+			op, err := p.service.GlobalOperations.Get(p.project, name).Context(ctx).Do()
+			if err != nil {
+				return err
+			}
+			if op.Error != nil {
+				return errors.New(op.Error.Errors[0].Message)
+			}
+			if op.Status == "DONE" {
+				return nil
+			}
 		}
 		time.Sleep(time.Second)
 	}

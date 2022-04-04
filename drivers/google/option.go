@@ -7,8 +7,10 @@ package google
 import (
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/drone/autoscaler/drivers/internal/userdata"
+	"golang.org/x/time/rate"
 
 	"google.golang.org/api/compute/v1"
 )
@@ -151,5 +153,12 @@ func WithScopes(scopes ...string) Option {
 func WithServiceAccountEmail(email string) Option {
 	return func(p *provider) {
 		p.serviceAccountEmail = email
+	}
+}
+
+func WithRateLimit(limitAmount int) Option {
+	return func(p *provider) {
+		limit := rate.Every(1 * time.Second / time.Duration(limitAmount))
+		p.rateLimiter = rate.NewLimiter(limit, 1)
 	}
 }

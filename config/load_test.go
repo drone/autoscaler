@@ -117,6 +117,7 @@ func TestLoad(t *testing.T) {
 		"DRONE_GOOGLE_TAGS":                "drone,agent,prod",
 		"DRONE_GOOGLE_USERDATA":            "#cloud-init",
 		"DRONE_GOOGLE_USERDATA_FILE":       "/path/to/cloud/init.yml",
+		"DRONE_GOOGLE_READ_RATELIMIT":      "20",
 		"DRONE_AMAZON_IMAGE":               "ami-80ca47e6",
 		"DRONE_AMAZON_INSTANCE":            "t2.medium",
 		"DRONE_AMAZON_PRIVATE_IP":          "true",
@@ -295,7 +296,8 @@ var jsonConfig = []byte(`{
     ],
     "UserData": "#cloud-init",
     "UserDataFile": "/path/to/cloud/init.yml",
-    "UserDataKey": "user-data"
+    "UserDataKey": "user-data",
+	"RateLimit": 20
   },
   "HetznerCloud": {
     "Token": "12345678",

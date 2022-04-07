@@ -6,6 +6,7 @@ package google
 
 import (
 	"net/http"
+	"reflect"
 	"testing"
 )
 
@@ -21,7 +22,7 @@ func TestOptions(t *testing.T) {
 		WithServiceAccountEmail("default"),
 		WithProject("my-project"),
 		WithTags("drone", "agent"),
-		WithZone("us-central1-f"),
+		WithZones("us-central1-f"),
 		WithScopes("scope1", "scope2"),
 		WithUserDataKey("test-key"),
 	)
@@ -55,7 +56,7 @@ func TestOptions(t *testing.T) {
 	if got, want := len(p.tags), 2; got != want {
 		t.Errorf("Want %d tags, got %d", want, got)
 	}
-	if got, want := p.zone, "us-central1-f"; got != want {
+	if got, want := p.zones, []string{"us-central1-f"}; !reflect.DeepEqual(want, got) {
 		t.Errorf("Want zone %q, got %q", want, got)
 	}
 	if got, want := len(p.scopes), 2; got != want {

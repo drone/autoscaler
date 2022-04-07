@@ -85,6 +85,7 @@ func TestLoad(t *testing.T) {
 		"DRONE_AGENT_TOKEN":                "f5064039f5",
 		"DRONE_AGENT_IMAGE":                "drone/drone-runner-docker:latest",
 		"DRONE_AGENT_CONCURRENCY":          "2",
+		"DRONE_AGENT_ARCH":                 "arm64",
 		"DRONE_TLS_AUTOCERT":               "true",
 		"DRONE_TLS_CERT":                   "/path/to/cert.crt",
 		"DRONE_TLS_KEY":                    "/path/to/cert.key",
@@ -102,7 +103,7 @@ func TestLoad(t *testing.T) {
 		"DRONE_DIGITALOCEAN_TAGS":          "drone,agent,prod",
 		"DRONE_DIGITALOCEAN_USERDATA":      "#cloud-init",
 		"DRONE_DIGITALOCEAN_USERDATA_FILE": "/path/to/cloud/init.yml",
-		"DRONE_GOOGLE_ZONE":                "us-central1-b",
+		"DRONE_GOOGLE_ZONE":                "us-central1-b,us-central1-a",
 		"DRONE_GOOGLE_MACHINE_TYPE":        "f1-micro",
 		"DRONE_GOOGLE_MACHINE_IMAGE":       "ubuntu-1510-wily-v20151114",
 		"DRONE_GOOGLE_DISK_TYPE":           "pd-standard",
@@ -116,6 +117,7 @@ func TestLoad(t *testing.T) {
 		"DRONE_GOOGLE_TAGS":                "drone,agent,prod",
 		"DRONE_GOOGLE_USERDATA":            "#cloud-init",
 		"DRONE_GOOGLE_USERDATA_FILE":       "/path/to/cloud/init.yml",
+		"DRONE_GOOGLE_READ_RATELIMIT":      "20",
 		"DRONE_AMAZON_IMAGE":               "ami-80ca47e6",
 		"DRONE_AMAZON_INSTANCE":            "t2.medium",
 		"DRONE_AMAZON_PRIVATE_IP":          "true",
@@ -211,7 +213,7 @@ var jsonConfig = []byte(`{
   },
   "Agent": {
     "OS": "linux",
-    "Arch": "amd64",
+    "Arch": "arm64",
     "Token": "f5064039f5",
     "Image": "drone/drone-runner-docker:latest",
     "Concurrency": 2,
@@ -273,7 +275,7 @@ var jsonConfig = []byte(`{
     "UserDataFile": "/path/to/cloud/init.yml"
   },
   "Google": {
-    "Zone": "us-central1-b",
+    "Zone": ["us-central1-b","us-central1-a"],
     "MachineType": "f1-micro",
     "MachineImage": "ubuntu-1510-wily-v20151114",
     "DiskType": "pd-standard",
@@ -294,7 +296,8 @@ var jsonConfig = []byte(`{
     ],
     "UserData": "#cloud-init",
     "UserDataFile": "/path/to/cloud/init.yml",
-    "UserDataKey": "user-data"
+    "UserDataKey": "user-data",
+	"RateLimit": 20
   },
   "HetznerCloud": {
     "Token": "12345678",

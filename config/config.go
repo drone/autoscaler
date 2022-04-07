@@ -172,8 +172,9 @@ type (
 			Tags                []string          `envconfig:"DRONE_GOOGLE_TAGS"`
 			UserData            string            `envconfig:"DRONE_GOOGLE_USERDATA"`
 			UserDataFile        string            `envconfig:"DRONE_GOOGLE_USERDATA_FILE"`
+			Zone                []string          `envconfig:"DRONE_GOOGLE_ZONE"`
 			UserDataKey         string            `envconfig:"DRONE_GOOGLE_USERDATA_KEY" default:"user-data"`
-			Zone                string            `envconfig:"DRONE_GOOGLE_ZONE"`
+			RateLimit           int               `envconfig:"DRONE_GOOGLE_READ_RATELIMIT" default:"25"`
 		}
 
 		HetznerCloud struct {

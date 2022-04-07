@@ -154,6 +154,7 @@ func main() {
 
 	ctx := context.Background()
 	ctx = signal.WithContextFunc(ctx, func() {
+		logrus.Println("Program terminating, interrupt received")
 		srv.Shutdown(ctx)
 	})
 
@@ -187,7 +188,10 @@ func main() {
 	})
 
 	if err := g.Wait(); err != nil {
+		// terminate with non-zero exit code on error
 		logrus.WithError(err).Fatalln("Program terminated")
+	} else {
+		logrus.Println("Program terminated")
 	}
 }
 
@@ -243,8 +247,9 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			google.WithScopes(c.Google.Scopes...),
 			google.WithUserData(c.Google.UserData),
 			google.WithUserDataFile(c.Google.UserDataFile),
+			google.WithZones(c.Google.Zone...),
 			google.WithUserDataKey(c.Google.UserDataKey),
-			google.WithZone(c.Google.Zone),
+			google.WithRateLimit(c.Google.RateLimit),
 		)
 	case c.DigitalOcean.Token != "":
 		return digitalocean.New(

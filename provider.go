@@ -30,6 +30,7 @@ const (
 	ProviderPacket       = ProviderType("packet")
 	ProviderScaleway     = ProviderType("scaleway")
 	ProviderVultr        = ProviderType("vultr")
+	ProviderYandexCloud  = ProviderType("yandexcloud")
 )
 
 // ErrInstanceNotFound is returned when the requested

@@ -11,6 +11,9 @@ import (
 	"net/url"
 	"os"
 
+	"github.com/drone/drone-go/drone"
+	"github.com/drone/signal"
+
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/config"
 	"github.com/drone/autoscaler/drivers/amazon"
@@ -20,6 +23,7 @@ import (
 	"github.com/drone/autoscaler/drivers/openstack"
 	"github.com/drone/autoscaler/drivers/packet"
 	"github.com/drone/autoscaler/drivers/scaleway"
+	"github.com/drone/autoscaler/drivers/yandexcloud"
 	"github.com/drone/autoscaler/engine"
 	"github.com/drone/autoscaler/logger"
 	"github.com/drone/autoscaler/logger/history"
@@ -30,8 +34,6 @@ import (
 	"github.com/drone/autoscaler/server/web/static"
 	"github.com/drone/autoscaler/slack"
 	"github.com/drone/autoscaler/store"
-	"github.com/drone/drone-go/drone"
-	"github.com/drone/signal"
 
 	"github.com/99designs/basicauth-go"
 	"github.com/go-chi/chi"
@@ -328,6 +330,23 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			openstack.WithMetadata(c.OpenStack.Metadata),
 			openstack.WithUserData(c.OpenStack.UserData),
 			openstack.WithUserDataFile(c.OpenStack.UserDataFile),
+		)
+	case c.YandexCloud.Token != "" || c.YandexCloud.ServiceAccount != "":
+		return yandexcloud.New(
+			yandexcloud.WithToken(c.YandexCloud.Token),
+			yandexcloud.WithServiceAccountJSON(c.YandexCloud.ServiceAccount),
+			yandexcloud.WithFolderID(c.YandexCloud.FolderID),
+			yandexcloud.WithSubnetID(c.YandexCloud.SubnetID),
+			yandexcloud.WithZone(c.YandexCloud.Zone),
+			yandexcloud.WithDiskSize(c.YandexCloud.DiskSize),
+			yandexcloud.WithDiskType(c.YandexCloud.DiskType),
+			yandexcloud.WithResourceCoreFraction(c.YandexCloud.ResourceCoreFraction),
+			yandexcloud.WithPreemptible(c.YandexCloud.Preemptible),
+			yandexcloud.WithResourceCores(c.YandexCloud.ResourceCores),
+			yandexcloud.WithResourceMemory(c.YandexCloud.ResourceMemory),
+			yandexcloud.WithPlatformID(c.YandexCloud.PlatformID),
+			yandexcloud.WithImageFolderID(c.YandexCloud.ImageFolderID),
+			yandexcloud.WithImageFamily(c.YandexCloud.ImageFamily),
 		)
 	default:
 		return nil, errors.New("missing provider configuration")

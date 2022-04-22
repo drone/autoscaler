@@ -176,7 +176,7 @@ func TestHandleServerDelete(t *testing.T) {
 
 	server := &autoscaler.Server{
 		Name:   "i-5203422c",
-		Image:  "docker-18-04",
+		Image:  "docker-20-04",
 		Region: "nyc1",
 		Size:   "s-1vcpu-1gb",
 	}
@@ -233,7 +233,7 @@ func TestHandleServerDeleteFailure(t *testing.T) {
 
 	server := &autoscaler.Server{
 		Name:   "i-5203422c",
-		Image:  "docker-18-04",
+		Image:  "docker-20-04",
 		Region: "nyc1",
 		Size:   "s-1vcpu-1gb",
 	}
@@ -270,7 +270,7 @@ func TestHandleServerDeleteErrorState(t *testing.T) {
 		ID:     "",
 		State:  autoscaler.StateError,
 		Name:   "i-5203422c",
-		Image:  "docker-18-04",
+		Image:  "docker-20-04",
 		Region: "nyc1",
 		Size:   "s-1vcpu-1gb",
 	}
@@ -299,7 +299,7 @@ func TestHandleServerForceDeleteErrorState(t *testing.T) {
 		ID:     "i-5203422c",
 		State:  autoscaler.StateError,
 		Name:   "i-5203422c",
-		Image:  "docker-18-04",
+		Image:  "docker-20-04",
 		Region: "nyc1",
 		Size:   "s-1vcpu-1gb",
 	}

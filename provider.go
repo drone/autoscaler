@@ -22,6 +22,7 @@ func (s ProviderType) Value() (driver.Value, error) {
 const (
 	ProviderAmazon       = ProviderType("amazon")
 	ProviderAzure        = ProviderType("azure")
+	ProviderBrightbox    = ProviderType("brightbox")
 	ProviderDigitalOcean = ProviderType("digitalocean")
 	ProviderGoogle       = ProviderType("google")
 	ProviderHetznerCloud = ProviderType("hetznercloud")

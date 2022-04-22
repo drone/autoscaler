@@ -14,6 +14,7 @@ import (
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/config"
 	"github.com/drone/autoscaler/drivers/amazon"
+	"github.com/drone/autoscaler/drivers/brightbox"
 	"github.com/drone/autoscaler/drivers/digitalocean"
 	"github.com/drone/autoscaler/drivers/google"
 	"github.com/drone/autoscaler/drivers/hetznercloud"
@@ -299,6 +300,17 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			packet.WithUserDataFile(c.Packet.UserDataFile),
 			packet.WithHostname(c.Packet.Hostname),
 			packet.WithTags(c.Packet.Tags...),
+		), nil
+	case c.Brightbox.ClientID != "":
+		return brightbox.New(
+			brightbox.WithApiURL(c.Brightbox.ApiURL),
+			brightbox.WithClientID(c.Brightbox.ClientID),
+			brightbox.WithClientSecret(c.Brightbox.ClientSecret),
+			brightbox.WithImage(c.Brightbox.Image),
+			brightbox.WithServerType(c.Brightbox.ServerType),
+			brightbox.WithServerGroups(c.Brightbox.ServerGroups),
+			brightbox.WithUserData(c.Brightbox.UserData),
+			brightbox.WithUserDataFile(c.Brightbox.UserDataFile),
 		), nil
 	case os.Getenv("AWS_ACCESS_KEY_ID") != "" || os.Getenv("AWS_IAM") != "":
 		return amazon.New(

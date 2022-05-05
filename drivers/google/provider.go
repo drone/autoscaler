@@ -121,7 +121,7 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 func (p *provider) waitZoneOperation(ctx context.Context, name string, zone string) error {
 	for {
 		if p.rateLimiter.Allow() {
-			op, err := p.service.ZoneOperations.Get(p.project, zone, name).Context(ctx).Do()
+			op, err := p.service.ZoneOperations.Get(p.project, zone, name).Do()
 			if err != nil {
 				if gerr, ok := err.(*googleapi.Error); ok &&
 					gerr.Code == http.StatusNotFound {
@@ -143,7 +143,7 @@ func (p *provider) waitZoneOperation(ctx context.Context, name string, zone stri
 func (p *provider) waitGlobalOperation(ctx context.Context, name string) error {
 	for {
 		if p.rateLimiter.Allow() {
-			op, err := p.service.GlobalOperations.Get(p.project, name).Context(ctx).Do()
+			op, err := p.service.GlobalOperations.Get(p.project, name).Do()
 			if err != nil {
 				return err
 			}

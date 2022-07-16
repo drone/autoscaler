@@ -37,36 +37,45 @@ func defaultImage(region string) string {
 	return images[region]
 }
 
+// static ami id list for Ubuntu Server 20.04 LTS
+// source: https://cloud-images.ubuntu.com/locator/
+// filters:
+// - Cloud: Amazon AWS, Amazon GovCloud, Amazon AWS China
+// - Version: 20.04
+// - Instance Type: hvm-ssd
 var images = map[string]string{
 	// AWS Regions: Ubuntu Server 20.04 LTS
-	"af-south-1":     "ami-038cbae6ba4c280fa", // Release: 2022-01-31, Reagion Name: Africa (Cape Town)
-	"ap-east-1":      "ami-064b888ccdf1708e2", // Release: 2022-01-31, Reagion Name: Asia Pacific (Hong Kong)
-	"ap-northeast-1": "ami-0ec4d40472158dbd2", // Release: 2022-01-31, Reagion Name: Asia Pacific (Tokyo)
-	"ap-northeast-2": "ami-077c1171fcf5593ec", // Release: 2022-01-31, Reagion Name: Asia Pacific (Seoul)
-	"ap-northeast-3": "ami-035913f232768c8c8", // Release: 2022-01-31, Reagion Name: Asia Pacific (Osaka)
-	"ap-south-1":     "ami-0b8959ac764ad4343", // Release: 2022-01-31, Reagion Name: Asia Pacific (Mumbai)
-	"ap-southeast-1": "ami-042f884c037e74d76", // Release: 2022-01-31, Reagion Name: Asia Pacific (Singapore)
-	"ap-southeast-2": "ami-0154c902f0267d0ce", // Release: 2022-01-31, Reagion Name: Asia Pacific (Sydney)
-	"ap-southeast-3": "ami-0d5ff02b9a1041622", // Release: 2022-01-31, Reagion Name: Asia Pacific (Jakarta)
-	"ca-central-1":   "ami-03953974e61b3bd41", // Release: 2022-01-31, Reagion Name: Canada (Central)
-	"eu-central-1":   "ami-05b308c240ae70bb6", // Release: 2022-01-31, Reagion Name: Europe (Frankfurt)
-	"eu-north-1":     "ami-0820d427f94ae9361", // Release: 2022-01-31, Reagion Name: Europe (Stockholm)
-	"eu-south-1":     "ami-0da1c7edc984ae450", // Release: 2022-01-31, Reagion Name: Europe (Milan)
-	"eu-west-1":      "ami-081ff4b9aa4e81a08", // Release: 2022-01-31, Reagion Name: Europe (Ireland)
-	"eu-west-2":      "ami-0d19fa6f37a659a28", // Release: 2022-01-31, Reagion Name: Europe (London)
-	"eu-west-3":      "ami-0c0f763628afa7f8b", // Release: 2022-01-31, Reagion Name: Europe (Paris)
-	"me-south-1":     "ami-0538f1780d51a45d3", // Release: 2022-01-31, Reagion Name: Middle East (Bahrain)
-	"sa-east-1":      "ami-0b919b06e4a6a7040", // Release: 2022-01-31, Reagion Name: South America (São Paulo)
-	"us-east-1":      "ami-01b996646377b6619", // Release: 2022-01-31, Reagion Name: US East (N. Virginia)
-	"us-east-2":      "ami-039af3bfc52681cd5", // Release: 2022-01-31, Reagion Name: US East (Ohio)
-	"us-west-1":      "ami-08fa7c8891945eae4", // Release: 2022-01-31, Reagion Name: US West (N. California)
-	"us-west-2":      "ami-0637e7dc7fcc9a2d9", // Release: 2022-01-31, Reagion Name: US West (Oregon)
-
-	// AWS China: Ubuntu Server 20.04 LTS
-	"cn-north-1":     "ami-0741e7b8b4fb0001c", // Release: 2021-07-20, Region Name: China (Beijing)
-	"cn-northwest-1": "ami-0883e8062ff31f727", // Release: 2021-07-20, Region Name: China (Ningxia)
+	// Upstream release version: 20220706
+	"af-south-1":     "ami-0f5298ccab965edeb",
+	"ap-east-1":      "ami-0dfad1f1f65cd083b",
+	"ap-northeast-1": "ami-0986c991cc80c6ad9",
+	"ap-northeast-2": "ami-0565d651769eb3de5",
+	"ap-northeast-3": "ami-0e6078093a109801c",
+	"ap-south-1":     "ami-0325e3016099f9112",
+	"ap-southeast-1": "ami-0eaf04122a1ae7b3b",
+	"ap-southeast-2": "ami-048a2d001938101dd",
+	"ap-southeast-3": "ami-09915141a4f1dafdd",
+	"ca-central-1":   "ami-04a579d2f00bb4001",
+	"eu-central-1":   "ami-06cac34c3836ff90b",
+	"eu-north-1":     "ami-0ede84a5f28ec932a",
+	"eu-south-1":     "ami-0a39f417b8836bc59",
+	"eu-west-1":      "ami-0141514361b6a3c1b",
+	"eu-west-2":      "ami-014b642f603e350c3",
+	"eu-west-3":      "ami-0d0b8d91779dec1e5",
+	"me-south-1":     "ami-0c769d841005394ee",
+	"sa-east-1":      "ami-088afbba294231fe0",
+	"us-east-1":      "ami-0070c5311b7677678",
+	"us-east-2":      "ami-07f84a50d2dec2fa4",
+	"us-west-1":      "ami-040a251ee9d7d1a9b",
+	"us-west-2":      "ami-0aab355e1bfa1e72e",
 
 	// AWS GovCloud (US): Ubuntu Server 20.04 LTS
-	"us-gov-east-1": "ami-0e1e4f0f5c274fb48", // Release: 2022-01-18, Region Name: AWS GovCloud (US-East)
-	"us-gov-west-1": "ami-047d3c53ce8db1f52", // Release: 2022-01-18, Region Name: AWS GovCloud (US-West)
+	// Upstream release version: 20220627.1
+	"us-gov-east-1": "ami-0d8ee446ec886f5cf",
+	"us-gov-west-1": "ami-0cbaf57cea1d72aec",
+
+	// AWS China: Ubuntu Server 20.04 LTS
+	// Upstream release version: 20210720
+	"cn-north-1":     "ami-0741e7b8b4fb0001c",
+	"cn-northwest-1": "ami-0883e8062ff31f727",
 }

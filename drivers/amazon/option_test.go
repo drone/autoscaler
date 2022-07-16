@@ -9,7 +9,7 @@ import "testing"
 func TestOptions(t *testing.T) {
 	p := New(
 		WithDeviceName("/dev/sda2"),
-		WithImage("ami-0637e7dc7fcc9a2d9"),
+		WithImage("ami-0aab355e1bfa1e72e"),
 		WithPrivateIP(true),
 		WithRegion("us-west-2"),
 		WithRetries(10),
@@ -25,7 +25,7 @@ func TestOptions(t *testing.T) {
 	if got, want := p.deviceName, "/dev/sda2"; got != want {
 		t.Errorf("Want device name %q, got %q", want, got)
 	}
-	if got, want := p.image, "ami-0637e7dc7fcc9a2d9"; got != want {
+	if got, want := p.image, "ami-0aab355e1bfa1e72e"; got != want {
 		t.Errorf("Want image %q, got %q", want, got)
 	}
 	if got, want := p.region, "us-west-2"; got != want {

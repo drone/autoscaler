@@ -38,22 +38,35 @@ func defaultImage(region string) string {
 }
 
 var images = map[string]string{
-	"ap-south-1":     "ami-0189d76e",
-	"us-east-1":      "ami-43a15f3e",
-	"ap-northeast-1": "ami-0d74386b",
-	"eu-west-1":      "ami-f90a4880",
-	"ap-southeast-1": "ami-52d4802e",
-	"ca-central-1":   "ami-ae55d2ca",
-	"us-west-1":      "ami-925144f2",
-	"eu-central-1":   "ami-7c412f13",
-	"sa-east-1":      "ami-423d772e",
-	"cn-north-1":     "ami-cc4499a1",
-	"cn-northwest-1": "ami-fd0e1a9f",
-	"us-gov-west-1":  "ami-893fb4e8",
-	"ap-southeast-2": "ami-d38a4ab1",
-	"eu-west-2":      "ami-f4f21593",
-	"ap-northeast-2": "ami-a414b9ca",
-	"us-west-2":      "ami-4e79ed36",
-	"us-east-2":      "ami-916f59f4",
-	"eu-west-3":      "ami-0e55e373",
+	// AWS Regions: Ubuntu Server 20.04 LTS
+	"af-south-1":     "ami-05f63785d68762258", // Release: 20220110, Region Name: Africa (Cape Town)
+	"ap-east-1":      "ami-0504f786c867c393b", // Release: 20220110, Region Name: Asia Pacific (Hong Kong)
+	"ap-northeast-1": "ami-09c48a5d777342713", // Release: 20220110, Region Name: Asia Pacific (Tokyo)
+	"ap-northeast-2": "ami-02f4931c64ffab121", // Release: 20220110, Region Name: Asia Pacific (Seoul)
+	"ap-northeast-3": "ami-0268e471de7bae4b4", // Release: 20220110, Region Name: Asia Pacific (Osaka)
+	"ap-south-1":     "ami-0a5b602444b05877e", // Release: 20220110, Region Name: Asia Pacific (Mumbai)
+	"ap-southeast-1": "ami-044c31103a8df7b51", // Release: 20220110, Region Name: Asia Pacific (Singapore)
+	"ap-southeast-2": "ami-00fb768e8271d7560", // Release: 20220110, Region Name: Asia Pacific (Sydney)
+	"ap-southeast-3": "ami-0a2d445c9f3e6f7fc", // Release: 20220110, Region Name: Asia Pacific (Jakarta)
+	"ca-central-1":   "ami-0ada0b5f702f77242", // Release: 20220110, Region Name: Canada (Central)
+	"eu-central-1":   "ami-0d267e97f16681cd8", // Release: 20220110, Region Name: Europe (Frankfurt)
+	"eu-north-1":     "ami-056bbd85327482a72", // Release: 20220110, Region Name: Europe (Stockholm)
+	"eu-south-1":     "ami-04fc3b43df99bed69", // Release: 20220110, Region Name: Europe (Milan)
+	"eu-west-1":      "ami-08307ebe62cde256a", // Release: 20220110, Region Name: Europe (Ireland)
+	"eu-west-2":      "ami-065536dd9c2967f5c", // Release: 20220110, Region Name: Europe (London)
+	"eu-west-3":      "ami-06bc48ca7e148506d", // Release: 20220110, Region Name: Europe (Paris)
+	"me-south-1":     "ami-05a3d520f37b54e25", // Release: 20220110, Region Name: Middle East (Bahrain)
+	"sa-east-1":      "ami-05572d2849beb8330", // Release: 20220110, Region Name: South America (São Paulo)
+	"us-east-1":      "ami-0d4c664d2c7345cf1", // Release: 20220110, Region Name: US East (N. Virginia)
+	"us-east-2":      "ami-08be70d36872187b9", // Release: 20220110, Region Name: US East (Ohio)
+	"us-west-1":      "ami-0889468400f78c6cd", // Release: 20220110, Region Name: US West (N. California)
+	"us-west-2":      "ami-02da538d84c7792a9", // Release: 20220110, Region Name: US West (Oregon)
+
+	// AWS China: Ubuntu Server 20.04 LTS
+	"cn-north-1":     "ami-0741e7b8b4fb0001c", // Release: 20210720, Region Name: China (Beijing)
+	"cn-northwest-1": "ami-0883e8062ff31f727", // Release: 20210720, Region Name: China (Ningxia)
+
+	// AWS GovCloud (US): Ubuntu Server 20.04 LTS
+	"us-gov-east-1": "ami-03958388786db1513", // Release: 20211129, Region Name: AWS GovCloud (US-East)
+	"us-gov-west-1": "ami-066189aeb91baa0ab", // Release: 20211129, Region Name: AWS GovCloud (US-West)
 }

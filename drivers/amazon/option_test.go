@@ -9,12 +9,12 @@ import "testing"
 func TestOptions(t *testing.T) {
 	p := New(
 		WithDeviceName("/dev/sda2"),
-		WithImage("ami-66506c1c"),
+		WithImage("ami-02da538d84c7792a9"),
 		WithPrivateIP(true),
 		WithRegion("us-west-2"),
 		WithRetries(10),
 		WithSecurityGroup("sg-770eabe1"),
-		WithSize("t2.2xlarge"),
+		WithSize("t3.2xlarge"),
 		WithSSHKey("id_rsa"),
 		WithSubnet("subnet-0b32177f"),
 		WithTags(map[string]string{"foo": "bar", "baz": "qux"}),
@@ -25,13 +25,13 @@ func TestOptions(t *testing.T) {
 	if got, want := p.deviceName, "/dev/sda2"; got != want {
 		t.Errorf("Want device name %q, got %q", want, got)
 	}
-	if got, want := p.image, "ami-66506c1c"; got != want {
+	if got, want := p.image, "ami-02da538d84c7792a9"; got != want {
 		t.Errorf("Want image %q, got %q", want, got)
 	}
 	if got, want := p.region, "us-west-2"; got != want {
 		t.Errorf("Want region %q, got %q", want, got)
 	}
-	if got, want := p.size, "t2.2xlarge"; got != want {
+	if got, want := p.size, "t3.2xlarge"; got != want {
 		t.Errorf("Want size %q, got %q", want, got)
 	}
 	if got, want := p.key, "id_rsa"; got != want {

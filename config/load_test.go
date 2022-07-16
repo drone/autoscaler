@@ -118,7 +118,7 @@ func TestLoad(t *testing.T) {
 		"DRONE_GOOGLE_USERDATA":            "#cloud-init",
 		"DRONE_GOOGLE_USERDATA_FILE":       "/path/to/cloud/init.yml",
 		"DRONE_GOOGLE_READ_RATELIMIT":      "20",
-		"DRONE_AMAZON_IMAGE":               "ami-08be70d36872187b9",
+		"DRONE_AMAZON_IMAGE":               "ami-039af3bfc52681cd5",
 		"DRONE_AMAZON_INSTANCE":            "t3.medium",
 		"DRONE_AMAZON_PRIVATE_IP":          "true",
 		"DRONE_AMAZON_RETRIES":             "1",
@@ -257,7 +257,7 @@ var jsonConfig = []byte(`{
     "UserDataFile": "/path/to/cloud/init.yml"
   },
   "Amazon": {
-    "Image": "ami-08be70d36872187b9",
+    "Image": "ami-039af3bfc52681cd5",
     "Instance": "t3.medium",
     "PrivateIP": true,
     "Retries": 1,

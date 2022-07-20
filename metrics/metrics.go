@@ -6,6 +6,8 @@ package metrics
 
 import (
 	"context"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -14,6 +16,16 @@ import (
 )
 
 var noContext = context.Background()
+
+// this is a feature flag that can be used to enable
+// metrics to track registering/unregistering of servers
+var registerKnownServers = false
+
+func init() {
+	registerKnownServers, _ = strconv.ParseBool(
+		os.Getenv("DRONE_AUTOSCALER_REGISTER_KNOWN_SERVERS"),
+	)
+}
 
 // Collector defines a metrics collector.
 type Collector interface {
@@ -105,7 +117,9 @@ func New() *Prometheus {
 	prometheus.MustRegister(p.countServerCreateErr)
 	prometheus.MustRegister(p.countServerInitErr)
 	prometheus.MustRegister(p.countServerSetupErr)
-	prometheus.MustRegister(p.knownInstance)
+	if registerKnownServers {
+		prometheus.MustRegister(p.knownInstance)
+	}
 	return p
 }
 
@@ -155,22 +169,26 @@ func (m *Prometheus) IncrServerSetupError() {
 
 // RegisterKnownInstance registers that we know about a server.
 func (m *Prometheus) RegisterKnownInstance(instance *autoscaler.Instance) {
-	m.knownInstance.With(prometheus.Labels{
-		"name":     instance.Name,
-		"provider": string(instance.Provider),
-		"region":   instance.Region,
-		"size":     instance.Size,
-	}).Set(1)
+	if registerKnownServers {
+		m.knownInstance.With(prometheus.Labels{
+			"name":     instance.Name,
+			"provider": string(instance.Provider),
+			"region":   instance.Region,
+			"size":     instance.Size,
+		}).Set(1)
+	}
 }
 
 // UnregisterKnownInstance forgets a server we once knew.
 func (m *Prometheus) UnregisterKnownInstance(instance *autoscaler.Instance) {
-	m.knownInstance.Delete(prometheus.Labels{
-		"name":     instance.Name,
-		"provider": string(instance.Provider),
-		"region":   instance.Region,
-		"size":     instance.Size,
-	})
+	if registerKnownServers {
+		m.knownInstance.Delete(prometheus.Labels{
+			"name":     instance.Name,
+			"provider": string(instance.Provider),
+			"region":   instance.Region,
+			"size":     instance.Size,
+		})
+	}
 }
 
 // NopCollector provides a no-op metrics collector.

@@ -6,26 +6,15 @@ package metrics
 
 import (
 	"context"
-	"os"
-	"strconv"
 	"time"
 
-	"github.com/prometheus/client_golang/prometheus"
-
 	"github.com/drone/autoscaler"
+	"github.com/drone/autoscaler/config"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 var noContext = context.Background()
-
-// this is a feature flag that can be used to enable
-// metrics to track registering/unregistering of servers
-var registerKnownServers = false
-
-func init() {
-	registerKnownServers, _ = strconv.ParseBool(
-		os.Getenv("DRONE_AUTOSCALER_REGISTER_KNOWN_SERVERS"),
-	)
-}
 
 // Collector defines a metrics collector.
 type Collector interface {
@@ -69,11 +58,16 @@ type Prometheus struct {
 	countServerInitErr    prometheus.Counter
 	countServerSetupErr   prometheus.Counter
 	knownInstance         *prometheus.GaugeVec
+
+	registerKnownServers bool
 }
 
 // New returns a new Prometheus metrics provider.
-func New() *Prometheus {
+func New(c config.Config) *Prometheus {
 	p := new(Prometheus)
+
+	p.registerKnownServers = c.Metrics.RegisterKnownServers
+
 	p.trackServerCreateTime = prometheus.NewHistogram(prometheus.HistogramOpts{
 		Name:    "drone_server_create_time_seconds",
 		Help:    "Elapsed time creating a server.",
@@ -117,7 +111,7 @@ func New() *Prometheus {
 	prometheus.MustRegister(p.countServerCreateErr)
 	prometheus.MustRegister(p.countServerInitErr)
 	prometheus.MustRegister(p.countServerSetupErr)
-	if registerKnownServers {
+	if p.registerKnownServers {
 		prometheus.MustRegister(p.knownInstance)
 	}
 	return p
@@ -169,7 +163,7 @@ func (m *Prometheus) IncrServerSetupError() {
 
 // RegisterKnownInstance registers that we know about a server.
 func (m *Prometheus) RegisterKnownInstance(instance *autoscaler.Instance) {
-	if registerKnownServers {
+	if m.registerKnownServers {
 		m.knownInstance.With(prometheus.Labels{
 			"name":     instance.Name,
 			"provider": string(instance.Provider),
@@ -181,7 +175,7 @@ func (m *Prometheus) RegisterKnownInstance(instance *autoscaler.Instance) {
 
 // UnregisterKnownInstance forgets a server we once knew.
 func (m *Prometheus) UnregisterKnownInstance(instance *autoscaler.Instance) {
-	if registerKnownServers {
+	if m.registerKnownServers {
 		m.knownInstance.Delete(prometheus.Labels{
 			"name":     instance.Name,
 			"provider": string(instance.Provider),

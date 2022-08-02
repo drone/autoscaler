@@ -99,6 +99,10 @@ type (
 			Root  string `envconfig:"DRONE_HTTP_ROOT" default:"/"`
 		}
 
+		Metrics struct {
+			RegisterKnownServers bool `envconfig:"DRONE_METRICS_REGISTER_KNOWN_SERVERS" default:"false"`
+		}
+
 		UI struct {
 			Username string `envconfig:"DRONE_UI_USERNAME"`
 			Password string `envconfig:"DRONE_UI_PASSWORD"`

@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/drone/autoscaler"
+	"github.com/drone/autoscaler/config"
 	"github.com/drone/autoscaler/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/prometheus/client_golang/prometheus"
@@ -35,7 +36,7 @@ func TestServerDelete(t *testing.T) {
 	provider.EXPECT().Destroy(noContext, instance).Times(3).Return(nil)
 	provider.EXPECT().Destroy(noContext, instance).Return(errors.New("error"))
 
-	collector := New()
+	collector := New(config.Config{})
 	providerInst := ServerDelete(provider, collector)
 	for i := 0; i < 3; i++ {
 		err := providerInst.Destroy(noContext, instance)

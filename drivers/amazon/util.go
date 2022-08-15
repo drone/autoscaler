@@ -53,7 +53,7 @@ var images = map[string]string{
 	"ap-southeast-2": "ami-d38a4ab1",
 	"eu-west-2":      "ami-f4f21593",
 	"ap-northeast-2": "ami-a414b9ca",
-	"us-west-2":      "ami-4e79ed36",
+	"us-west-2":      "ami-0b152cfd354c4c7a4",
 	"us-east-2":      "ami-916f59f4",
 	"eu-west-3":      "ami-0e55e373",
 }

@@ -166,6 +166,7 @@ var insertInstanceMock = &compute.Instance{
 	Labels: map[string]string{},
 	Scheduling: &compute.Scheduling{
 		Preemptible:       false,
+		ProvisioningModel: "STANDARD",
 		OnHostMaintenance: "MIGRATE",
 		AutomaticRestart:  googleapi.Bool(true),
 	},
@@ -228,6 +229,7 @@ var insertInstanceMockB = &compute.Instance{
 	Labels: map[string]string{},
 	Scheduling: &compute.Scheduling{
 		Preemptible:       false,
+		ProvisioningModel: "STANDARD",
 		OnHostMaintenance: "MIGRATE",
 		AutomaticRestart:  googleapi.Bool(true),
 	},

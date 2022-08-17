@@ -53,6 +53,13 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		}
 	}
 
+    auto_restart := true
+    on_host_maintenance := "MIGRATE"
+	if p.provisioningModel == "SPOT" {
+	    auto_restart = false
+	    on_host_maintenance = "TERMINATE"
+	}
+
 	in := &compute.Instance{
 		Name:           name,
 		Zone:           fmt.Sprintf("projects/%s/zones/%s", p.project, zone),
@@ -94,8 +101,9 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		Labels: p.labels,
 		Scheduling: &compute.Scheduling{
 			Preemptible:       false,
-			OnHostMaintenance: "MIGRATE",
-			AutomaticRestart:  googleapi.Bool(true),
+			ProvisioningModel: p.provisioningModel,
+			OnHostMaintenance: on_host_maintenance,
+			AutomaticRestart:  googleapi.Bool(auto_restart),
 		},
 		DeletionProtection: false,
 		ServiceAccounts: []*compute.ServiceAccount{

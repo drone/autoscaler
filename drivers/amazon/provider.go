@@ -58,7 +58,7 @@ func New(opts ...Option) autoscaler.Provider {
 		p.region = "us-east-1"
 	}
 	if p.size == "" {
-		p.size = "t2.medium"
+		p.size = "t3.medium"
 	}
 	if p.image == "" {
 		p.image = defaultImage(p.region)

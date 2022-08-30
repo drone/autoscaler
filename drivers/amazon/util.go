@@ -37,23 +37,45 @@ func defaultImage(region string) string {
 	return images[region]
 }
 
+// static ami id list for Ubuntu Server 20.04 LTS
+// source: https://cloud-images.ubuntu.com/locator/
+// filters:
+// - Cloud: Amazon AWS, Amazon GovCloud, Amazon AWS China
+// - Version: 20.04
+// - Instance Type: hvm-ssd
 var images = map[string]string{
-	"ap-south-1":     "ami-0189d76e",
-	"us-east-1":      "ami-43a15f3e",
-	"ap-northeast-1": "ami-0d74386b",
-	"eu-west-1":      "ami-f90a4880",
-	"ap-southeast-1": "ami-52d4802e",
-	"ca-central-1":   "ami-ae55d2ca",
-	"us-west-1":      "ami-925144f2",
-	"eu-central-1":   "ami-7c412f13",
-	"sa-east-1":      "ami-423d772e",
-	"cn-north-1":     "ami-cc4499a1",
-	"cn-northwest-1": "ami-fd0e1a9f",
-	"us-gov-west-1":  "ami-893fb4e8",
-	"ap-southeast-2": "ami-d38a4ab1",
-	"eu-west-2":      "ami-f4f21593",
-	"ap-northeast-2": "ami-a414b9ca",
-	"us-west-2":      "ami-4e79ed36",
-	"us-east-2":      "ami-916f59f4",
-	"eu-west-3":      "ami-0e55e373",
+	// AWS Regions: Ubuntu Server 20.04 LTS
+	// Upstream release version: 20220706
+	"af-south-1":     "ami-0f5298ccab965edeb",
+	"ap-east-1":      "ami-0dfad1f1f65cd083b",
+	"ap-northeast-1": "ami-0986c991cc80c6ad9",
+	"ap-northeast-2": "ami-0565d651769eb3de5",
+	"ap-northeast-3": "ami-0e6078093a109801c",
+	"ap-south-1":     "ami-0325e3016099f9112",
+	"ap-southeast-1": "ami-0eaf04122a1ae7b3b",
+	"ap-southeast-2": "ami-048a2d001938101dd",
+	"ap-southeast-3": "ami-09915141a4f1dafdd",
+	"ca-central-1":   "ami-04a579d2f00bb4001",
+	"eu-central-1":   "ami-06cac34c3836ff90b",
+	"eu-north-1":     "ami-0ede84a5f28ec932a",
+	"eu-south-1":     "ami-0a39f417b8836bc59",
+	"eu-west-1":      "ami-0141514361b6a3c1b",
+	"eu-west-2":      "ami-014b642f603e350c3",
+	"eu-west-3":      "ami-0d0b8d91779dec1e5",
+	"me-south-1":     "ami-0c769d841005394ee",
+	"sa-east-1":      "ami-088afbba294231fe0",
+	"us-east-1":      "ami-0070c5311b7677678",
+	"us-east-2":      "ami-07f84a50d2dec2fa4",
+	"us-west-1":      "ami-040a251ee9d7d1a9b",
+	"us-west-2":      "ami-0aab355e1bfa1e72e",
+
+	// AWS GovCloud (US): Ubuntu Server 20.04 LTS
+	// Upstream release version: 20220627.1
+	"us-gov-east-1": "ami-0d8ee446ec886f5cf",
+	"us-gov-west-1": "ami-0cbaf57cea1d72aec",
+
+	// AWS China: Ubuntu Server 20.04 LTS
+	// Upstream release version: 20210720
+	"cn-north-1":     "ami-0741e7b8b4fb0001c",
+	"cn-northwest-1": "ami-0883e8062ff31f727",
 }

@@ -108,6 +108,12 @@ func (p *provider) create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		},
 	}
 
+	if p.imdsTokens != "" {
+		in.MetadataOptions = &ec2.InstanceMetadataOptionsRequest{
+			HttpTokens: aws.String(p.imdsTokens),
+		}
+	}
+
 	if p.volumeType == "io1" {
 		for _, blockDeviceMapping := range in.BlockDeviceMappings {
 			blockDeviceMapping.Ebs.Iops = aws.Int64(p.volumeIops)

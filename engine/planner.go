@@ -76,8 +76,8 @@ func (p *planner) Plan(ctx context.Context) error {
 
 	ctx = logger.WithContext(ctx, log)
 
-	free := max(capacity-running-p.buffer, 0)
-	diff := serverDiff(pending, free, p.cap)
+	free := max(capacity-running, 0)
+	diff := serverDiff(pending+p.buffer, free, p.cap)
 
 	// if the server differential to handle the build volume
 	// is positive, we can reduce server capacity.

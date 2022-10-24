@@ -81,10 +81,19 @@ func (p *provider) createInstance(
 		}
 	}
 
+	metadata := map[string]string{}
+	if p.sshUserPublicKeyPair != "" {
+		metadata["ssh-keys"] = p.sshUserPublicKeyPair
+	}
+	if p.dockerComposeMetadata != "" {
+		metadata["docker-compose"] = p.dockerComposeMetadata
+	}
+
 	request := &compute.CreateInstanceRequest{
 		FolderId:   folderID,
 		Name:       name,
 		ZoneId:     zone,
+		Metadata:   metadata,
 		PlatformId: p.platformID,
 		ResourcesSpec: &compute.ResourcesSpec{
 			Cores:        p.resourceCores,
@@ -107,6 +116,7 @@ func (p *provider) createInstance(
 			{
 				SubnetId:             subnetID,
 				PrimaryV4AddressSpec: networkConfig,
+				SecurityGroupIds:     p.securityGroupIDs,
 			},
 		},
 		SchedulingPolicy: &compute.SchedulingPolicy{Preemptible: p.preemptible},

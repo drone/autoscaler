@@ -1,0 +1,29 @@
+/*
+Package yandexcloud contains a autoscaler driver for Yandex.Cloud
+Configuration:
+
+Authenticate with token or service account environment variables.
+
+DRONE_YANDEX_CLOUD_TOKEN=token
+DRONE_YANDEX_CLOUD_SERVICE_ACCOUNT=json-string
+
+Configure driver with:
+
+DRONE_YANDEX_CLOUD_FOLDER_ID=id
+DRONE_YANDEX_CLOUD_SUBNET_ID=id
+DRONE_YANDEX_CLOUD_ZONE=zone
+DRONE_YANDEX_CLOUD_DISK_SIZE=size_in_bytes
+DRONE_YANDEX_CLOUD_DISK_TYPE=network-ssd
+DRONE_YANDEX_CLOUD_RESOURCE_CORES=1
+DRONE_YANDEX_CLOUD_RESOURCE_MEMORY=4
+DRONE_YANDEX_CLOUD_RESOURCE_CORE_FRACTION=100
+DRONE_YANDEX_CLOUD_PREEMPTIBLE=true
+DRONE_YANDEX_CLOUD_PLATFORM_ID=standard-v3
+DRONE_YANDEX_CLOUD_IMAGE_FOLDER_ID=standard-images
+DRONE_YANDEX_CLOUD_IMAGE_FAMILY=container-optimized-image
+DRONE_YANDEX_CLOUD_SECURITY_GROUP_IDS=id,other-id
+DRONE_YANDEX_CLOUD_SSH_USER_KEY_PAIR=username:public-ssh
+DRONE_YANDEX_CLOUD_DOCKER_COMPOSE=docker-compose-config-file
+
+*/
+package yandexcloud

@@ -239,6 +239,9 @@ type (
 			PlatformID           string   `envconfig:"DRONE_YANDEX_CLOUD_PLATFORM_ID"`
 			ImageFolderID        string   `envconfig:"DRONE_YANDEX_CLOUD_IMAGE_FOLDER_ID"`
 			ImageFamily          string   `envconfig:"DRONE_YANDEX_CLOUD_IMAGE_FAMILY"`
+			SecurityGroupIDs     []string `envconfig:"DRONE_YANDEX_CLOUD_SECURITY_GROUP_IDS"`
+			SSHUserKeyPair       string   `envconfig:"DRONE_YANDEX_CLOUD_SSH_USER_KEY_PAIR"`
+			DockerComposeConfig  string   `envconfig:"DRONE_YANDEX_CLOUD_DOCKER_COMPOSE"`
 		}
 	}
 

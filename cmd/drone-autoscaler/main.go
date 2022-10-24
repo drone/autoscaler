@@ -347,6 +347,9 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			yandexcloud.WithPlatformID(c.YandexCloud.PlatformID),
 			yandexcloud.WithImageFolderID(c.YandexCloud.ImageFolderID),
 			yandexcloud.WithImageFamily(c.YandexCloud.ImageFamily),
+			yandexcloud.WithDockerComposeConfig(c.YandexCloud.DockerComposeConfig),
+			yandexcloud.WithSSHUserKeyPair(c.YandexCloud.SSHUserKeyPair),
+			yandexcloud.WithSecurityGroups(c.YandexCloud.SecurityGroupIDs),
 		)
 	default:
 		return nil, errors.New("missing provider configuration")

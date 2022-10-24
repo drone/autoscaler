@@ -32,6 +32,11 @@ type provider struct {
 	imageFolderID string
 	imageFamily   string
 
+	sshUserPublicKeyPair  string
+	dockerComposeMetadata string
+
+	securityGroupIDs []string
+
 	service *ycsdk.SDK
 }
 

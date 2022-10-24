@@ -102,3 +102,24 @@ func WithPreemptible(preemptible bool) Option {
 		p.preemptible = preemptible
 	}
 }
+
+// WithSecurityGroups returns an option to set security groups.
+func WithSecurityGroups(groupIDs []string) Option {
+	return func(p *provider) {
+		p.securityGroupIDs = groupIDs
+	}
+}
+
+// WithSSHUserKeyPair returns an option to set ssh user key pair.
+func WithSSHUserKeyPair(pair string) Option {
+	return func(p *provider) {
+		p.sshUserPublicKeyPair = pair
+	}
+}
+
+// WithDockerComposeConfig returns an option to set docker-compose config.
+func WithDockerComposeConfig(conf string) Option {
+	return func(p *provider) {
+		p.dockerComposeMetadata = conf
+	}
+}

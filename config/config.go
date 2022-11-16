@@ -236,6 +236,7 @@ type (
 			ResourceMemory       int64    `envconfig:"DRONE_YANDEX_CLOUD_RESOURCE_MEMORY"`
 			ResourceCoreFraction int64    `envconfig:"DRONE_YANDEX_CLOUD_RESOURCE_CORE_FRACTION"`
 			Preemptible          bool     `envconfig:"DRONE_YANDEX_CLOUD_PREEMPTIBLE"`
+			PrivateIP            bool     `envconfig:"DRONE_YANDEX_CLOUD_PRIVATE_IP"`
 			PlatformID           string   `envconfig:"DRONE_YANDEX_CLOUD_PLATFORM_ID"`
 			ImageFolderID        string   `envconfig:"DRONE_YANDEX_CLOUD_IMAGE_FOLDER_ID"`
 			ImageFamily          string   `envconfig:"DRONE_YANDEX_CLOUD_IMAGE_FAMILY"`

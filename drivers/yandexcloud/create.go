@@ -1,6 +1,7 @@
 package yandexcloud
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"math/rand"
@@ -29,7 +30,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		WithField("image", sourceImageID).
 		WithField("name", opts.Name)
 
-	op, err := p.service.WrapOperation(p.createInstance(ctx, sourceImageID, p.folderID, zone, name, p.subnetID))
+	op, err := p.service.WrapOperation(p.createInstance(ctx, sourceImageID, p.folderID, zone, name, p.subnetID, opts))
 	if err != nil {
 		return nil, fmt.Errorf("make wrap operation: %w", err)
 	}
@@ -68,7 +69,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 
 func (p *provider) createInstance(
 	ctx context.Context,
-	imageID, folderID, zone, name, subnetID string,
+	imageID, folderID, zone, name, subnetID string, opts autoscaler.InstanceCreateOpts,
 ) (*operation.Operation, error) {
 
 	networkConfig := &compute.PrimaryAddressSpec{}
@@ -88,6 +89,14 @@ func (p *provider) createInstance(
 	if p.dockerComposeMetadata != "" {
 		metadata["docker-compose"] = p.dockerComposeMetadata
 	}
+
+	var buf = &bytes.Buffer{}
+	err := userdataT.Execute(buf, opts)
+	if err != nil {
+		return nil, fmt.Errorf("failed to template: %w", err)
+	}
+
+	metadata["user-data"] = buf.String()
 
 	request := &compute.CreateInstanceRequest{
 		FolderId:   folderID,

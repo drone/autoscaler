@@ -103,6 +103,13 @@ func WithPreemptible(preemptible bool) Option {
 	}
 }
 
+// WithPrivateIP returns an options to set the privateIP.
+func WithPrivateIP(privateIP bool) Option {
+	return func(p *provider) {
+		p.privateIP = privateIP
+	}
+}
+
 // WithSecurityGroups returns an option to set security groups.
 func WithSecurityGroups(groupIDs []string) Option {
 	return func(p *provider) {

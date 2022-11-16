@@ -342,6 +342,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			yandexcloud.WithDiskType(c.YandexCloud.DiskType),
 			yandexcloud.WithResourceCoreFraction(c.YandexCloud.ResourceCoreFraction),
 			yandexcloud.WithPreemptible(c.YandexCloud.Preemptible),
+			yandexcloud.WithPrivateIP(c.YandexCloud.PrivateIP),
 			yandexcloud.WithResourceCores(c.YandexCloud.ResourceCores),
 			yandexcloud.WithResourceMemory(c.YandexCloud.ResourceMemory),
 			yandexcloud.WithPlatformID(c.YandexCloud.PlatformID),

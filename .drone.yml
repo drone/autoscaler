@@ -1,6 +1,10 @@
 ---
 kind: pipeline
 name: default
+type: vm
+
+pool:
+  use: ubuntu
 
 platform:
   os: linux

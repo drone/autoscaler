@@ -154,7 +154,8 @@ var insertInstanceMock = &compute.Instance{
 	CanIpForward: false,
 	NetworkInterfaces: []*compute.NetworkInterface{
 		{
-			Network: "global/networks/default",
+			Network:   "global/networks/default",
+			StackType: "IPV4_ONLY",
 			AccessConfigs: []*compute.AccessConfig{
 				{
 					Name: "External NAT",
@@ -216,7 +217,8 @@ var insertInstanceMockB = &compute.Instance{
 	CanIpForward: false,
 	NetworkInterfaces: []*compute.NetworkInterface{
 		{
-			Network: "global/networks/default",
+			Network:   "global/networks/default",
+			StackType: "IPV4_ONLY",
 			AccessConfigs: []*compute.AccessConfig{
 				{
 					Name: "External NAT",

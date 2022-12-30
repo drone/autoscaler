@@ -43,7 +43,6 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	logger.Debugln("instance insert")
 
 	networkConfig := []*compute.AccessConfig{}
-
 	if !p.privateIP {
 		networkConfig = []*compute.AccessConfig{
 			{
@@ -88,6 +87,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 			{
 				Network:       p.network,
 				Subnetwork:    p.subnetwork,
+				StackType:     p.stackType,
 				AccessConfigs: networkConfig,
 			},
 		},
@@ -104,6 +104,18 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 				Email:  p.serviceAccountEmail,
 			},
 		},
+	}
+
+	// Cannot add this in the same way as v4 access configs since the instance creation
+	// fails if any v6 access configs are specified for an instance with IPV4_ONLY stack type
+	if p.stackType == "IPV4_IPV6" {
+		in.NetworkInterfaces[0].Ipv6AccessConfigs = []*compute.AccessConfig{
+			{
+				Name:        "external-ipv6",
+				Type:        "DIRECT_IPV6",
+				NetworkTier: "PREMIUM",
+			},
+		}
 	}
 
 	op, err := p.service.Instances.Insert(p.project, zone, in).Do()

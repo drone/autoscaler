@@ -162,6 +162,7 @@ type (
 			MachineImage        string            `envconfig:"DRONE_GOOGLE_MACHINE_IMAGE"`
 			Network             string            `envconfig:"DRONE_GOOGLE_NETWORK"`
 			Subnetwork          string            `envconfig:"DRONE_GOOGLE_SUBNETWORK"`
+			StackType           string            `envconfig:"DRONE_GOOGLE_STACK_TYPE"`
 			Labels              map[string]string `envconfig:"DRONE_GOOGLE_LABELS"`
 			Scopes              []string          `envconfig:"DRONE_GOOGLE_SCOPES"`
 			ServiceAccountEmail string            `envconfig:"DRONE_GOOGLE_SERVICE_ACCOUNT_EMAIL"`

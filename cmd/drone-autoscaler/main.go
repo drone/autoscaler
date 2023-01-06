@@ -286,6 +286,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			hetznercloud.WithServerType(c.HetznerCloud.Type),
 			hetznercloud.WithSSHKey(c.HetznerCloud.SSHKey),
 			hetznercloud.WithToken(c.HetznerCloud.Token),
+			hetznercloud.WithLabels(c.HetznerCloud.Labels),
 		), nil
 	case c.Packet.APIKey != "":
 		return packet.New(

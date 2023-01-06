@@ -40,6 +40,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 				ID: p.key,
 			},
 		},
+		Labels: p.labels,
 	}
 
 	datacenter := "unknown"

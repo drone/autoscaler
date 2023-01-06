@@ -24,6 +24,7 @@ type provider struct {
 	image      string
 	userdata   *template.Template
 	key        int
+	labels     map[string]string
 
 	client *hcloud.Client
 }

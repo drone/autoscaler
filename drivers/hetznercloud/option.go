@@ -83,3 +83,10 @@ func WithUserDataFile(filepath string) Option {
 		}
 	}
 }
+
+// WithLabels returns an option to set the Hetzner labels
+func WithLabels(labels map[string]string) Option {
+	return func(p *provider) {
+		p.labels = labels
+	}
+}

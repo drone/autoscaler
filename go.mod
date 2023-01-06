@@ -24,7 +24,7 @@ require (
 	github.com/google/go-cmp v0.5.8
 	github.com/gophercloud/gophercloud v0.0.0-20181014043407-c8947f7d1c51
 	github.com/h2non/gock v1.0.7
-	github.com/hetznercloud/hcloud-go v1.4.0
+	github.com/hetznercloud/hcloud-go v1.39.0
 	github.com/jmoiron/sqlx v0.0.0-20180228184624-cf35089a1979
 	github.com/joho/godotenv v1.2.0
 	github.com/kr/pretty v0.1.0

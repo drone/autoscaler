@@ -183,8 +183,9 @@ type (
 			SSHKey       int
 			Token        string
 			Type         string
-			UserData     string `envconfig:"DRONE_HETZNERCLOUD_USERDATA"`
-			UserDataFile string `envconfig:"DRONE_HETZNERCLOUD_USERDATA_FILE"`
+			Labels       map[string]string `envconfig:"DRONE_HETZNERCLOUD_LABELS"`
+			UserData     string            `envconfig:"DRONE_HETZNERCLOUD_USERDATA"`
+			UserDataFile string            `envconfig:"DRONE_HETZNERCLOUD_USERDATA_FILE"`
 		}
 
 		Packet struct {

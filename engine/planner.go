@@ -77,7 +77,7 @@ func (p *planner) Plan(ctx context.Context) error {
 
 	ctx = logger.WithContext(ctx, log)
 
-	_, err := p.updateBusy(ctx)
+	_, err = p.updateBusy(ctx)
 	if err != nil {
 		log.WithError(err).
 			Errorln("cannot check for busy servers")
@@ -114,7 +114,7 @@ func (p *planner) Plan(ctx context.Context) error {
 
 
 // helper function checks for busy running instances and updates idle timer
-func (p *planner) updateBusy(ctx context.Context) (count int, error) {
+func (p *planner) updateBusy(ctx context.Context) (count int, err error) {
 	logger := logger.FromContext(ctx)
 
 	servers, err := p.servers.ListState(ctx, autoscaler.StateRunning)
@@ -147,7 +147,7 @@ func (p *planner) updateBusy(ctx context.Context) (count int, error) {
 		}
 	}
 	logger.Debugf("found %d busy servers", count)
-	return count
+	return count, nil
 }
 
 

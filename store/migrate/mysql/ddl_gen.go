@@ -20,6 +20,10 @@ var migrations = []struct {
 		name: "create-index-server-state",
 		stmt: createIndexServerState,
 	},
+	{
+		name: "alter-table-servers-add-column-server-lastbusy",
+		stmt: alterTableServersAddColumnServerLastbusy,
+	},
 }
 
 // Migrate performs the database migration. If the migration fails
@@ -121,7 +125,6 @@ CREATE TABLE servers (
 ,server_updated   INTEGER
 ,server_started   INTEGER
 ,server_stopped   INTEGER
-,server_lastbusy  INTEGER
 );
 `
 
@@ -131,4 +134,12 @@ CREATE INDEX ix_servers_id ON servers (server_id);
 
 var createIndexServerState = `
 CREATE INDEX ix_servers_state ON servers (server_state);
+`
+
+//
+// 002_add_column_lastbusy.sql
+//
+
+var alterTableServersAddColumnServerLastbusy = `
+ALTER TABLE servers ADD COLUMN server_lastbusy INTEGER NOT NULL DEFAULT 0;
 `

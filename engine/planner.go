@@ -30,6 +30,7 @@ type planner struct {
 	cap        int           // capacity per-server
 	buffer     int           // buffer capacity to have warm and ready
 	ttu        time.Duration // minimum server age
+	tti        time.Duration // minimum server idle time
 	labels     map[string]string
 
 	client  drone.Client

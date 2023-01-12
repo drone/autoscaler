@@ -84,4 +84,5 @@ type Server struct {
 	Updated  int64        `db:"server_updated"  json:"updated"`
 	Started  int64        `db:"server_started"  json:"started"`
 	Stopped  int64        `db:"server_stopped"  json:"stopped"`
+	LastBusy int64        `db:"server_lastbusy" json:"lastbusy"`
 }

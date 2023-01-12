@@ -77,11 +77,14 @@ func (p *planner) Plan(ctx context.Context) error {
 
 	ctx = logger.WithContext(ctx, log)
 
-	_, err = p.updateBusy(ctx)
-	if err != nil {
-		log.WithError(err).
-			Errorln("cannot check for busy servers")
-		return err
+	// if MinIdle is being used, track busy servers
+	if p.tti > 0 {
+		_, err = p.updateBusy(ctx)
+		if err != nil {
+			log.WithError(err).
+				Errorln("cannot check for busy servers")
+			return err
+		}
 	}
 
 	free := max(capacity-running-p.buffer, 0)
@@ -139,7 +142,7 @@ func (p *planner) updateBusy(ctx context.Context) (count int, err error) {
 				logger.WithError(err).
 					WithField("server", server.Name).
 					WithField("updated", server.Updated).
-					Errorln("cannot update busy server")
+					Errorln("cannot update server as busy")
 			}
 			logger.WithField("server", server.Name).
 				Debugln("updated busy server")

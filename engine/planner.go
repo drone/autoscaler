@@ -173,12 +173,13 @@ func (p *planner) mark(ctx context.Context, n int) error {
 		// skip busy servers
 		if _, ok := busy[server.Name]; ok {
 			// refresh Updated time to track idle time
+			server.Updated = time.Now().Unix()
 			err := p.servers.Update(ctx, server)
 			if err != nil {
 				logger.WithError(err).
 					WithField("server", server.Name).
-					WithField("state", server.State).
-					Errorln("cannot update server busy")
+					WithField("updated", server.Updated).
+					Errorln("cannot update busy server")
 			}
 			logger.WithField("server", server.Name).
 				Debugln("server is busy")

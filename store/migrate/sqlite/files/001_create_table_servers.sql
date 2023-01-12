@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS servers (
 ,server_updated   INTEGER
 ,server_started   INTEGER
 ,server_stopped   INTEGER
+,server_lastbusy  INTEGER
 );
 
 -- name: create-index-server-id

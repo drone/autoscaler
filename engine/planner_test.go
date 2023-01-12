@@ -360,8 +360,8 @@ func TestPlan_NoIdle(t *testing.T) {
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
 	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
 	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
-	store.EXPECT().Update(gomock.Any(), servers[0]).Return(nil)
-	store.EXPECT().Update(gomock.Any(), servers[1]).Return(nil)
+	store.EXPECT().Busy(gomock.Any(), servers[0]).Return(nil)
+	store.EXPECT().Busy(gomock.Any(), servers[1]).Return(nil)
 
 	client := mocks.NewMockClient(controller)
 	client.EXPECT().Queue().Return(builds, nil)

@@ -108,6 +108,21 @@ func (s *serverStore) Update(_ context.Context, server *autoscaler.Server) error
 	)
 }
 
+func (s *serverStore) Busy(_ context.Context, server *autoscaler.Server) error {
+	return retry.Do(
+		func() error {
+			if err := s.update(server); isConnReset(err) {
+				return err
+			} else {
+				return retry.Unrecoverable(err)
+			}
+		},
+		retry.Attempts(5),
+		retry.MaxDelay(time.Second*5),
+		retry.LastErrorOnly(true),
+	)
+}
+
 func (s *serverStore) update(server *autoscaler.Server) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()

@@ -143,6 +143,17 @@ type (
 			MarketType    string `envconfig:"DRONE_AMAZON_MARKET_TYPE"`
 		}
 
+		Brightbox struct {
+			ApiURL       string   `envconfig:"DRONE_BRIGHTBOX_API_URL"`
+			ClientID     string   `envconfig:"DRONE_BRIGHTBOX_CLIENT_ID"`
+			ClientSecret string   `envconfig:"DRONE_BRIGHTBOX_CLIENT_SECRET"`
+			Image        string   `envconfig:"DRONE_BRIGHTBOX_IMAGE"`
+			ServerType   string   `envconfig:"DRONE_BRIGHTBOX_SERVER_TYPE"`
+			ServerGroups []string `envconfig:"DRONE_BRIGHTBOX_SERVER_GROUPS"`
+			UserData     string   `envconfig:"DRONE_BRIGHTBOX_USERDATA"`
+			UserDataFile string   `envconfig:"DRONE_BRIGHTBOX_USERDATA_FILE"`
+		}
+
 		DigitalOcean struct {
 			Token        string
 			Image        string

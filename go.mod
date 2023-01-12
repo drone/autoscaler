@@ -5,23 +5,23 @@ go 1.12
 replace github.com/docker/docker => github.com/docker/engine v17.12.0-ce-rc1.0.20200309214505-aa6a9891b09c+incompatible
 
 require (
-	cloud.google.com/go v0.28.0 // indirect
 	github.com/99designs/basicauth-go v0.0.0-20160802081356-2a93ba0f464d
 	github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/Masterminds/sprig v2.22.0+incompatible // indirect
 	github.com/Microsoft/go-winio v0.4.7 // indirect
-	github.com/avast/retry-go v3.0.0+incompatible // indirect
+	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/aws/aws-sdk-go v1.13.5
 	github.com/beorn7/perks v0.0.0-20160804104726-4c0e84591b9a // indirect
 	github.com/bluele/slack v0.0.0-20171128075526-307046097ee9
+	github.com/brightbox/gobrightbox v0.8.2
 	github.com/containerd/containerd v1.3.4 // indirect
 	github.com/dchest/uniuri v0.0.0-20160212164326-8902c56451e9
 	github.com/digitalocean/godo v1.1.1
 	github.com/docker/distribution v0.0.0-20170726174610-edc3ab29cdff // indirect
 	github.com/docker/docker v0.0.0-00010101000000-000000000000
-	github.com/docker/go-connections v0.3.0 // indirect
+	github.com/docker/go-connections v0.3.0
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/drone/drone-go v1.0.5-0.20190504210458-4d6116b897ba
 	github.com/drone/envconfig v1.4.1
@@ -33,10 +33,10 @@ require (
 	github.com/go-sql-driver/mysql v1.3.0
 	github.com/gogo/protobuf v0.0.0-20170307180453-100ba4e88506 // indirect
 	github.com/golang/mock v1.3.1
-	github.com/google/go-cmp v0.4.0
+	github.com/google/go-cmp v0.5.5
 	github.com/google/go-querystring v0.0.0-20170111101155-53e6ce116135 // indirect
 	github.com/google/uuid v1.3.0 // indirect
-	github.com/gophercloud/gophercloud v0.0.0-20181014043407-c8947f7d1c51
+	github.com/gophercloud/gophercloud v0.1.0
 	github.com/gorilla/mux v1.7.4 // indirect
 	github.com/h2non/gock v1.0.7
 	github.com/hetznercloud/hcloud-go v1.4.0
@@ -56,7 +56,6 @@ require (
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/packethost/packngo v0.1.0
-	github.com/pkg/errors v0.8.1 // indirect
 	github.com/prometheus/client_golang v0.8.0
 	github.com/prometheus/common v0.0.0-20180110214958-89604d197083 // indirect
 	github.com/prometheus/procfs v0.0.0-20180212145926-282c8707aa21 // indirect
@@ -64,12 +63,11 @@ require (
 	github.com/sirupsen/logrus v1.4.2
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/tent/http-link-go v0.0.0-20130702225549-ac974c61c2f9 // indirect
-	golang.org/x/crypto v0.0.0-20190621222207-cc06ce4a13d4
+	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	golang.org/x/lint v0.0.0-20190313153728-d0100b6bd8b3 // indirect
-	golang.org/x/oauth2 v0.0.0-20180821212333-d2e6202438be
-	golang.org/x/sync v0.0.0-20190423024810-112230192c58
-	golang.org/x/time v0.0.0-20220224211638-0e9765cccd65 // indirect
-	golang.org/x/tools v0.0.0-20190524140312-2c0ae7006135 // indirect
+	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
+	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9
+	golang.org/x/time v0.0.0-20220224211638-0e9765cccd65
 	google.golang.org/api v0.0.0-20180921000521-920bb1beccf7
 	google.golang.org/appengine v1.4.0 // indirect
 	google.golang.org/grpc v1.30.0 // indirect

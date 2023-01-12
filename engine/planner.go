@@ -237,10 +237,10 @@ func (p *planner) mark(ctx context.Context, n int) error {
 		}
 
 		// skip servers that have not reached a min idle time
-		if time.Now().Before(time.Unix(server.Updated, 0).Add(p.tti)) {
+		if time.Now().Before(time.Unix(server.LastBusy, 0).Add(p.tti)) {
 			logger.
 				WithField("server", server.Name).
-				WithField("idle", timeDiff(time.Now(), time.Unix(server.Updated, 0))).
+				WithField("idle", timeDiff(time.Now(), time.Unix(server.LastBusy, 0))).
 				WithField("min-idle", p.tti).
 				Debugln("server min-idle not reached")
 			continue

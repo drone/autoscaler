@@ -31,14 +31,8 @@ func TestPlan_Noop(t *testing.T) {
 
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
-	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
 
 	client := mocks.NewMockClient(controller)
-	client.EXPECT().Queue().Return([]*drone.Stage{
-		{Status: drone.StatusRunning},
-		{Status: drone.StatusPending},
-		{Status: drone.StatusPending},
-	}, nil)
 	client.EXPECT().Queue().Return([]*drone.Stage{
 		{Status: drone.StatusRunning},
 		{Status: drone.StatusPending},
@@ -78,10 +72,8 @@ func TestPlan_MinBufferCapacity(t *testing.T) {
 
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
-	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
 
 	client := mocks.NewMockClient(controller)
-	client.EXPECT().Queue().Return(builds, nil)
 	client.EXPECT().Queue().Return(builds, nil)
 
 	p := planner{
@@ -125,10 +117,8 @@ func TestPlan_MaxBufferCapacity(t *testing.T) {
 
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
-	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
 
 	client := mocks.NewMockClient(controller)
-	client.EXPECT().Queue().Return(builds, nil)
 	client.EXPECT().Queue().Return(builds, nil)
 
 	p := planner{
@@ -169,11 +159,9 @@ func TestPlan_MoreBufferCapacity(t *testing.T) {
 
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
-	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
 	store.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil)
 
 	client := mocks.NewMockClient(controller)
-	client.EXPECT().Queue().Return(builds, nil)
 	client.EXPECT().Queue().Return(builds, nil)
 
 	p := planner{
@@ -220,10 +208,8 @@ func TestPlan_MaxCapacity(t *testing.T) {
 
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
-	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
 
 	client := mocks.NewMockClient(controller)
-	client.EXPECT().Queue().Return(builds, nil)
 	client.EXPECT().Queue().Return(builds, nil)
 
 	config := config.Config{}
@@ -276,12 +262,10 @@ func TestPlan_MoreCapacity(t *testing.T) {
 
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
-	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
 	store.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil)
 	store.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil)
 
 	client := mocks.NewMockClient(controller)
-	client.EXPECT().Queue().Return(builds, nil)
 	client.EXPECT().Queue().Return(builds, nil)
 
 	p := planner{
@@ -317,10 +301,8 @@ func TestPlan_MinPool(t *testing.T) {
 
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
-	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
 
 	client := mocks.NewMockClient(controller)
-	client.EXPECT().Queue().Return(builds, nil)
 	client.EXPECT().Queue().Return(builds, nil)
 
 	p := planner{
@@ -359,12 +341,8 @@ func TestPlan_NoIdle(t *testing.T) {
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
 	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
-	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
-	store.EXPECT().Busy(gomock.Any(), servers[0]).Return(nil)
-	store.EXPECT().Busy(gomock.Any(), servers[1]).Return(nil)
 
 	client := mocks.NewMockClient(controller)
-	client.EXPECT().Queue().Return(builds, nil)
 	client.EXPECT().Queue().Return(builds, nil)
 	client.EXPECT().Queue().Return(builds, nil)
 
@@ -401,10 +379,8 @@ func TestScale_MinAge(t *testing.T) {
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
 	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
-	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
 
 	client := mocks.NewMockClient(controller)
-	client.EXPECT().Queue().Return(builds, nil)
 	client.EXPECT().Queue().Return(builds, nil)
 	client.EXPECT().Queue().Return(builds, nil)
 
@@ -431,8 +407,8 @@ func TestScale_MinIdle(t *testing.T) {
 
 	// x2 capacity
 	servers := []*autoscaler.Server{
-		{Name: "server1", Capacity: 1, State: autoscaler.StateRunning, Created: time.Now().Unix(), Updated: time.Now().Unix()},
-		{Name: "server2", Capacity: 1, State: autoscaler.StateRunning, Created: time.Now().Unix(), Updated: time.Now().Add(time.Hour * -1).Unix()},
+		{Name: "server1", Capacity: 1, State: autoscaler.StateRunning, Created: time.Now().Unix(), LastBusy: time.Now().Add(time.Minute * 10 * -1).Unix()},
+		{Name: "server2", Capacity: 1, State: autoscaler.StateRunning, Created: time.Now().Unix(), LastBusy: time.Now().Add(time.Minute * 60 * -1).Unix()},
 	}
 
 	// x0 running builds
@@ -443,6 +419,8 @@ func TestScale_MinIdle(t *testing.T) {
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
 	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
 	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
+	// we should expect a call to shut down only server2 since the last busy
+	// time of 1 hour ago satisfies the MinIdle (tti) of 30 minutes.
 	store.EXPECT().Update(gomock.Any(), servers[1]).Return(nil)
 
 	client := mocks.NewMockClient(controller)
@@ -455,7 +433,7 @@ func TestScale_MinIdle(t *testing.T) {
 		min:     1,
 		max:     4,
 		ttu:     0,
-		tti:     time.Hour,
+		tti:     time.Minute * 30,
 		client:  client,
 		servers: store,
 	}
@@ -484,12 +462,10 @@ func TestPlan_ShutdownIdle(t *testing.T) {
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
 	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
-	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
 	store.EXPECT().Update(gomock.Any(), servers[2]).Return(nil)
 	store.EXPECT().Update(gomock.Any(), servers[1]).Return(nil)
 
 	client := mocks.NewMockClient(controller)
-	client.EXPECT().Queue().Return(builds, nil)
 	client.EXPECT().Queue().Return(builds, nil)
 	client.EXPECT().Queue().Return(builds, nil)
 
@@ -530,10 +506,8 @@ func TestPlan_ExcludePendingWhenTerminating(t *testing.T) {
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
 	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers[:3], nil)
-	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers[:3], nil)
 
 	client := mocks.NewMockClient(controller)
-	client.EXPECT().Queue().Return(builds, nil)
 	client.EXPECT().Queue().Return(builds, nil)
 
 	p := planner{

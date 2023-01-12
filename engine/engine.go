@@ -100,6 +100,7 @@ func New(
 			kernel:     config.Agent.Kernel,
 			buffer:     config.CapacityBuffer,
 			ttu:        config.Pool.MinAge,
+			tti:        config.Pool.MinIdle,
 			min:        config.Pool.Min,
 			max:        config.Pool.Max,
 			cap:        config.Agent.Concurrency,

@@ -153,12 +153,14 @@ func (p *planner) mark(ctx context.Context, n int) error {
 	// number of running servers, minus the total number
 	// of servers to terminate, falls below the minimum
 	// number of servers (including the buffer).
+	abort := false
 	if len(servers)-n < p.min {
 		logger.WithField("servers-to-terminate", n).
 			WithField("servers-running", len(servers)).
 			WithField("min-pool", p.min).
 			Debugf("abort terminating instances to ensure minimum capacity met")
-		return nil
+		// we abort later so we can still mark if servers are busy
+		abort = true
 	}
 
 	busy, err := p.listBusy(ctx)
@@ -181,8 +183,13 @@ func (p *planner) mark(ctx context.Context, n int) error {
 					WithField("updated", server.Updated).
 					Errorln("cannot update busy server")
 			}
-			logger.WithField("server", server.Name).
-				Debugln("server is busy")
+			if abort != true {
+				logger.WithField("server", server.Name).
+					Debugln("server is busy")
+			}
+			continue
+		}
+		if abort == true {
 			continue
 		}
 

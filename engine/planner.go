@@ -77,6 +77,28 @@ func (p *planner) Plan(ctx context.Context) error {
 
 	ctx = logger.WithContext(ctx, log)
 
+	// check for busy servers to update idle timers
+	busy, err := p.listBusy(ctx)
+	if err != nil {
+		logger.WithError(err).
+			Errorln("cannot ascertain busy server list")
+		return err
+	}
+
+	for _, server := range servers {
+		if _, ok := busy[server.Name]; ok {
+			err := p.servers.Update(ctx, server)
+			if err != nil {
+				logger.WithError(err).
+					WithField("server", server.Name).
+					WithField("updated", server.Updated).
+					Errorln("cannot update busy server")
+			}
+			logger.WithField("server", server.Name).
+				Debugln("updated busy server")
+		}
+	}
+
 	free := max(capacity-running-p.buffer, 0)
 	diff := serverDiff(pending, free, p.cap)
 
@@ -153,14 +175,12 @@ func (p *planner) mark(ctx context.Context, n int) error {
 	// number of running servers, minus the total number
 	// of servers to terminate, falls below the minimum
 	// number of servers (including the buffer).
-	abort := false
 	if len(servers)-n < p.min {
 		logger.WithField("servers-to-terminate", n).
 			WithField("servers-running", len(servers)).
 			WithField("min-pool", p.min).
 			Debugf("abort terminating instances to ensure minimum capacity met")
-		// we abort later so we can still mark if servers are busy
-		abort = true
+		return nil
 	}
 
 	busy, err := p.listBusy(ctx)
@@ -174,20 +194,8 @@ func (p *planner) mark(ctx context.Context, n int) error {
 	for _, server := range servers {
 		// skip busy servers
 		if _, ok := busy[server.Name]; ok {
-			// refresh Updated time to track idle time
-			server.Updated = time.Now().Unix()
-			err := p.servers.Update(ctx, server)
-			if err != nil {
-				logger.WithError(err).
-					WithField("server", server.Name).
-					WithField("updated", server.Updated).
-					Errorln("cannot update busy server")
-			}
 			logger.WithField("server", server.Name).
 				Debugln("server is busy")
-			continue
-		}
-		if abort == true {
 			continue
 		}
 

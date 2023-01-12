@@ -77,26 +77,11 @@ func (p *planner) Plan(ctx context.Context) error {
 
 	ctx = logger.WithContext(ctx, log)
 
-	// check for busy servers to update idle timers
-	busy, err := p.listBusy(ctx)
+	_, err := p.updateBusy(ctx)
 	if err != nil {
-		logger.WithError(err).
-			Errorln("cannot ascertain busy server list")
+		log.WithError(err).
+			Errorln("cannot check for busy servers")
 		return err
-	}
-
-	for _, server := range servers {
-		if _, ok := busy[server.Name]; ok {
-			err := p.servers.Update(ctx, server)
-			if err != nil {
-				logger.WithError(err).
-					WithField("server", server.Name).
-					WithField("updated", server.Updated).
-					Errorln("cannot update busy server")
-			}
-			logger.WithField("server", server.Name).
-				Debugln("updated busy server")
-		}
 	}
 
 	free := max(capacity-running-p.buffer, 0)
@@ -126,6 +111,45 @@ func (p *planner) Plan(ctx context.Context) error {
 
 	return nil
 }
+
+
+// helper function checks for busy running instances and updates idle timer
+func (p *planner) updateBusy(ctx context.Context) (count int, error) {
+	logger := logger.FromContext(ctx)
+
+	servers, err := p.servers.ListState(ctx, autoscaler.StateRunning)
+	if err != nil {
+		logger.WithError(err).
+			Errorln("cannot fetch server list")
+		return count, err
+	}
+
+	// check for busy servers to update idle timers
+	busy, err := p.listBusy(ctx)
+	if err != nil {
+		logger.WithError(err).
+			Errorln("cannot ascertain busy server list")
+		return count, err
+	}
+
+	for _, server := range servers {
+		if _, ok := busy[server.Name]; ok {
+			err := p.servers.Update(ctx, server)
+			if err != nil {
+				logger.WithError(err).
+					WithField("server", server.Name).
+					WithField("updated", server.Updated).
+					Errorln("cannot update busy server")
+			}
+			logger.WithField("server", server.Name).
+				Debugln("updated busy server")
+			count++
+		}
+	}
+	logger.Debugf("found %d busy servers", count)
+	return count
+}
+
 
 // helper function allocates n new server instances.
 func (p *planner) alloc(ctx context.Context, n int) error {

@@ -183,10 +183,8 @@ func (p *planner) mark(ctx context.Context, n int) error {
 					WithField("updated", server.Updated).
 					Errorln("cannot update busy server")
 			}
-			if abort != true {
-				logger.WithField("server", server.Name).
-					Debugln("server is busy")
-			}
+			logger.WithField("server", server.Name).
+				Debugln("server is busy")
 			continue
 		}
 		if abort == true {

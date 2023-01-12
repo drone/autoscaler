@@ -186,7 +186,7 @@ func (p *planner) mark(ctx context.Context, n int) error {
 			continue
 		}
 
-		// skipi servers that have not reached a min idle time
+		// skip servers that have not reached a min idle time
 		if time.Now().Before(time.Unix(server.Updated, 0).Add(p.tti)) {
 			logger.
 				WithField("server", server.Name).

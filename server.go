@@ -52,6 +52,9 @@ type ServerStore interface {
 	// Update the server record in the store.
 	Update(context.Context, *Server) error
 
+	// Update the server record that it is busy.
+	Busy(context.Context, *Server) error
+
 	// Delete the server record from the store.
 	Delete(context.Context, *Server) error
 

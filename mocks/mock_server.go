@@ -134,3 +134,17 @@ func (mr *MockServerStoreMockRecorder) Update(arg0, arg1 interface{}) *gomock.Ca
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockServerStore)(nil).Update), arg0, arg1)
 }
+
+// Busy mocks base method
+func (m *MockServerStore) Busy(arg0 context.Context, arg1 *autoscaler.Server) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Busy", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Busy indicates an expected call of Busy
+func (mr *MockServerStoreMockRecorder) Busy(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Busy", reflect.TypeOf((*MockServerStore)(nil).Busy), arg0, arg1)
+}

@@ -134,7 +134,7 @@ func (p *planner) updateBusy(ctx context.Context) (count int, err error) {
 
 	for _, server := range servers {
 		if _, ok := busy[server.Name]; ok {
-			err := p.servers.Update(ctx, server)
+			err := p.servers.Busy(ctx, server)
 			if err != nil {
 				logger.WithError(err).
 					WithField("server", server.Name).

@@ -108,9 +108,19 @@ func (p *provider) create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		},
 	}
 
-	if p.volumeType == "io1" {
+	if p.volumeType == "io1" || p.volumeType == "io2" || p.volumeType == "gp3" {
 		for _, blockDeviceMapping := range in.BlockDeviceMappings {
-			blockDeviceMapping.Ebs.Iops = aws.Int64(p.volumeIops)
+			if p.volumeIops > 0 {
+				blockDeviceMapping.Ebs.Iops = aws.Int64(p.volumeIops)
+			}
+		}
+	}
+
+	if p.volumeType == "gp3" {
+		for _, blockDeviceMapping := range in.BlockDeviceMappings {
+			if p.volumeThroughput > 0 {
+				blockDeviceMapping.Ebs.Throughput = aws.Int64(p.volumeThroughput)
+			}
 		}
 	}
 

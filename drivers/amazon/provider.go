@@ -19,23 +19,24 @@ import (
 type provider struct {
 	init sync.Once
 
-	deviceName    string
-	volumeSize    int64
-	volumeType    string
-	volumeIops    int64
-	retries       int
-	key           string
-	region        string
-	image         string
-	privateIP     bool
-	userdata      *template.Template
-	size          string
-	sizeAlt       string
-	subnet        string
-	groups        []string
-	tags          map[string]string
-	iamProfileArn string
-	spotInstance  bool
+	deviceName       string
+	volumeSize       int64
+	volumeType       string
+	volumeIops       int64
+	volumeThroughput int64
+	retries          int
+	key              string
+	region           string
+	image            string
+	privateIP        bool
+	userdata         *template.Template
+	size             string
+	sizeAlt          string
+	subnet           string
+	groups           []string
+	tags             map[string]string
+	iamProfileArn    string
+	spotInstance     bool
 }
 
 func (p *provider) getClient() *ec2.EC2 {
@@ -72,8 +73,14 @@ func New(opts ...Option) autoscaler.Provider {
 	if p.volumeType == "" {
 		p.volumeType = "gp2"
 	}
-	if p.volumeType == "io1" && p.volumeIops == 0 {
+	if (p.volumeType == "io1" || p.volumeType == "io2") && p.volumeIops == 0 {
 		p.volumeIops = 100
+	}
+	if p.volumeType == "gp3" && p.volumeIops == 0 {
+		p.volumeIops = 3000 // 3000 is the minimum for gp3
+	}
+	if p.volumeType == "gp3" && p.volumeThroughput == 0 {
+		p.volumeThroughput = 125 // 125 is the minimum for gp3
 	}
 	if p.userdata == nil {
 		p.userdata = userdata.T

@@ -16,17 +16,17 @@ import (
 func TestSetupFirewall(t *testing.T) {
 	defer gock.Off()
 
-	gock.New("https://www.googleapis.com").
+	gock.New("https://compute.googleapis.com").
 		Get("/compute/v1/projects/my-project/global/firewalls/default-allow-docker").
 		Reply(404)
 
-	gock.New("https://www.googleapis.com").
+	gock.New("https://compute.googleapis.com").
 		Post("/compute/v1/projects/my-project/global/firewalls").
 		JSON(createFirewallMock).
 		Reply(200).
 		BodyString(`{ "name": "operation-name" }`)
 
-	gock.New("https://www.googleapis.com").
+	gock.New("https://compute.googleapis.com").
 		Get("/compute/v1/projects/my-project/global/operations/operation-name").
 		Reply(200).
 		BodyString(`{ "status": "DONE" }`)
@@ -50,7 +50,7 @@ func TestSetupFirewall(t *testing.T) {
 func TestSetupFirewall_Exists(t *testing.T) {
 	defer gock.Off()
 
-	gock.New("https://www.googleapis.com").
+	gock.New("https://compute.googleapis.com").
 		Get("/compute/v1/projects/my-project/global/firewalls/default-allow-docker").
 		Reply(200).
 		BodyString(findFirewallRes)

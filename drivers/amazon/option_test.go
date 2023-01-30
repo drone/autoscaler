@@ -16,7 +16,7 @@ func TestOptions(t *testing.T) {
 		WithSecurityGroup("sg-770eabe1"),
 		WithSize("t3.2xlarge"),
 		WithSSHKey("id_rsa"),
-		WithSubnet("subnet-0b32177f"),
+		WithSubnets([]string{"subnet-0b32177f"}),
 		WithTags(map[string]string{"foo": "bar", "baz": "qux"}),
 		WithVolumeSize(64),
 		WithVolumeType("io1"),
@@ -40,7 +40,7 @@ func TestOptions(t *testing.T) {
 	if got, want := p.groups[0], "sg-770eabe1"; got != want {
 		t.Errorf("Want security groups %q, got %q", want, got)
 	}
-	if got, want := p.subnet, "subnet-0b32177f"; got != want {
+	if got, want := p.subnets, []string{"subnet-0b32177f"}; len(got) != 1 || got[0] != want[0] {
 		t.Errorf("Want subnet %q, got %q", want, got)
 	}
 	if got, want := p.retries, 10; got != want {

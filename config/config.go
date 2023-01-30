@@ -131,7 +131,7 @@ type (
 			Region           string
 			Retries          int
 			SSHKey           string
-			SubnetID         string   `split_words:"true"`
+			SubnetID         []string `split_words:"true"`
 			SecurityGroup    []string `split_words:"true"`
 			Tags             map[string]string
 			UserData         string `envconfig:"DRONE_AMAZON_USERDATA"`

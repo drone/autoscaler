@@ -311,7 +311,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			amazon.WithSecurityGroup(c.Amazon.SecurityGroup...),
 			amazon.WithSize(c.Amazon.Instance),
 			amazon.WithSizeAlt(c.Amazon.InstanceAlt),
-			amazon.WithSubnet(c.Amazon.SubnetID),
+			amazon.WithSubnets(c.Amazon.SubnetID),
 			amazon.WithTags(c.Amazon.Tags),
 			amazon.WithUserData(c.Amazon.UserData),
 			amazon.WithUserDataFile(c.Amazon.UserDataFile),

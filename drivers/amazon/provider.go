@@ -32,7 +32,7 @@ type provider struct {
 	userdata         *template.Template
 	size             string
 	sizeAlt          string
-	subnet           string
+	subnets          []string
 	groups           []string
 	tags             map[string]string
 	iamProfileArn    string

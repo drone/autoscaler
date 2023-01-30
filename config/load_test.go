@@ -263,7 +263,9 @@ var jsonConfig = []byte(`{
     "Retries": 1,
     "Region": "us-east-2",
     "SSHKey": "id_rsa",
-    "SubnetID": "subnet-0b32177f",
+    "SubnetID": [
+		"subnet-0b32177f"
+	],
     "SecurityGroup": [
       "sg-770eabe1"
     ],

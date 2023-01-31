@@ -29,7 +29,7 @@ require (
 	github.com/joho/godotenv v1.2.0
 	github.com/kr/pretty v0.1.0
 	github.com/lib/pq v1.10.4
-	github.com/mattn/go-sqlite3 v1.6.0
+	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/packethost/packngo v0.1.0
 	github.com/prometheus/client_golang v1.14.0
 	github.com/scaleway/scaleway-sdk-go v1.0.0-beta.3

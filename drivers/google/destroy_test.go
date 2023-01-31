@@ -16,12 +16,12 @@ import (
 func TestDestroy(t *testing.T) {
 	defer gock.Off()
 
-	gock.New("https://www.googleapis.com").
+	gock.New("https://compute.googleapis.com").
 		Delete("/compute/v1/projects/my-project/zones/us-central1-a/instances/my-instance").
 		Reply(200).
 		BodyString(`{ "name": "operation-name" }`)
 
-	gock.New("https://www.googleapis.com").
+	gock.New("https://compute.googleapis.com").
 		Get("/compute/v1/projects/my-project/zones/us-central1-a/operations/operation-name").
 		Reply(200).
 		BodyString(`{ "status": "DONE" }`)
@@ -51,7 +51,7 @@ func TestDestroy(t *testing.T) {
 func TestDestroy_Error(t *testing.T) {
 	defer gock.Off()
 
-	gock.New("https://www.googleapis.com").
+	gock.New("https://compute.googleapis.com").
 		Delete("/compute/v1/projects/my-project/zones/us-central1-a/instances/my-instance").
 		Reply(404)
 

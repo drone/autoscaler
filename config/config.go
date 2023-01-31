@@ -123,24 +123,25 @@ type (
 		}
 
 		Amazon struct {
-			DeviceName    string `envconfig:"DRONE_AMAZON_DEVICE_NAME"`
-			Image         string `envconfig:"DRONE_AMAZON_IMAGE"`
-			Instance      string `envconfig:"DRONE_AMAZON_INSTANCE"`
-			InstanceAlt   string `envconfig:"DRONE_AMAZON_INSTANCE_ALT"`
-			PrivateIP     bool   `split_words:"true"`
-			Region        string
-			Retries       int
-			SSHKey        string
-			SubnetID      string   `split_words:"true"`
-			SecurityGroup []string `split_words:"true"`
-			Tags          map[string]string
-			UserData      string `envconfig:"DRONE_AMAZON_USERDATA"`
-			UserDataFile  string `envconfig:"DRONE_AMAZON_USERDATA_FILE"`
-			VolumeSize    int64  `envconfig:"DRONE_AMAZON_VOLUME_SIZE"`
-			VolumeType    string `envconfig:"DRONE_AMAZON_VOLUME_TYPE"`
-			VolumeIops    int64  `envconfig:"DRONE_AMAZON_VOLUME_IOPS"`
-			IamProfileArn string `envconfig:"DRONE_AMAZON_IAM_PROFILE_ARN"`
-			MarketType    string `envconfig:"DRONE_AMAZON_MARKET_TYPE"`
+			DeviceName       string `envconfig:"DRONE_AMAZON_DEVICE_NAME"`
+			Image            string `envconfig:"DRONE_AMAZON_IMAGE"`
+			Instance         string `envconfig:"DRONE_AMAZON_INSTANCE"`
+			InstanceAlt      string `envconfig:"DRONE_AMAZON_INSTANCE_ALT"`
+			PrivateIP        bool   `split_words:"true"`
+			Region           string
+			Retries          int
+			SSHKey           string
+			SubnetID         string   `split_words:"true"`
+			SecurityGroup    []string `split_words:"true"`
+			Tags             map[string]string
+			UserData         string `envconfig:"DRONE_AMAZON_USERDATA"`
+			UserDataFile     string `envconfig:"DRONE_AMAZON_USERDATA_FILE"`
+			VolumeSize       int64  `envconfig:"DRONE_AMAZON_VOLUME_SIZE"`
+			VolumeType       string `envconfig:"DRONE_AMAZON_VOLUME_TYPE"`
+			VolumeIops       int64  `envconfig:"DRONE_AMAZON_VOLUME_IOPS"`
+			VolumeThroughput int64  `envconfig:"DRONE_AMAZON_VOLUME_THROUGHPUT"`
+			IamProfileArn    string `envconfig:"DRONE_AMAZON_IAM_PROFILE_ARN"`
+			MarketType       string `envconfig:"DRONE_AMAZON_MARKET_TYPE"`
 		}
 
 		DigitalOcean struct {

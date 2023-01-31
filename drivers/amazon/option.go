@@ -138,6 +138,13 @@ func WithVolumeIops(i int64) Option {
 	}
 }
 
+// WithVolumeThroughput returns an option to set the volume throughput.
+func WithVolumeThroughput(i int64) Option {
+	return func(p *provider) {
+		p.volumeThroughput = i
+	}
+}
+
 // WithIamProfileArn returns an option to set the iam profile arn.
 func WithIamProfileArn(t string) Option {
 	return func(p *provider) {

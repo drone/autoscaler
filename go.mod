@@ -7,7 +7,7 @@ replace github.com/docker/docker => github.com/docker/engine v17.12.0-ce-rc1.0.2
 require (
 	github.com/99designs/basicauth-go v0.0.0-20160802081356-2a93ba0f464d
 	github.com/avast/retry-go v3.0.0+incompatible
-	github.com/aws/aws-sdk-go v1.44.186
+	github.com/aws/aws-sdk-go v1.44.205
 	github.com/bluele/slack v0.0.0-20171128075526-307046097ee9
 	github.com/dchest/uniuri v0.0.0-20160212164326-8902c56451e9
 	github.com/digitalocean/godo v1.1.1

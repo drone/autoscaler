@@ -162,3 +162,10 @@ func WithRateLimit(limitAmount int) Option {
 		p.rateLimiter = rate.NewLimiter(limit, 1)
 	}
 }
+
+// WithProvisioningModel returns an option to set the provisioningmodel ("STANDARD", "SPOT").
+func WithProvisioningModel(provisioningmodel string) Option {
+	return func(p *provider) {
+		p.provisioningModel = provisioningmodel
+	}
+}

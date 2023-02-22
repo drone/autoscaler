@@ -53,6 +53,7 @@ type provider struct {
 	zones               []string
 	userdata            *template.Template
 	userdataKey         string
+	provisioningModel   string
 
 	rateLimiter *rate.Limiter
 
@@ -97,6 +98,10 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 	}
 	if p.serviceAccountEmail == "" {
 		p.serviceAccountEmail = "default"
+	}
+    // Defaults to STANDARD provisioningModel
+    if p.provisioningModel == "" {
+		p.provisioningModel = "STANDARD"
 	}
 
 	if p.rateLimiter == nil {

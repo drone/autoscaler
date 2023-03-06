@@ -44,6 +44,7 @@ type provider struct {
 	labels              map[string]string
 	network             string
 	subnetwork          string
+	stackType           string
 	project             string
 	privateIP           bool
 	scopes              []string
@@ -82,6 +83,9 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 	}
 	if p.network == "" {
 		p.network = "global/networks/default"
+	}
+	if p.stackType == "" {
+		p.stackType = "IPV4_ONLY"
 	}
 	if p.userdata == nil {
 		p.userdata = userdata.T

@@ -192,7 +192,7 @@ func (p *planner) mark(ctx context.Context, n int) error {
 	}
 
 	// if there are no idle servers, there are no servers
-	// to retire and we can exit.
+	// to retire, we can exit.
 	if len(idle) == 0 {
 		logger.Debugln("no idle servers to shutdown")
 	}
@@ -265,7 +265,7 @@ func (p *planner) listBusy(ctx context.Context) (map[string]struct{}, error) {
 		if p.match(stage) == false {
 			continue
 		}
-		if stage.Status == drone.StatusRunning {
+		if stage.Status == drone.StatusRunning || stage.Status == drone.StatusPending {
 			busy[stage.Machine] = struct{}{}
 		}
 	}

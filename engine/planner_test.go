@@ -479,93 +479,128 @@ func TestPlan_ExcludePendingWhenTerminating(t *testing.T) {
 	}
 }
 
-// func TestListBusy(t *testing.T) {
-// 	controller := gomock.NewController(t)
-// 	defer controller.Finish()
+func TestListBusy(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
 
-// 	client := mocks.NewMockClient(controller)
-// 	client.EXPECT().Build("octocat", "hello-world", 1).Return(&drone.Build{
-// 		Procs: []*drone.Proc{
-// 			{PID: 1, Machine: "machine1"},
-// 			{PID: 2, Machine: "machine2"},
-// 		},
-// 	}, nil)
-// 	client.EXPECT().BuildQueue().Return([]*drone.Activity{
-// 		{Status: drone.StatusPending},
-// 		{Status: drone.StatusRunning, Owner: "octocat", Name: "hello-world", Number: 1},
-// 	}, nil)
+	client := mocks.NewMockClient(controller)
+	client.EXPECT().Queue().Return([]*drone.Stage{
+		{Status: drone.StatusPending, Machine: "machine1"},
+		{Status: drone.StatusRunning, Machine: "machine2"},
+	}, nil)
 
-// 	scaler := Scaler{Client: client}
-// 	busy, err := scaler.listBusy(context.TODO())
-// 	if err != nil {
-// 		t.Error(err)
-// 		return
-// 	}
-// 	if got, want := len(busy), 2; got != want {
-// 		t.Errorf("Want busy server count %d, got %d", want, got)
-// 	}
-// 	if _, ok := busy["machine1"]; !ok {
-// 		t.Errorf("Expected server not in busy list")
-// 	}
-// 	if _, ok := busy["machine2"]; !ok {
-// 		t.Errorf("Expected server not in busy list")
-// 	}
-// }
+	p := planner{
+		client: client,
+	}
 
-// func TestCapacity(t *testing.T) {
-// 	controller := gomock.NewController(t)
-// 	defer controller.Finish()
+	busy, err := p.listBusy(context.TODO())
+	if err != nil {
+		t.Error(err)
+	}
+	if got, want := len(busy), 2; got != want {
+		t.Errorf("Want busy server count %d, got %d", want, got)
+	}
+	if _, ok := busy["machine1"]; !ok {
+		t.Errorf("Expected server not in busy list")
+	}
+	if _, ok := busy["machine2"]; !ok {
+		t.Errorf("Expected server not in busy list")
+	}
+}
 
-// 	servers := []*autoscaler.Server{
-// 		{Name: "server1", Capacity: 4},
-// 		{Name: "server2", Capacity: 3},
-// 		{Name: "server3", Capacity: 2},
-// 		{Name: "server4", Capacity: 1},
-// 	}
+func TestListBusyWithPendingAndRunning(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
 
-// 	store := mocks.NewMockServerStore(controller)
-// 	store.EXPECT().List(gomock.Any()).Return(servers, nil)
+	client := mocks.NewMockClient(controller)
+	client.EXPECT().Queue().Return([]*drone.Stage{
+		{Status: drone.StatusPending, Machine: "machine1"},
+		{Status: drone.StatusRunning, Machine: "machine2"},
+		{Status: drone.StatusPending, Machine: "machine3"},
+	}, nil)
 
-// 	scaler := Scaler{Servers: store}
-// 	capacity, count, err := scaler.capacity(context.TODO())
-// 	if err != nil {
-// 		t.Error(err)
-// 		return
-// 	}
-// 	if got, want := capacity, 10; got != want {
-// 		t.Errorf("Want capacity count %d, got %d", want, got)
-// 	}
-// 	if got, want := count, 4; got != want {
-// 		t.Errorf("Want server count %d, got %d", want, got)
-// 	}
-// }
+	p := planner{
+		client: client,
+	}
 
-// func TestCount(t *testing.T) {
-// 	controller := gomock.NewController(t)
-// 	defer controller.Finish()
+	busy, err := p.listBusy(context.TODO())
+	if err != nil {
+		t.Error(err)
+	}
+	if got, want := len(busy), 3; got != want {
+		t.Errorf("Want busy server count %d, got %d", want, got)
+	}
+	if _, ok := busy["machine1"]; !ok {
+		t.Errorf("Machine1 not found in the busy server list")
+	}
+	if _, ok := busy["machine2"]; !ok {
+		t.Errorf("Machine2 not found in the busy server list")
+	}
+	if _, ok := busy["machine3"]; !ok {
+		t.Errorf("Machine3 not found in the busy server list")
+	}
+}
 
-// 	client := mocks.NewMockClient(controller)
-// 	client.EXPECT().BuildQueue().Return([]*drone.Activity{
-// 		{Status: drone.StatusPending},
-// 		{Status: drone.StatusPending},
-// 		{Status: drone.StatusPending},
-// 		{Status: drone.StatusRunning},
-// 		{Status: drone.StatusRunning},
-// 	}, nil)
+func TestCapacity(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
 
-// 	scaler := Scaler{Client: client}
-// 	pending, running, err := scaler.count(context.TODO())
-// 	if err != nil {
-// 		t.Error(err)
-// 		return
-// 	}
-// 	if got, want := pending, 3; got != want {
-// 		t.Errorf("Want pending count %d, got %d", want, got)
-// 	}
-// 	if got, want := running, 2; got != want {
-// 		t.Errorf("Want running count %d, got %d", want, got)
-// 	}
-// }
+	servers := []*autoscaler.Server{
+		{Name: "server1", Capacity: 4},
+		{Name: "server2", Capacity: 3},
+		{Name: "server3", Capacity: 2},
+		{Name: "server4", Capacity: 1},
+	}
+
+	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().List(gomock.Any()).Return(servers, nil)
+
+	p := planner{
+		servers: store,
+	}
+
+	capacity, count, err := p.capacity(context.TODO())
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if got, want := capacity, 10; got != want {
+		t.Errorf("Want capacity count %d, got %d", want, got)
+	}
+	if got, want := count, 4; got != want {
+		t.Errorf("Want server count %d, got %d", want, got)
+	}
+}
+
+func TestCount(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	client := mocks.NewMockClient(controller)
+	client.EXPECT().Queue().Return([]*drone.Stage{
+		{Status: drone.StatusPending},
+		{Status: drone.StatusPending},
+		{Status: drone.StatusPending},
+		{Status: drone.StatusRunning},
+		{Status: drone.StatusRunning},
+	}, nil)
+
+	p := planner{
+		client: client,
+	}
+
+	pending, running, err := p.count(context.TODO())
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if got, want := pending, 3; got != want {
+		t.Errorf("Want pending count %d, got %d", want, got)
+	}
+	if got, want := running, 2; got != want {
+		t.Errorf("Want running count %d, got %d", want, got)
+	}
+}
 
 func TestMatch(t *testing.T) {
 	tests := []struct {

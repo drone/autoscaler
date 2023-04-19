@@ -43,7 +43,8 @@ func (p *provider) getClient() *ec2.EC2 {
 	config := aws.NewConfig()
 	config = config.WithRegion(p.region)
 	config = config.WithMaxRetries(p.retries)
-	return ec2.New(session.New(config))
+	session, _ := session.NewSession(config)
+	return ec2.New(session)
 }
 
 // New returns a new Digital Ocean provider.

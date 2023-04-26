@@ -131,7 +131,8 @@ type (
 			Region           string
 			Retries          int
 			SSHKey           string
-			SubnetID         []string `split_words:"true"`
+			SubnetID         string   `split_words:"true"`
+			SubnetIDsAlt     []string `envconfig:"DRONE_AMAZON_SUBNET_IDS_ALT"` // In the same manner as InstanceAlt, allows fallback to other subnets if provisioning in the main one fails
 			SecurityGroup    []string `split_words:"true"`
 			Tags             map[string]string
 			UserData         string `envconfig:"DRONE_AMAZON_USERDATA"`

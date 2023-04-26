@@ -125,6 +125,7 @@ func TestLoad(t *testing.T) {
 		"DRONE_AMAZON_REGION":              "us-east-2",
 		"DRONE_AMAZON_SSHKEY":              "id_rsa",
 		"DRONE_AMAZON_SUBNET_ID":           "subnet-0b32177f",
+		"DRONE_AMAZON_SUBNET_IDS_ALT":      "subnet-abcd,subnet-efgh",
 		"DRONE_AMAZON_SECURITY_GROUP":      "sg-770eabe1",
 		"DRONE_AMAZON_TAGS":                "os:linux,arch:amd64",
 		"DRONE_AMAZON_USERDATA":            "#cloud-init",
@@ -263,8 +264,10 @@ var jsonConfig = []byte(`{
     "Retries": 1,
     "Region": "us-east-2",
     "SSHKey": "id_rsa",
-    "SubnetID": [
-		"subnet-0b32177f"
+    "SubnetID": "subnet-0b32177f",
+    "SubnetIDsAlt": [
+		"subnet-abcd",
+		"subnet-efgh"
 	],
     "SecurityGroup": [
       "sg-770eabe1"

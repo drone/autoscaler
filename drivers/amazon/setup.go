@@ -21,7 +21,7 @@ func (p *provider) setup(ctx context.Context) error {
 			return p.setupKeypair(ctx)
 		})
 	}
-	if p.subnet == "" {
+	if len(p.subnets) == 0 {
 		// TODO: find or create subnet
 	}
 	if len(p.groups) == 0 {

@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
+	"fmt"
 	"time"
 
 	"github.com/drone/autoscaler"
@@ -17,16 +18,41 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 )
 
+type attemptOverrides struct {
+	attempt int
+	size    string
+	subnet  string
+}
+
 func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpts) (*autoscaler.Instance, error) {
-	instance, err := p.create(ctx, opts, false)
-	// if the instance was successfully provisioned,
-	// return the instance.
-	if err == nil {
-		return instance, err
+	attemptOverrides := attemptOverrides{
+		attempt: 1,
+		size:    p.size,
 	}
 
-	// if the instance was provisioned with errors,
-	// return the instance and the error
+	tryCreateInAllSubnets := func() (*autoscaler.Instance, error) {
+		var (
+			instance *autoscaler.Instance
+			err      error
+		)
+		for _, subnet := range p.subnets {
+			attemptOverrides.subnet = subnet
+
+			instance, err = p.create(ctx, opts, attemptOverrides)
+			// if the instance was provisioned (with or without errors), return the instance.
+			if instance != nil {
+				return instance, err
+			}
+
+			attemptOverrides.attempt++
+		}
+
+		return nil, fmt.Errorf("failed to create instance in all subnets: %w", err)
+	}
+
+	instance, err := tryCreateInAllSubnets()
+
+	// if the instance was provisioned (with or without errors), return the instance.
 	if instance != nil {
 		return instance, err
 	}
@@ -34,14 +60,15 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	// if the instance was not provisioned, and fallback
 	// parameters were provided, retry using the fallback
 	if p.sizeAlt != "" {
-		instance, err = p.create(ctx, opts, true)
+		attemptOverrides.size = p.sizeAlt
+		instance, err = tryCreateInAllSubnets()
 	}
 
 	// if there is no fallback logic do not retry
 	return instance, err
 }
 
-func (p *provider) create(ctx context.Context, opts autoscaler.InstanceCreateOpts, retry bool) (*autoscaler.Instance, error) {
+func (p *provider) create(ctx context.Context, opts autoscaler.InstanceCreateOpts, overrides attemptOverrides) (*autoscaler.Instance, error) {
 	p.init.Do(func() {
 		p.setup(ctx)
 	})
@@ -76,7 +103,7 @@ func (p *provider) create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	in := &ec2.RunInstancesInput{
 		KeyName:               aws.String(p.key),
 		ImageId:               aws.String(p.image),
-		InstanceType:          aws.String(p.size),
+		InstanceType:          aws.String(overrides.size),
 		MinCount:              aws.Int64(1),
 		MaxCount:              aws.Int64(1),
 		InstanceMarketOptions: marketOptions,
@@ -86,7 +113,7 @@ func (p *provider) create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 			{
 				AssociatePublicIpAddress: aws.Bool(!p.privateIP),
 				DeviceIndex:              aws.Int64(0),
-				SubnetId:                 aws.String(p.subnet),
+				SubnetId:                 aws.String(overrides.subnet),
 				Groups:                   aws.StringSlice(p.groups),
 			},
 		},
@@ -125,28 +152,12 @@ func (p *provider) create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	}
 
 	logger := logger.FromContext(ctx).
-		WithField("attempt", 1).
+		WithField("attempt", overrides.attempt).
+		WithField("size", overrides.size).
+		WithField("subnet", overrides.subnet).
 		WithField("region", p.region).
 		WithField("image", p.image).
-		WithField("size", p.size).
 		WithField("name", opts.Name)
-
-	// TODO(bradyrdzewski) instead of passing a re-try flag
-	// and then setting parameters, we should instead accept
-	// an struct that specifies the size, image and any other
-	// alternate values that one may want to try
-
-	// if this is our second attempt to create the instance,
-	// re-create using the alternate instance size.
-	if retry {
-		in.InstanceType = aws.String(p.sizeAlt)
-
-		// update the logger to reflect this is a retry.
-		logger = logger.
-			WithField("size", p.sizeAlt).
-			WithField("attempt", 2)
-	}
-
 	logger.Debug("instance create")
 
 	results, err := client.RunInstances(in)

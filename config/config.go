@@ -225,24 +225,25 @@ type (
 		}
 
 		YandexCloud struct {
-			Token                string   `envconfig:"DRONE_YANDEX_CLOUD_TOKEN"`
-			ServiceAccount       string   `envconfig:"DRONE_YANDEX_CLOUD_SERVICE_ACCOUNT"`
-			FolderID             string   `envconfig:"DRONE_YANDEX_CLOUD_FOLDER_ID"`
-			SubnetID             string   `envconfig:"DRONE_YANDEX_CLOUD_SUBNET_ID"`
-			Zone                 []string `envconfig:"DRONE_YANDEX_CLOUD_ZONE"`
-			DiskSize             int64    `envconfig:"DRONE_YANDEX_CLOUD_DISK_SIZE"`
-			DiskType             string   `envconfig:"DRONE_YANDEX_CLOUD_DISK_TYPE"`
-			ResourceCores        int64    `envconfig:"DRONE_YANDEX_CLOUD_RESOURCE_CORES"`
-			ResourceMemory       int64    `envconfig:"DRONE_YANDEX_CLOUD_RESOURCE_MEMORY"`
-			ResourceCoreFraction int64    `envconfig:"DRONE_YANDEX_CLOUD_RESOURCE_CORE_FRACTION"`
-			Preemptible          bool     `envconfig:"DRONE_YANDEX_CLOUD_PREEMPTIBLE"`
-			PrivateIP            bool     `envconfig:"DRONE_YANDEX_CLOUD_PRIVATE_IP"`
-			PlatformID           string   `envconfig:"DRONE_YANDEX_CLOUD_PLATFORM_ID"`
-			ImageFolderID        string   `envconfig:"DRONE_YANDEX_CLOUD_IMAGE_FOLDER_ID"`
-			ImageFamily          string   `envconfig:"DRONE_YANDEX_CLOUD_IMAGE_FAMILY"`
-			SecurityGroupIDs     []string `envconfig:"DRONE_YANDEX_CLOUD_SECURITY_GROUP_IDS"`
-			SSHUserKeyPair       string   `envconfig:"DRONE_YANDEX_CLOUD_SSH_USER_KEY_PAIR"`
-			DockerComposeConfig  string   `envconfig:"DRONE_YANDEX_CLOUD_DOCKER_COMPOSE"`
+			Token                 string   `envconfig:"DRONE_YANDEX_CLOUD_TOKEN"`
+			ServiceAccount        string   `envconfig:"DRONE_YANDEX_CLOUD_SERVICE_ACCOUNT"`
+			FolderID              string   `envconfig:"DRONE_YANDEX_CLOUD_FOLDER_ID"`
+			SubnetID              string   `envconfig:"DRONE_YANDEX_CLOUD_SUBNET_ID"`
+			Zone                  []string `envconfig:"DRONE_YANDEX_CLOUD_ZONE"`
+			DiskSize              int64    `envconfig:"DRONE_YANDEX_CLOUD_DISK_SIZE"`
+			DiskType              string   `envconfig:"DRONE_YANDEX_CLOUD_DISK_TYPE"`
+			ResourceCores         int64    `envconfig:"DRONE_YANDEX_CLOUD_RESOURCE_CORES"`
+			ResourceMemory        int64    `envconfig:"DRONE_YANDEX_CLOUD_RESOURCE_MEMORY"`
+			ResourceCoreFraction  int64    `envconfig:"DRONE_YANDEX_CLOUD_RESOURCE_CORE_FRACTION"`
+			Preemptible           bool     `envconfig:"DRONE_YANDEX_CLOUD_PREEMPTIBLE"`
+			PrivateIP             bool     `envconfig:"DRONE_YANDEX_CLOUD_PRIVATE_IP"`
+			PlatformID            string   `envconfig:"DRONE_YANDEX_CLOUD_PLATFORM_ID"`
+			ImageFolderID         string   `envconfig:"DRONE_YANDEX_CLOUD_IMAGE_FOLDER_ID"`
+			ImageFamily           string   `envconfig:"DRONE_YANDEX_CLOUD_IMAGE_FAMILY"`
+			SecurityGroupIDs      []string `envconfig:"DRONE_YANDEX_CLOUD_SECURITY_GROUP_IDS"`
+			SSHUser               string   `envconfig:"DRONE_YANDEX_CLOUD_SSH_USER"`
+			SSHUserAuthorizedKeys []string `envconfig:"DRONE_YANDEX_CLOUD_SSH_USER_AUTHORIZED_KEYS"`
+			DockerComposeConfig   string   `envconfig:"DRONE_YANDEX_CLOUD_DOCKER_COMPOSE"`
 		}
 	}
 

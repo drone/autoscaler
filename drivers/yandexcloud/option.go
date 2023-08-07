@@ -117,10 +117,17 @@ func WithSecurityGroups(groupIDs []string) Option {
 	}
 }
 
-// WithSSHUserKeyPair returns an option to set ssh user key pair.
-func WithSSHUserKeyPair(pair string) Option {
+// WithSSHUser returns an option to set ssh user key pair.
+func WithSSHUser(pair string) Option {
 	return func(p *provider) {
-		p.sshUserPublicKeyPair = pair
+		p.sshUser = pair
+	}
+}
+
+// WithSSHAuthorizedKeys returns an option to set ssh authorized keys.
+func WithSSHAuthorizedKeys(keys []string) Option {
+	return func(p *provider) {
+		p.sshAuthorizedKeys = keys
 	}
 }
 

@@ -32,7 +32,8 @@ type provider struct {
 	imageFolderID string
 	imageFamily   string
 
-	sshUserPublicKeyPair  string
+	sshUser               string
+	sshAuthorizedKeys     []string
 	dockerComposeMetadata string
 
 	securityGroupIDs []string

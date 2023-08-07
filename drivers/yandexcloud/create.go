@@ -14,6 +14,12 @@ import (
 	"github.com/drone/autoscaler/logger"
 )
 
+type extendedOpts struct {
+	autoscaler.InstanceCreateOpts
+	SSHUser           string
+	SSHAuthorizedKeys []string
+}
+
 func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpts) (*autoscaler.Instance, error) {
 	name := strings.ToLower(opts.Name)
 
@@ -83,15 +89,19 @@ func (p *provider) createInstance(
 	}
 
 	metadata := map[string]string{}
-	if p.sshUserPublicKeyPair != "" {
-		metadata["ssh-keys"] = p.sshUserPublicKeyPair
+	eOpts := extendedOpts{
+		InstanceCreateOpts: opts,
+	}
+	if p.sshUser != "" && len(p.sshAuthorizedKeys) > 0 {
+		eOpts.SSHUser = p.sshUser
+		eOpts.SSHAuthorizedKeys = p.sshAuthorizedKeys
 	}
 	if p.dockerComposeMetadata != "" {
 		metadata["docker-compose"] = p.dockerComposeMetadata
 	}
 
 	var buf = &bytes.Buffer{}
-	err := userdataT.Execute(buf, opts)
+	err := Template(buf, opts)
 	if err != nil {
 		return nil, fmt.Errorf("failed to template: %w", err)
 	}

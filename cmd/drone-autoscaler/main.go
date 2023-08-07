@@ -349,7 +349,8 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			yandexcloud.WithImageFolderID(c.YandexCloud.ImageFolderID),
 			yandexcloud.WithImageFamily(c.YandexCloud.ImageFamily),
 			yandexcloud.WithDockerComposeConfig(c.YandexCloud.DockerComposeConfig),
-			yandexcloud.WithSSHUserKeyPair(c.YandexCloud.SSHUserKeyPair),
+			yandexcloud.WithSSHUser(c.YandexCloud.SSHUser),
+			yandexcloud.WithSSHAuthorizedKeys(c.YandexCloud.SSHUserAuthorizedKeys),
 			yandexcloud.WithSecurityGroups(c.YandexCloud.SecurityGroupIDs),
 		)
 	default:

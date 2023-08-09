@@ -244,6 +244,8 @@ func (p *planner) capacity(ctx context.Context) (capacity, count int, err error)
 	}
 	for _, server := range servers {
 		switch server.State {
+		case autoscaler.StateError:
+			// ignore state
 		case autoscaler.StateStopped:
 			// ignore state
 		default:

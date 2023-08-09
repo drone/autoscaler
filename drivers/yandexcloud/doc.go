@@ -22,8 +22,8 @@ DRONE_YANDEX_CLOUD_PLATFORM_ID=standard-v3
 DRONE_YANDEX_CLOUD_IMAGE_FOLDER_ID=standard-images
 DRONE_YANDEX_CLOUD_IMAGE_FAMILY=container-optimized-image
 DRONE_YANDEX_CLOUD_SECURITY_GROUP_IDS=id,other-id
-DRONE_YANDEX_CLOUD_SSH_USER_KEY_PAIR=username:public-ssh
+DRONE_YANDEX_CLOUD_SSH_USER=username
+DRONE_YANDEX_CLOUD_SSH_USER_AUTHORIZED_KEYS=public-ssh,other-public-ssh
 DRONE_YANDEX_CLOUD_DOCKER_COMPOSE=docker-compose-config-file
-
 */
 package yandexcloud

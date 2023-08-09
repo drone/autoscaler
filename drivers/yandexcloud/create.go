@@ -101,7 +101,7 @@ func (p *provider) createInstance(
 	}
 
 	var buf = &bytes.Buffer{}
-	err := Template(buf, opts)
+	err := Template(buf, eOpts)
 	if err != nil {
 		return nil, fmt.Errorf("failed to template: %w", err)
 	}

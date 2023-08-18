@@ -106,11 +106,13 @@ func (p *provider) createInstance(
 		return nil, fmt.Errorf("failed to template: %w", err)
 	}
 
-	metadata["user-data"] = buf.String()
 	logger.FromContext(ctx).
 		WithField("user-data", buf.String()).
 		WithField("ssh-user", p.sshUser).
-		WithField("ssh-authorized-keys", p.sshAuthorizedKeys)
+		WithField("ssh-authorized-keys", p.sshAuthorizedKeys).
+		Debug("creating instance")
+
+	metadata["user-data"] = buf.String()
 
 	request := &compute.CreateInstanceRequest{
 		FolderId:   folderID,

@@ -76,12 +76,12 @@ type (
 		}
 
 		Reaper struct {
-			Enabled  bool          `envconfig:"DRONE_REAPER_ENABLED", default:"false"`
+			Enabled  bool          `envconfig:"DRONE_REAPER_ENABLED" default:"false"`
 			Interval time.Duration `envconfig:"DRONE_REAPER_INTERVAL" default:"1h"`
 		}
 
 		Pinger struct {
-			Enabled  bool          `envconfig:"DRONE_PINGER_ENABLED", default:"false"`
+			Enabled  bool          `envconfig:"DRONE_PINGER_ENABLED" default:"false"`
 			Interval time.Duration `envconfig:"DRONE_PINGER_INTERVAL" default:"10m"`
 		}
 

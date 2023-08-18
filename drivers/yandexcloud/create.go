@@ -107,6 +107,10 @@ func (p *provider) createInstance(
 	}
 
 	metadata["user-data"] = buf.String()
+	logger.FromContext(ctx).
+		WithField("user-data", buf.String()).
+		WithField("ssh-user", p.sshUser).
+		WithField("ssh-authorized-keys", p.sshAuthorizedKeys)
 
 	request := &compute.CreateInstanceRequest{
 		FolderId:   folderID,

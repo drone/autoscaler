@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	ycsdk "github.com/yandex-cloud/go-sdk"
 	"github.com/yandex-cloud/go-sdk/iamkey"
@@ -88,6 +89,10 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 	}
 	if p.resourceCoreFraction == 0 {
 		p.resourceCoreFraction = 100
+	}
+
+	for i, key := range p.sshAuthorizedKeys {
+		p.sshAuthorizedKeys[i] = strings.TrimSpace(key)
 	}
 
 	if p.token != "" {

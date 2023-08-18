@@ -29,9 +29,9 @@ users:
     shell: /bin/bash
     sudo: ['ALL=(ALL) NOPASSWD:ALL']
     ssh-authorized-keys:
-    {{ range .SSHAuthorizedKeys }}
+    {{ range .SSHAuthorizedKeys -}}
       - {{ . }}
-    {{ end }}
+    {{ end -}}
 {{ end }}
 
 runcmd:

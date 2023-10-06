@@ -157,6 +157,8 @@ func TestLoad(t *testing.T) {
 		"DRONE_OPENSTACK_USERDATA":         "#cloud-init",
 		"DRONE_OPENSTACK_USERDATA_FILE":    "/path/to/cloud/init.yml",
 		"OS_REGION_NAME":                   "sto-01",
+		"DRONE_WATCHTOWER_SIGNAL_ENABLED":  "false",
+		"DRONE_WATCHTOWER_STOP_SIGNAL":     "",
 	}
 
 	defer func() {

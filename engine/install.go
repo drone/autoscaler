@@ -53,10 +53,12 @@ type installer struct {
 	gcInterval time.Duration
 	gcCache    string
 
-	watchtowerEnabled  bool
-	watchtowerImage    string
-	watchtowerInterval int
-	watchtowerTimeout  time.Duration
+	watchtowerEnabled       bool
+	watchtowerImage         string
+	watchtowerStopSignal    string
+	watchtowerSignalEnabled bool
+	watchtowerInterval      int
+	watchtowerTimeout       time.Duration
 
 	servers autoscaler.ServerStore
 	metrics metrics.Collector
@@ -234,8 +236,8 @@ poller:
 			Volumes:      toVol(volumes),
 			ExposedPorts: exposedPorts,
 			Labels: map[string]string{
-				"com.centurylinklabs.watchtower.enable":      "true",
-				"com.centurylinklabs.watchtower.stop-signal": "SIGHUP",
+				"com.centurylinklabs.watchtower.enable":      fmt.Sprint(i.watchtowerSignalEnabled),
+				"com.centurylinklabs.watchtower.stop-signal": i.watchtowerStopSignal,
 				"io.drone.agent.name":                        instance.Name,
 				"io.drone.agent.zone":                        instance.Region,
 				"io.drone.agent.size":                        instance.Size,
@@ -374,7 +376,7 @@ func (i *installer) setupGarbageCollector(ctx context.Context, client docker.API
 			Volumes:      toVol(vols),
 			Env:          envs,
 			Labels: map[string]string{
-				"com.centurylinklabs.watchtower.enable": "true",
+				"com.centurylinklabs.watchtower.enable": fmt.Sprint(i.watchtowerSignalEnabled),
 			},
 		},
 		&container.HostConfig{

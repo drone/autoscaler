@@ -147,7 +147,7 @@ func testInstance(instance *autoscaler.Instance) func(t *testing.T) {
 		if got, want := instance.ID, "3164494"; got != want {
 			t.Errorf("Want droplet ID %v, got %v", want, got)
 		}
-		if got, want := instance.Image, "docker-18-04"; got != want {
+		if got, want := instance.Image, "docker-20-04"; got != want {
 			t.Errorf("Want droplet Image %v, got %v", want, got)
 		}
 		if got, want := instance.Name, "example.com"; got != want {

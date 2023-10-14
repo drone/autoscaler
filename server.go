@@ -52,6 +52,9 @@ type ServerStore interface {
 	// Update the server record in the store.
 	Update(context.Context, *Server) error
 
+	// Update the server record that it is busy.
+	Busy(context.Context, *Server) error
+
 	// Delete the server record from the store.
 	Delete(context.Context, *Server) error
 
@@ -81,4 +84,5 @@ type Server struct {
 	Updated  int64        `db:"server_updated"  json:"updated"`
 	Started  int64        `db:"server_started"  json:"started"`
 	Stopped  int64        `db:"server_stopped"  json:"stopped"`
+	LastBusy int64        `db:"server_lastbusy" json:"lastbusy"`
 }

@@ -122,6 +122,10 @@ func (p *provider) create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 				ResourceType: aws.String("instance"),
 				Tags:         convertTags(tags),
 			},
+			{
+				ResourceType: aws.String("volume"),
+				Tags:         convertTags(tags),
+			},
 		},
 		BlockDeviceMappings: []*ec2.BlockDeviceMapping{
 			{

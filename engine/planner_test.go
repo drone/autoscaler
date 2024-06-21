@@ -179,6 +179,50 @@ func TestPlan_MoreBufferCapacity(t *testing.T) {
 	}
 }
 
+// This test verifies that if the server capacity minus buffer is
+// less than the pending count, and the server capacity is
+// < the pool maximum, additional servers are provisioned.
+// Edge case: server capacity - buffer < 0
+func TestPlan_MoreBufferCapacity_2(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	// x2 capacity
+	servers := []*autoscaler.Server{
+		{Name: "server1", Capacity: 2, State: autoscaler.StateRunning},
+	}
+
+	// x2 running builds
+	// x0 pending builds
+	builds := []*drone.Stage{
+		{Status: drone.StatusRunning},
+		{Status: drone.StatusRunning},
+	}
+
+	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().List(gomock.Any()).Return(servers, nil)
+	store.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil)
+
+	client := mocks.NewMockClient(controller)
+	client.EXPECT().Queue().Return(builds, nil)
+
+	p := planner{
+		cap:     2,
+		buffer:  1,
+		min:     1,
+		max:     4,
+		client:  client,
+		servers: store,
+	}
+
+	err := p.Plan(context.TODO())
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+
+
 // This test verifies that if the server capacity is
 // < than the pending count, and the server capacity is
 // >= the pool maximum, no actions are taken.

@@ -100,6 +100,13 @@ func (p *provider) create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	tags := createCopy(p.tags)
 	tags["Name"] = opts.Name
 
+	var metadataOptions *ec2.InstanceMetadataOptionsRequest
+	if p.imdsTokens != "" {
+		metadataOptions = &ec2.InstanceMetadataOptionsRequest{
+			HttpTokens: aws.String(p.imdsTokens),
+		}
+	}
+
 	in := &ec2.RunInstancesInput{
 		KeyName:               aws.String(p.key),
 		ImageId:               aws.String(p.image),
@@ -109,6 +116,7 @@ func (p *provider) create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		InstanceMarketOptions: marketOptions,
 		IamInstanceProfile:    iamProfile,
 		UserData:              aws.String(base64.StdEncoding.EncodeToString(buf.Bytes())),
+		MetadataOptions:       metadataOptions,
 		NetworkInterfaces: []*ec2.InstanceNetworkInterfaceSpecification{
 			{
 				AssociatePublicIpAddress: aws.Bool(!p.privateIP),
@@ -139,11 +147,11 @@ func (p *provider) create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		},
 	}
 
-	if p.imdsTokens != "" {
-		in.MetadataOptions = &ec2.InstanceMetadataOptionsRequest{
-			HttpTokens: aws.String(p.imdsTokens),
-		}
-	}
+	// if p.imdsTokens != "" {
+	// 	in.MetadataOptions = &ec2.InstanceMetadataOptionsRequest{
+	// 		HttpTokens: aws.String(p.imdsTokens),
+	// 	}
+	// }
 
 	if p.volumeType == "io1" || p.volumeType == "io2" || p.volumeType == "gp3" {
 		for _, blockDeviceMapping := range in.BlockDeviceMappings {

@@ -322,6 +322,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			amazon.WithVolumeThroughput(c.Amazon.VolumeThroughput),
 			amazon.WithIamProfileArn(c.Amazon.IamProfileArn),
 			amazon.WithMarketType(c.Amazon.MarketType),
+			amazon.WithInstanceMetadataTokens(c.Amazon.IMDSTokens),
 		), nil
 	case os.Getenv("OS_USERNAME") != "":
 		return openstack.New(

@@ -152,6 +152,13 @@ func WithIamProfileArn(t string) Option {
 	}
 }
 
+// WithInstanceMetadataTokens returns an option to set the instance metadata service tokens requiment.
+func WithInstanceMetadataTokens(t string) Option {
+	return func(p *provider) {
+		p.imdsTokens = t
+	}
+}
+
 // WithMarketType returns an option to set the instance market type.
 func WithMarketType(t string) Option {
 	return func(p *provider) {

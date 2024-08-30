@@ -100,6 +100,13 @@ func (p *provider) create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	tags := createCopy(p.tags)
 	tags["Name"] = opts.Name
 
+	var metadataOptions *ec2.InstanceMetadataOptionsRequest
+	if p.imdsTokens != "" {
+		metadataOptions = &ec2.InstanceMetadataOptionsRequest{
+			HttpTokens: aws.String(p.imdsTokens),
+		}
+	}
+
 	in := &ec2.RunInstancesInput{
 		KeyName:               aws.String(p.key),
 		ImageId:               aws.String(p.image),
@@ -109,6 +116,7 @@ func (p *provider) create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		InstanceMarketOptions: marketOptions,
 		IamInstanceProfile:    iamProfile,
 		UserData:              aws.String(base64.StdEncoding.EncodeToString(buf.Bytes())),
+		MetadataOptions:       metadataOptions,
 		NetworkInterfaces: []*ec2.InstanceNetworkInterfaceSpecification{
 			{
 				AssociatePublicIpAddress: aws.Bool(!p.privateIP),

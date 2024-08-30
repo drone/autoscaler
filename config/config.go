@@ -145,6 +145,7 @@ type (
 			VolumeThroughput int64  `envconfig:"DRONE_AMAZON_VOLUME_THROUGHPUT"`
 			IamProfileArn    string `envconfig:"DRONE_AMAZON_IAM_PROFILE_ARN"`
 			MarketType       string `envconfig:"DRONE_AMAZON_MARKET_TYPE"`
+			IMDSTokens       string `envconfig:"DRONE_AMAZON_IMDS_TOKENS"`
 		}
 
 		DigitalOcean struct {

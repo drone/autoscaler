@@ -8,6 +8,9 @@ import (
 	"context"
 	"time"
 
+	"github.com/drone/autoscaler"
+	"github.com/drone/autoscaler/config"
+
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -40,6 +43,10 @@ type Collector interface {
 	// IncrServerSetupError keeps a count of errors encountered
 	// when installing software on servers.
 	IncrServerSetupError()
+
+	RegisterKnownInstance(instance *autoscaler.Instance)
+
+	UnregisterKnownInstance(instance *autoscaler.Instance)
 }
 
 // Prometheus is a Prometheus metrics collector.
@@ -50,11 +57,17 @@ type Prometheus struct {
 	countServerCreateErr  prometheus.Counter
 	countServerInitErr    prometheus.Counter
 	countServerSetupErr   prometheus.Counter
+	knownInstance         *prometheus.GaugeVec
+
+	registerKnownServers bool
 }
 
 // New returns a new Prometheus metrics provider.
-func New() *Prometheus {
+func New(c config.Config) *Prometheus {
 	p := new(Prometheus)
+
+	p.registerKnownServers = c.Metrics.RegisterKnownServers
+
 	p.trackServerCreateTime = prometheus.NewHistogram(prometheus.HistogramOpts{
 		Name:    "drone_server_create_time_seconds",
 		Help:    "Elapsed time creating a server.",
@@ -82,12 +95,25 @@ func New() *Prometheus {
 		Name: "drone_server_install_errors_total",
 		Help: "Total number of errors installing software on a server.",
 	})
+	p.knownInstance = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "drone_server_known_instance",
+		Help: "Known server instances.",
+	},
+		[]string{
+			"name",
+			"provider",
+			"region",
+			"size",
+		})
 	prometheus.MustRegister(p.trackServerCreateTime)
 	prometheus.MustRegister(p.trackServerInitTime)
 	prometheus.MustRegister(p.trackServerSetupTime)
 	prometheus.MustRegister(p.countServerCreateErr)
 	prometheus.MustRegister(p.countServerInitErr)
 	prometheus.MustRegister(p.countServerSetupErr)
+	if p.registerKnownServers {
+		prometheus.MustRegister(p.knownInstance)
+	}
 	return p
 }
 
@@ -135,6 +161,30 @@ func (m *Prometheus) IncrServerSetupError() {
 	m.countServerSetupErr.Inc()
 }
 
+// RegisterKnownInstance registers that we know about a server.
+func (m *Prometheus) RegisterKnownInstance(instance *autoscaler.Instance) {
+	if m.registerKnownServers {
+		m.knownInstance.With(prometheus.Labels{
+			"name":     instance.Name,
+			"provider": string(instance.Provider),
+			"region":   instance.Region,
+			"size":     instance.Size,
+		}).Set(1)
+	}
+}
+
+// UnregisterKnownInstance forgets a server we once knew.
+func (m *Prometheus) UnregisterKnownInstance(instance *autoscaler.Instance) {
+	if m.registerKnownServers {
+		m.knownInstance.Delete(prometheus.Labels{
+			"name":     instance.Name,
+			"provider": string(instance.Provider),
+			"region":   instance.Region,
+			"size":     instance.Size,
+		})
+	}
+}
+
 // NopCollector provides a no-op metrics collector.
 type NopCollector struct{}
 
@@ -163,3 +213,9 @@ func (*NopCollector) IncrServerInitError() {}
 // IncrServerSetupError keeps a count of errors encountered
 // when installing software on servers.
 func (*NopCollector) IncrServerSetupError() {}
+
+// RegisterKnownInstance registers that we know about a server.
+func (*NopCollector) RegisterKnownInstance(instance *autoscaler.Instance) {}
+
+// UnregisterKnownInstance forgets a server we once knew.
+func (*NopCollector) UnregisterKnownInstance(instance *autoscaler.Instance) {}

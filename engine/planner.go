@@ -30,6 +30,7 @@ type planner struct {
 	cap        int           // capacity per-server
 	buffer     int           // buffer capacity to have warm and ready
 	ttu        time.Duration // minimum server age
+	tti        time.Duration // minimum server idle time
 	labels     map[string]string
 
 	client  drone.Client
@@ -76,6 +77,16 @@ func (p *planner) Plan(ctx context.Context) error {
 
 	ctx = logger.WithContext(ctx, log)
 
+	// if MinIdle is being used, track busy servers
+	if p.tti > 0 {
+		_, err = p.updateBusy(ctx)
+		if err != nil {
+			log.WithError(err).
+				Errorln("cannot check for busy servers")
+			return err
+		}
+	}
+
 	free := max(capacity-running-p.buffer, 0)
 	diff := serverDiff(pending, free, p.cap)
 
@@ -103,6 +114,45 @@ func (p *planner) Plan(ctx context.Context) error {
 
 	return nil
 }
+
+
+// helper function checks for busy running instances and updates idle timer
+func (p *planner) updateBusy(ctx context.Context) (count int, err error) {
+	logger := logger.FromContext(ctx)
+
+	servers, err := p.servers.ListState(ctx, autoscaler.StateRunning)
+	if err != nil {
+		logger.WithError(err).
+			Errorln("cannot fetch server list")
+		return count, err
+	}
+
+	// check for busy servers to update idle timers
+	busy, err := p.listBusy(ctx)
+	if err != nil {
+		logger.WithError(err).
+			Errorln("cannot ascertain busy server list")
+		return count, err
+	}
+
+	for _, server := range servers {
+		if _, ok := busy[server.Name]; ok {
+			err := p.servers.Busy(ctx, server)
+			if err != nil {
+				logger.WithError(err).
+					WithField("server", server.Name).
+					WithField("updated", server.Updated).
+					Errorln("cannot update server as busy")
+			}
+			logger.WithField("server", server.Name).
+				Debugln("updated busy server")
+			count++
+		}
+	}
+	logger.Debugf("found %d busy servers", count)
+	return count, nil
+}
+
 
 // helper function allocates n new server instances.
 func (p *planner) alloc(ctx context.Context, n int) error {
@@ -183,6 +233,16 @@ func (p *planner) mark(ctx context.Context, n int) error {
 				WithField("age", timeDiff(time.Now(), time.Unix(server.Created, 0))).
 				WithField("min-age", p.ttu).
 				Debugln("server min-age not reached")
+			continue
+		}
+
+		// skip servers that have not reached a min idle time
+		if time.Now().Before(time.Unix(server.LastBusy, 0).Add(p.tti)) {
+			logger.
+				WithField("server", server.Name).
+				WithField("idle", timeDiff(time.Now(), time.Unix(server.LastBusy, 0))).
+				WithField("min-idle", p.tti).
+				Debugln("server min-idle not reached")
 			continue
 		}
 

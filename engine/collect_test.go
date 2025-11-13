@@ -13,8 +13,12 @@ import (
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/mocks"
 
-	docker "github.com/docker/docker/client"
+	"github.com/docker/docker/api/types"
+	containertypes "github.com/docker/docker/api/types/container"
+	imagetypes "github.com/docker/docker/api/types/image"
+	networktypes "github.com/docker/docker/api/types/network"
 	"github.com/golang/mock/gomock"
+	ocispec "github.com/opencontainers/image-spec/specs-go/v1"
 )
 
 func TestCollect(t *testing.T) {
@@ -30,8 +34,7 @@ func TestCollect(t *testing.T) {
 		},
 	}
 
-	client := mocks.NewMockAPIClient(controller)
-	client.EXPECT().ContainerStop(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+	client := &fakeDockerClient{}
 
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().ListState(mockctx, autoscaler.StateShutdown).Return(mockServers, nil)
@@ -44,7 +47,7 @@ func TestCollect(t *testing.T) {
 	c := collector{
 		servers:  store,
 		provider: provider,
-		client: func(*autoscaler.Server) (docker.APIClient, io.Closer, error) {
+		client: func(*autoscaler.Server) (dockerClient, io.Closer, error) {
 			return client, nil, nil
 		},
 	}
@@ -53,6 +56,9 @@ func TestCollect(t *testing.T) {
 
 	if err != nil {
 		t.Error(err)
+	}
+	if client.stopCalls != 1 {
+		t.Errorf("expected docker stop to be called once")
 	}
 	if got, want := mockServers[0].State, autoscaler.StateStopped; got != want {
 		t.Errorf("Want server state Stopped, got %v", got)
@@ -73,8 +79,7 @@ func TestCollect_DockerStopError(t *testing.T) {
 		},
 	}
 
-	client := mocks.NewMockAPIClient(controller)
-	client.EXPECT().ContainerStop(gomock.Any(), gomock.Any(), gomock.Any()).Return(mockerr)
+	client := &fakeDockerClient{stopErr: mockerr}
 
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().ListState(mockctx, autoscaler.StateShutdown).Return(mockServers, nil)
@@ -87,7 +92,7 @@ func TestCollect_DockerStopError(t *testing.T) {
 	c := collector{
 		servers:  store,
 		provider: provider,
-		client: func(*autoscaler.Server) (docker.APIClient, io.Closer, error) {
+		client: func(*autoscaler.Server) (dockerClient, io.Closer, error) {
 			return client, nil, nil
 		},
 	}
@@ -96,6 +101,9 @@ func TestCollect_DockerStopError(t *testing.T) {
 
 	if err != nil {
 		t.Error(err)
+	}
+	if client.stopCalls != 1 {
+		t.Errorf("expected docker stop to be called once")
 	}
 	if got, want := mockServers[0].State, autoscaler.StateStopped; got != want {
 		t.Errorf("Want server state Stopped, got %v", got)
@@ -117,8 +125,7 @@ func TestCollect_ServerDestroyError(t *testing.T) {
 		},
 	}
 
-	client := mocks.NewMockAPIClient(controller)
-	client.EXPECT().ContainerStop(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+	client := &fakeDockerClient{}
 
 	store := mocks.NewMockServerStore(controller)
 	store.EXPECT().ListState(mockctx, autoscaler.StateShutdown).Return(mockServers, nil)
@@ -131,13 +138,16 @@ func TestCollect_ServerDestroyError(t *testing.T) {
 	c := collector{
 		servers:  store,
 		provider: provider,
-		client: func(*autoscaler.Server) (docker.APIClient, io.Closer, error) {
+		client: func(*autoscaler.Server) (dockerClient, io.Closer, error) {
 			return client, nil, nil
 		},
 	}
 	c.Collect(mockctx)
 	c.wg.Wait()
 
+	if client.stopCalls != 1 {
+		t.Errorf("expected docker stop to be called once")
+	}
 	if got, want := mockServers[0].State, autoscaler.StateError; got != want {
 		t.Errorf("Want server state Error, got %v", got)
 	}
@@ -206,4 +216,34 @@ func TestCollect_ServerNeverProvisioned(t *testing.T) {
 	if got, want := mockServer.State, autoscaler.StateStopped; got != want {
 		t.Errorf("Want server state Stopping, got %v", got)
 	}
+}
+
+type fakeDockerClient struct {
+	stopErr   error
+	stopCalls int
+}
+
+func (f *fakeDockerClient) ContainerList(ctx context.Context, options containertypes.ListOptions) ([]types.Container, error) {
+	return nil, nil
+}
+
+func (f *fakeDockerClient) ImagePull(ctx context.Context, ref string, options imagetypes.PullOptions) (io.ReadCloser, error) {
+	return nil, nil
+}
+
+func (f *fakeDockerClient) ContainerCreate(ctx context.Context, config *containertypes.Config, hostConfig *containertypes.HostConfig, networkingConfig *networktypes.NetworkingConfig, platform *ocispec.Platform, containerName string) (containertypes.CreateResponse, error) {
+	return containertypes.CreateResponse{}, nil
+}
+
+func (f *fakeDockerClient) ContainerStart(ctx context.Context, container string, options containertypes.StartOptions) error {
+	return nil
+}
+
+func (f *fakeDockerClient) ContainerStop(ctx context.Context, container string, options containertypes.StopOptions) error {
+	f.stopCalls++
+	return f.stopErr
+}
+
+func (f *fakeDockerClient) Ping(ctx context.Context) (types.Ping, error) {
+	return types.Ping{}, nil
 }

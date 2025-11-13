@@ -9,6 +9,8 @@ import (
 	"sync"
 	"time"
 
+	container "github.com/docker/docker/api/types/container"
+
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/logger"
 )
@@ -107,7 +109,14 @@ func (c *collector) collect(ctx context.Context, server *autoscaler.Server) erro
 		// 1 minute offset between docker stop timeout and
 		// the context timeout.
 		timeout := c.timeout - time.Minute
-		err = client.ContainerStop(ctxStop, "agent", &timeout)
+		timeoutSeconds := int(timeout.Seconds())
+		if timeoutSeconds < 0 {
+			timeoutSeconds = 0
+		}
+		stopOptions := container.StopOptions{
+			Timeout: &timeoutSeconds,
+		}
+		err = client.ContainerStop(ctxStop, "agent", stopOptions)
 		if err != nil {
 			logger.WithError(err).
 				WithField("server", server.Name).

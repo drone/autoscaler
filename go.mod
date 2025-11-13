@@ -2,8 +2,6 @@ module github.com/drone/autoscaler
 
 go 1.22.4
 
-replace github.com/docker/docker => github.com/docker/engine v17.12.0-ce-rc1.0.20200309214505-aa6a9891b09c+incompatible
-
 require (
 	github.com/99designs/basicauth-go v0.0.0-20160802081356-2a93ba0f464d
 	github.com/Microsoft/go-winio v0.5.1 // indirect
@@ -13,7 +11,7 @@ require (
 	github.com/bluele/slack v0.0.0-20171128075526-307046097ee9
 	github.com/dchest/uniuri v0.0.0-20160212164326-8902c56451e9
 	github.com/digitalocean/godo v1.1.1
-	github.com/docker/docker v1.4.2-0.20190924003213-a8608b5b67c7
+	github.com/docker/docker v27.3.0+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/drone/drone-go v1.0.5-0.20190504210458-4d6116b897ba
 	github.com/drone/envconfig v1.4.1

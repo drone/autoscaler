@@ -19,8 +19,8 @@ import (
 	"github.com/drone/autoscaler/logger"
 	"github.com/drone/autoscaler/metrics"
 
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/mount"
 	docker "github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
@@ -132,7 +132,7 @@ poller:
 			logger.WithField("name", instance.Name).
 				Debugln("connecting to docker")
 
-			_, err := client.ContainerList(ctx, types.ContainerListOptions{})
+			_, err := client.ContainerList(ctx, container.ListOptions{})
 			if err != nil {
 				logger.
 					WithField("error", err.Error()).
@@ -151,7 +151,7 @@ poller:
 		Debugln("pull docker image")
 
 	start = time.Now()
-	rc, err := client.ImagePull(ctx, i.image, types.ImagePullOptions{})
+	rc, err := client.ImagePull(ctx, i.image, image.PullOptions{})
 	if err != nil {
 		i.metrics.IncrServerSetupError()
 		logger.WithError(err).
@@ -252,7 +252,7 @@ poller:
 			RestartPolicy: container.RestartPolicy{
 				Name: "always",
 			},
-		}, nil, "agent")
+		}, nil, nil, "agent")
 
 	if err != nil {
 		i.metrics.IncrServerSetupError()
@@ -264,7 +264,7 @@ poller:
 	logger.WithField("image", i.image).
 		Debugln("start the agent container")
 
-	err = client.ContainerStart(ctx, res.ID, types.ContainerStartOptions{})
+	err = client.ContainerStart(ctx, res.ID, container.StartOptions{})
 	if err != nil {
 		i.metrics.IncrServerSetupError()
 		logger.WithField("image", i.image).
@@ -334,11 +334,11 @@ func (i *installer) setupWatchtower(ctx context.Context, client docker.APIClient
 			RestartPolicy: container.RestartPolicy{
 				Name: "always",
 			},
-		}, nil, "watchtower")
+		}, nil, nil, "watchtower")
 	if err != nil {
 		return err
 	}
-	return client.ContainerStart(ctx, res.ID, types.ContainerStartOptions{})
+	return client.ContainerStart(ctx, res.ID, container.StartOptions{})
 }
 
 func (i *installer) setupGarbageCollector(ctx context.Context, client docker.APIClient) error {
@@ -358,7 +358,7 @@ func (i *installer) setupGarbageCollector(ctx context.Context, client docker.API
 	logger.WithField("image", i.gcImage).
 		Debugln("pull gc image")
 
-	rc, err := client.ImagePull(ctx, i.gcImage, types.ImagePullOptions{})
+	rc, err := client.ImagePull(ctx, i.gcImage, image.PullOptions{})
 	if err != nil {
 		logger.WithError(err).
 			WithField("image", i.gcImage).
@@ -384,11 +384,11 @@ func (i *installer) setupGarbageCollector(ctx context.Context, client docker.API
 			RestartPolicy: container.RestartPolicy{
 				Name: "always",
 			},
-		}, nil, "drone-gc")
+		}, nil, nil, "drone-gc")
 	if err != nil {
 		return err
 	}
-	return client.ContainerStart(ctx, res.ID, types.ContainerStartOptions{})
+	return client.ContainerStart(ctx, res.ID, container.StartOptions{})
 }
 
 func (i *installer) errorUpdate(ctx context.Context, server *autoscaler.Server, err error) error {

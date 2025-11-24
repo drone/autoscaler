@@ -12,7 +12,7 @@ import (
 )
 
 // ServerDelete provides metrics for servers deleted.
-func ServerDelete(provider autoscaler.Provider) autoscaler.Provider {
+func ServerDelete(provider autoscaler.Provider, collector Collector) autoscaler.Provider {
 	created := prometheus.NewCounter(prometheus.CounterOpts{
 		Name: "drone_servers_deleted",
 		Help: "Total number of servers deleted.",
@@ -24,17 +24,19 @@ func ServerDelete(provider autoscaler.Provider) autoscaler.Provider {
 	prometheus.MustRegister(created)
 	prometheus.MustRegister(errors)
 	return &providerWrapDestroy{
-		Provider: provider,
-		created:  created,
-		errors:   errors,
+		Provider:  provider,
+		collector: collector,
+		created:   created,
+		errors:    errors,
 	}
 }
 
 // instruments the Provider to count server destroy events.
 type providerWrapDestroy struct {
 	autoscaler.Provider
-	created prometheus.Counter
-	errors  prometheus.Counter
+	collector Collector
+	created   prometheus.Counter
+	errors    prometheus.Counter
 }
 
 func (p *providerWrapDestroy) Destroy(ctx context.Context, instance *autoscaler.Instance) error {
@@ -44,5 +46,6 @@ func (p *providerWrapDestroy) Destroy(ctx context.Context, instance *autoscaler.
 	} else {
 		p.errors.Add(1)
 	}
+	p.collector.UnregisterKnownInstance(instance)
 	return err
 }

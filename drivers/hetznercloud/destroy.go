@@ -6,7 +6,9 @@ package hetznercloud
 
 import (
 	"context"
+	"io"
 	"strconv"
+	"strings"
 
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/logger"
@@ -28,10 +30,13 @@ func (p *provider) Destroy(ctx context.Context, instance *autoscaler.Instance) e
 
 	logger.Debugln("deleting instance")
 
-	_, err = p.client.Server.Delete(ctx, &hcloud.Server{ID: id})
+	msg, err := p.client.Server.Delete(ctx, &hcloud.Server{ID: id})
 
 	if err != nil {
-		if err.Error() == "hcloud: server responded with status code 404" {
+		// json response contains a code=not_found field
+		msgBytes, errReadResponse := io.ReadAll(msg.Response.Body)
+		msgStr := string(msgBytes)
+		if errReadResponse == nil && strings.Contains(msgStr, "not_found") {
 			logger.WithError(err).
 				Debugln("instance does not exist")
 			return autoscaler.ErrInstanceNotFound

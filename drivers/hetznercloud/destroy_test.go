@@ -62,6 +62,7 @@ func TestDestroyNotFound(t *testing.T) {
 	gock.New("https://api.hetzner.cloud").
 		Delete("/v1/servers/3164494").
 		Reply(404).
+		SetHeader("Content-Type", "application/json").
 		BodyString(destroyNotFoundResponse)
 
 	mockContext := context.TODO()

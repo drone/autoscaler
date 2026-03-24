@@ -13,6 +13,7 @@ import (
 
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/logger"
+	"github.com/google/uuid"
 
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
@@ -118,7 +119,11 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		}
 	}
 
-	op, err := p.service.Instances.Insert(p.project, zone, in).Do()
+	// Generate a UUID for idempotent retries. This ensures that if the request
+	// must be retried, the server will ignore duplicate operations.
+	requestID := uuid.New().String()
+
+	op, err := p.service.Instances.Insert(p.project, zone, in).RequestId(requestID).Do()
 	if err != nil {
 		logger.WithError(err).
 			Errorln("instance insert failed")

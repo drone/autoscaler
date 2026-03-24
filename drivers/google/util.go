@@ -7,7 +7,7 @@ import (
 )
 
 // transientErrorCodes defines HTTP status codes that should trigger a retry
-// This is may be a non exhaustive list that requires updates in the future.
+// This may be a non exhaustive list that requires updates in the future.
 var transientErrorCodes = map[int]bool{
 	http.StatusInternalServerError: true, // 500
 	http.StatusBadGateway:          true, // 502

@@ -10,7 +10,9 @@ import (
 	"fmt"
 	"math/rand"
 	"strings"
+	"time"
 
+	"github.com/avast/retry-go"
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/logger"
 	"github.com/google/uuid"
@@ -123,7 +125,24 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	// must be retried, the server will ignore duplicate operations.
 	requestID := uuid.New().String()
 
-	op, err := p.service.Instances.Insert(p.project, zone, in).RequestId(requestID).Do()
+	var op *compute.Operation
+	err = retry.Do(
+		func() error {
+			var insertErr error
+			op, insertErr = p.service.Instances.Insert(p.project, zone, in).RequestId(requestID).Do()
+			if insertErr != nil {
+				// Return transient errors for retry, non-transient as unrecoverable
+				if isTransientError(insertErr) {
+					return insertErr
+				}
+				return retry.Unrecoverable(insertErr)
+			}
+			return nil
+		},
+		retry.Attempts(5),
+		retry.MaxDelay(time.Second*5),
+		retry.LastErrorOnly(true),
+	)
 	if err != nil {
 		logger.WithError(err).
 			Errorln("instance insert failed")

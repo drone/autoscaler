@@ -12,6 +12,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/avast/retry-go"
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/drivers/internal/userdata"
 	"golang.org/x/oauth2"
@@ -123,41 +124,63 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 }
 
 func (p *provider) waitZoneOperation(ctx context.Context, name string, zone string) error {
-	for {
-		if p.rateLimiter.Allow() {
-			op, err := p.service.ZoneOperations.Get(p.project, zone, name).Do()
-			if err != nil {
-				if gerr, ok := err.(*googleapi.Error); ok &&
-					gerr.Code == http.StatusNotFound {
-					return autoscaler.ErrInstanceNotFound
+	return retry.Do(
+		func() error {
+			for {
+				if p.rateLimiter.Allow() {
+					op, err := p.service.ZoneOperations.Get(p.project, zone, name).Do()
+					if err != nil {
+						if gerr, ok := err.(*googleapi.Error); ok &&
+							gerr.Code == http.StatusNotFound {
+							return retry.Unrecoverable(autoscaler.ErrInstanceNotFound)
+						}
+						// Return transient errors for retry, non-transient as unrecoverable
+						if isTransientError(err) {
+							return err
+						}
+						return retry.Unrecoverable(err)
+					}
+					if op.Error != nil {
+						return retry.Unrecoverable(errors.New(op.Error.Errors[0].Message))
+					}
+					if op.Status == "DONE" {
+						return nil
+					}
 				}
-				return err
+				time.Sleep(time.Second)
 			}
-			if op.Error != nil {
-				return errors.New(op.Error.Errors[0].Message)
-			}
-			if op.Status == "DONE" {
-				return nil
-			}
-		}
-		time.Sleep(time.Second)
-	}
+		},
+		retry.Attempts(5),
+		retry.MaxDelay(time.Second*5),
+		retry.LastErrorOnly(true),
+	)
 }
 
 func (p *provider) waitGlobalOperation(ctx context.Context, name string) error {
-	for {
-		if p.rateLimiter.Allow() {
-			op, err := p.service.GlobalOperations.Get(p.project, name).Do()
-			if err != nil {
-				return err
+	return retry.Do(
+		func() error {
+			for {
+				if p.rateLimiter.Allow() {
+					op, err := p.service.GlobalOperations.Get(p.project, name).Do()
+					if err != nil {
+						// Return transient errors for retry, non-transient as unrecoverable
+						if isTransientError(err) {
+							return err
+						}
+						return retry.Unrecoverable(err)
+					}
+					if op.Error != nil {
+						return retry.Unrecoverable(errors.New(op.Error.Errors[0].Message))
+					}
+					if op.Status == "DONE" {
+						return nil
+					}
+				}
+				time.Sleep(time.Second)
 			}
-			if op.Error != nil {
-				return errors.New(op.Error.Errors[0].Message)
-			}
-			if op.Status == "DONE" {
-				return nil
-			}
-		}
-		time.Sleep(time.Second)
-	}
+		},
+		retry.Attempts(5),
+		retry.MaxDelay(time.Second*5),
+		retry.LastErrorOnly(true),
+	)
 }

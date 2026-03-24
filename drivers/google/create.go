@@ -142,6 +142,12 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		retry.Attempts(5),
 		retry.MaxDelay(time.Second*5),
 		retry.LastErrorOnly(true),
+		retry.OnRetry(func(n uint, err error) {
+			logger.WithField("attempt", n+1).
+				WithField("name", opts.Name).
+				WithError(err).
+				Debugln("retrying instance insert")
+		}),
 	)
 	if err != nil {
 		logger.WithError(err).

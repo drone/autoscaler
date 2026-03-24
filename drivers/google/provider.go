@@ -15,6 +15,7 @@ import (
 	"github.com/avast/retry-go"
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/drivers/internal/userdata"
+	"github.com/drone/autoscaler/logger"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"golang.org/x/time/rate"
@@ -124,6 +125,10 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 }
 
 func (p *provider) waitZoneOperation(ctx context.Context, name string, zone string) error {
+	lg := logger.FromContext(ctx).
+		WithField("operation", name).
+		WithField("zone", zone)
+
 	return retry.Do(
 		func() error {
 			for {
@@ -153,10 +158,19 @@ func (p *provider) waitZoneOperation(ctx context.Context, name string, zone stri
 		retry.Attempts(5),
 		retry.MaxDelay(time.Second*5),
 		retry.LastErrorOnly(true),
+		retry.OnRetry(func(n uint, err error) {
+			lg.WithField("attempt", n+1).
+				WithField("zone", zone).
+				WithError(err).
+				Debugln("retrying zone operation poll")
+		}),
 	)
 }
 
 func (p *provider) waitGlobalOperation(ctx context.Context, name string) error {
+	lg := logger.FromContext(ctx).
+		WithField("operation", name)
+
 	return retry.Do(
 		func() error {
 			for {
@@ -182,5 +196,10 @@ func (p *provider) waitGlobalOperation(ctx context.Context, name string) error {
 		retry.Attempts(5),
 		retry.MaxDelay(time.Second*5),
 		retry.LastErrorOnly(true),
+		retry.OnRetry(func(n uint, err error) {
+			lg.WithField("attempt", n+1).
+				WithError(err).
+				Debugln("retrying global operation poll")
+		}),
 	)
 }

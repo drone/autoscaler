@@ -145,7 +145,7 @@ func (p *provider) waitZoneOperation(ctx context.Context, name string, zone stri
 						}
 						return retry.Unrecoverable(err)
 					}
-					if op.Error != nil && len(op.Error.Errors) > 1 {
+					if op.Error != nil && len(op.Error.Errors) > 0 {
 						return retry.Unrecoverable(errors.New(op.Error.Errors[0].Message))
 					}
 					if op.Status == "DONE" {
@@ -183,7 +183,7 @@ func (p *provider) waitGlobalOperation(ctx context.Context, name string) error {
 						}
 						return retry.Unrecoverable(err)
 					}
-					if op.Error != nil && len(op.Error.Errors) > 1 {
+					if op.Error != nil && len(op.Error.Errors) > 0 {
 						return retry.Unrecoverable(errors.New(op.Error.Errors[0].Message))
 					}
 					if op.Status == "DONE" {

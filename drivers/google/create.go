@@ -123,13 +123,15 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 
 	// Generate a UUID for idempotent retries. This ensures that if the request
 	// must be retried, the server will ignore duplicate operations.
+	// This currently does not persist in the database so if an autoscaler dies
+	// during a retry loop the database may show stuck in creating
 	requestID := uuid.New().String()
 
 	var op *compute.Operation
 	err = retry.Do(
 		func() error {
 			var insertErr error
-			op, insertErr = p.service.Instances.Insert(p.project, zone, in).RequestId(requestID).Do()
+			op, insertErr = p.service.Instances.Insert(p.project, zone, in).RequestId(requestID).Context(ctx).Do()
 			if insertErr != nil {
 				// Return transient errors for retry, non-transient as unrecoverable
 				if isTransientError(insertErr) {
@@ -142,6 +144,7 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		retry.Attempts(5),
 		retry.MaxDelay(time.Second*5),
 		retry.LastErrorOnly(true),
+		retry.Context(ctx),
 		retry.OnRetry(func(n uint, err error) {
 			logger.WithField("attempt", n+1).
 				WithField("name", opts.Name).
@@ -156,7 +159,9 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	}
 
 	logger.Debugln("pending instance insert operation")
-
+	// TODO: may be worth moving these pollings to a separate loop in Allocate
+	// that way polling is decoupled from the initial creation loop and can be more
+	// robust between insert calls
 	err = p.waitZoneOperation(ctx, op.Name, zone)
 	if err != nil {
 		logger.WithError(err).

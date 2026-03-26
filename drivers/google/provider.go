@@ -146,7 +146,6 @@ func (p *provider) waitZoneOperation(ctx context.Context, name string, zone stri
 							gerr.Code == http.StatusNotFound {
 							return retry.Unrecoverable(autoscaler.ErrInstanceNotFound)
 						}
-						// Return transient errors for retry, non-transient as unrecoverable
 						if isTransientError(err) {
 							return err
 						}
@@ -160,12 +159,11 @@ func (p *provider) waitZoneOperation(ctx context.Context, name string, zone stri
 					}
 				}
 
-				// Sleep with context awareness - exit immediately on cancellation
+				// Indirect sleeps with context awareness - so the server doesn't ignore a sigterm while sleeping
 				select {
 				case <-ctx.Done():
 					return ctx.Err()
 				case <-time.After(time.Second):
-					// Continue to next polling iteration
 				}
 			}
 		},
@@ -212,12 +210,12 @@ func (p *provider) waitGlobalOperation(ctx context.Context, name string) error {
 					}
 				}
 
-				// Sleep with context awareness - exit immediately on cancellation
+				// Sleep with context awareness - so the server doesn't ignore a sigterm
+				// Indirect sleeps with context awareness - so the server doesn't ignore a sigterm while sleeping
 				select {
 				case <-ctx.Done():
 					return ctx.Err()
 				case <-time.After(time.Second):
-					// Continue to next polling iteration
 				}
 			}
 		},

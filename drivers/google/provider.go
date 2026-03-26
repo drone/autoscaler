@@ -132,8 +132,15 @@ func (p *provider) waitZoneOperation(ctx context.Context, name string, zone stri
 	return retry.Do(
 		func() error {
 			for {
+				// Check if context is canceled before attempting API call
+				select {
+				case <-ctx.Done():
+					return ctx.Err()
+				default:
+				}
+
 				if p.rateLimiter.Allow() {
-					op, err := p.service.ZoneOperations.Get(p.project, zone, name).Do()
+					op, err := p.service.ZoneOperations.Get(p.project, zone, name).Context(ctx).Do()
 					if err != nil {
 						if gerr, ok := err.(*googleapi.Error); ok &&
 							gerr.Code == http.StatusNotFound {
@@ -152,7 +159,14 @@ func (p *provider) waitZoneOperation(ctx context.Context, name string, zone stri
 						return nil
 					}
 				}
-				time.Sleep(time.Second)
+
+				// Sleep with context awareness - exit immediately on cancellation
+				select {
+				case <-ctx.Done():
+					return ctx.Err()
+				case <-time.After(time.Second):
+					// Continue to next polling iteration
+				}
 			}
 		},
 		retry.Attempts(5),
@@ -174,8 +188,15 @@ func (p *provider) waitGlobalOperation(ctx context.Context, name string) error {
 	return retry.Do(
 		func() error {
 			for {
+				// Check if context is canceled before attempting API call
+				select {
+				case <-ctx.Done():
+					return ctx.Err()
+				default:
+				}
+
 				if p.rateLimiter.Allow() {
-					op, err := p.service.GlobalOperations.Get(p.project, name).Do()
+					op, err := p.service.GlobalOperations.Get(p.project, name).Context(ctx).Do()
 					if err != nil {
 						// Return transient errors for retry, non-transient as unrecoverable
 						if isTransientError(err) {
@@ -190,7 +211,14 @@ func (p *provider) waitGlobalOperation(ctx context.Context, name string) error {
 						return nil
 					}
 				}
-				time.Sleep(time.Second)
+
+				// Sleep with context awareness - exit immediately on cancellation
+				select {
+				case <-ctx.Done():
+					return ctx.Err()
+				case <-time.After(time.Second):
+					// Continue to next polling iteration
+				}
 			}
 		},
 		retry.Attempts(5),

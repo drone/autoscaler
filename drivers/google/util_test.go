@@ -64,6 +64,11 @@ func TestIsTransientError(t *testing.T) {
 			transient: false,
 		},
 		{
+			name:      "408 RequestTimeout",
+			err:       &googleapi.Error{Code: http.StatusRequestTimeout},
+			transient: false,
+		},
+		{
 			name:      "409 Conflict",
 			err:       &googleapi.Error{Code: http.StatusConflict},
 			transient: false,

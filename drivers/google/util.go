@@ -9,11 +9,12 @@ import (
 // transientErrorCodes defines HTTP status codes that should trigger a retry
 // This may be a non-exhaustive list that requires updates in the future.
 var transientErrorCodes = map[int]bool{
+	http.StatusRequestTimeout:      true, // 408
+	http.StatusTooManyRequests:     true, // 429
 	http.StatusInternalServerError: true, // 500
 	http.StatusBadGateway:          true, // 502
 	http.StatusServiceUnavailable:  true, // 503
 	http.StatusGatewayTimeout:      true, // 504
-	http.StatusTooManyRequests:     true, // 429
 }
 
 func isTransientError(err error) bool {

@@ -128,38 +128,27 @@ func (p *provider) waitZoneOperation(ctx context.Context, name string, zone stri
 	return retry.Do(
 		func() error {
 			for {
-				// Check if context is canceled before attempting API call
-				select {
-				case <-ctx.Done():
-					return ctx.Err()
-				default:
+				// Wait for rate limit, respecting context cancellation
+				if err := p.rateLimiter.Wait(ctx); err != nil {
+					return err
 				}
 
-				if p.rateLimiter.Allow() {
-					op, err := p.service.ZoneOperations.Get(p.project, zone, name).Context(ctx).Do()
-					if err != nil {
-						if gerr, ok := err.(*googleapi.Error); ok &&
-							gerr.Code == http.StatusNotFound {
-							return retry.Unrecoverable(autoscaler.ErrInstanceNotFound)
-						}
-						if isTransientError(err) {
-							return err
-						}
-						return retry.Unrecoverable(err)
+				op, err := p.service.ZoneOperations.Get(p.project, zone, name).Context(ctx).Do()
+				if err != nil {
+					if gerr, ok := err.(*googleapi.Error); ok &&
+						gerr.Code == http.StatusNotFound {
+						return retry.Unrecoverable(autoscaler.ErrInstanceNotFound)
 					}
-					if op.Error != nil && len(op.Error.Errors) > 0 {
-						return retry.Unrecoverable(errors.New(op.Error.Errors[0].Message))
+					if isTransientError(err) {
+						return err
 					}
-					if op.Status == "DONE" {
-						return nil
-					}
+					return retry.Unrecoverable(err)
 				}
-
-				// Indirect sleeps with context awareness - so the server doesn't ignore a sigterm while sleeping
-				select {
-				case <-ctx.Done():
-					return ctx.Err()
-				case <-time.After(time.Second):
+				if op.Error != nil && len(op.Error.Errors) > 0 {
+					return retry.Unrecoverable(errors.New(op.Error.Errors[0].Message))
+				}
+				if op.Status == "DONE" {
+					return nil
 				}
 			}
 		},
@@ -182,35 +171,24 @@ func (p *provider) waitGlobalOperation(ctx context.Context, name string) error {
 	return retry.Do(
 		func() error {
 			for {
-				// Check if context is canceled before attempting API call
-				select {
-				case <-ctx.Done():
-					return ctx.Err()
-				default:
+				// Wait for rate limit, respecting context cancellation
+				if err := p.rateLimiter.Wait(ctx); err != nil {
+					return err
 				}
 
-				if p.rateLimiter.Allow() {
-					op, err := p.service.GlobalOperations.Get(p.project, name).Context(ctx).Do()
-					if err != nil {
-						// Return transient errors for retry, non-transient as unrecoverable
-						if isTransientError(err) {
-							return err
-						}
-						return retry.Unrecoverable(err)
+				op, err := p.service.GlobalOperations.Get(p.project, name).Context(ctx).Do()
+				if err != nil {
+					// Return transient errors for retry, non-transient as unrecoverable
+					if isTransientError(err) {
+						return err
 					}
-					if op.Error != nil && len(op.Error.Errors) > 0 {
-						return retry.Unrecoverable(errors.New(op.Error.Errors[0].Message))
-					}
-					if op.Status == "DONE" {
-						return nil
-					}
+					return retry.Unrecoverable(err)
 				}
-
-				// Indirect sleeps with context awareness - so the server doesn't ignore a sigterm while sleeping
-				select {
-				case <-ctx.Done():
-					return ctx.Err()
-				case <-time.After(time.Second):
+				if op.Error != nil && len(op.Error.Errors) > 0 {
+					return retry.Unrecoverable(errors.New(op.Error.Errors[0].Message))
+				}
+				if op.Status == "DONE" {
+					return nil
 				}
 			}
 		},

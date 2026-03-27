@@ -24,6 +24,11 @@ func TestIsTransientError(t *testing.T) {
 			transient: true,
 		},
 		{
+			name:      "504 Gateway Timeout",
+			err:       &googleapi.Error{Code: http.StatusGatewayTimeout},
+			transient: true,
+		},
+		{
 			name:      "429 Too Many Requests",
 			err:       &googleapi.Error{Code: http.StatusTooManyRequests},
 			transient: true,

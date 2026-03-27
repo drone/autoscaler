@@ -140,9 +140,9 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 			return nil
 		},
 		retry.Attempts(5),
-		retry.MaxDelay(time.Second*5),
-		retry.LastErrorOnly(true),
 		retry.Context(ctx),
+		retry.LastErrorOnly(true),
+		retry.MaxDelay(time.Second*5),
 		retry.OnRetry(func(n uint, err error) {
 			logger.WithField("attempt", n+1).
 				WithField("name", opts.Name).

@@ -125,10 +125,6 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 }
 
 func (p *provider) waitZoneOperation(ctx context.Context, name string, zone string) error {
-	lg := logger.FromContext(ctx).
-		WithField("operation", name).
-		WithField("zone", zone)
-
 	return retry.Do(
 		func() error {
 			for {
@@ -168,10 +164,13 @@ func (p *provider) waitZoneOperation(ctx context.Context, name string, zone stri
 			}
 		},
 		retry.Attempts(5),
-		retry.MaxDelay(time.Second*5),
+		retry.Context(ctx),
 		retry.LastErrorOnly(true),
+		retry.MaxDelay(time.Second*5),
 		retry.OnRetry(func(n uint, err error) {
-			lg.WithField("attempt", n+1).
+			logger.FromContext(ctx).
+				WithField("attempt", n+1).
+				WithField("operation", name).
 				WithField("zone", zone).
 				WithError(err).
 				Debugln("retrying zone operation poll")
@@ -180,9 +179,6 @@ func (p *provider) waitZoneOperation(ctx context.Context, name string, zone stri
 }
 
 func (p *provider) waitGlobalOperation(ctx context.Context, name string) error {
-	lg := logger.FromContext(ctx).
-		WithField("operation", name)
-
 	return retry.Do(
 		func() error {
 			for {
@@ -210,7 +206,6 @@ func (p *provider) waitGlobalOperation(ctx context.Context, name string) error {
 					}
 				}
 
-				// Sleep with context awareness - so the server doesn't ignore a sigterm
 				// Indirect sleeps with context awareness - so the server doesn't ignore a sigterm while sleeping
 				select {
 				case <-ctx.Done():
@@ -220,10 +215,13 @@ func (p *provider) waitGlobalOperation(ctx context.Context, name string) error {
 			}
 		},
 		retry.Attempts(5),
-		retry.MaxDelay(time.Second*5),
+		retry.Context(ctx),
 		retry.LastErrorOnly(true),
+		retry.MaxDelay(time.Second*5),
 		retry.OnRetry(func(n uint, err error) {
-			lg.WithField("attempt", n+1).
+			logger.FromContext(ctx).
+				WithField("attempt", n+1).
+				WithField("operation", name).
 				WithError(err).
 				Debugln("retrying global operation poll")
 		}),

@@ -12,6 +12,7 @@ var transientErrorCodes = map[int]bool{
 	http.StatusInternalServerError: true, // 500
 	http.StatusBadGateway:          true, // 502
 	http.StatusServiceUnavailable:  true, // 503
+	http.StatusGatewayTimeout:      true, // 504
 	http.StatusTooManyRequests:     true, // 429
 }
 

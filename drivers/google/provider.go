@@ -145,6 +145,9 @@ func (p *provider) waitZoneOperation(ctx context.Context, name string, zone stri
 					}
 					return retry.Unrecoverable(err)
 				}
+				if op == nil {
+					return errors.New("zone operation response was nil")
+				}
 				return nil
 			},
 			retry.Attempts(5),
@@ -162,6 +165,9 @@ func (p *provider) waitZoneOperation(ctx context.Context, name string, zone stri
 		)
 		if err != nil {
 			return err
+		}
+		if op == nil {
+			return errors.New("zone operation response was nil after retry")
 		}
 
 		if op.Error != nil && len(op.Error.Errors) > 0 {
@@ -190,6 +196,9 @@ func (p *provider) waitGlobalOperation(ctx context.Context, name string) error {
 					}
 					return retry.Unrecoverable(err)
 				}
+				if op == nil {
+					return errors.New("global operation get returned nil response")
+				}
 				return nil
 			},
 			retry.Attempts(5),
@@ -206,6 +215,9 @@ func (p *provider) waitGlobalOperation(ctx context.Context, name string) error {
 		)
 		if err != nil {
 			return err
+		}
+		if op == nil {
+			return errors.New("global operation response was nil after retry")
 		}
 
 		if op.Error != nil && len(op.Error.Errors) > 0 {

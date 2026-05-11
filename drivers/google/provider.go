@@ -175,6 +175,13 @@ func (p *provider) waitZoneOperation(ctx context.Context, name string, zone stri
 		if op.Status == "DONE" {
 			return nil
 		}
+
+		// Keep polling cadence at ~1s while still honoring cancellation.
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(time.Second):
+		}
 	}
 }
 
@@ -223,6 +230,13 @@ func (p *provider) waitGlobalOperation(ctx context.Context, name string) error {
 		}
 		if op.Status == "DONE" {
 			return nil
+		}
+
+		// Keep polling cadence at ~1s while still honoring cancellation.
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(time.Second):
 		}
 	}
 }

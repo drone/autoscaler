@@ -7,6 +7,7 @@ package google
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"math/rand"
 	"strings"
@@ -169,11 +170,37 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 
 	logger.Debugln("instance insert operation complete")
 
-	resp, err := p.service.Instances.Get(p.project, zone, name).Do()
+	var resp *compute.Instance
+	err = retry.Do(
+		func() error {
+			var err error
+			resp, err = p.service.Instances.Get(p.project, zone, name).Context(ctx).Do()
+			if err != nil {
+				if isTransientError(err) {
+					return err
+				}
+				return retry.Unrecoverable(err)
+			}
+			return nil
+		},
+		retry.Attempts(5),
+		retry.Context(ctx),
+		retry.LastErrorOnly(true),
+		retry.MaxDelay(time.Second*5),
+		retry.OnRetry(func(n uint, err error) {
+			logger.WithField("attempt", n+1).
+				WithField("name", opts.Name).
+				WithError(err).
+				Debugln("retrying instance get")
+		}),
+	)
 	if err != nil {
 		logger.WithError(err).
 			Errorln("cannot get instance details")
 		return nil, err
+	}
+	if resp == nil {
+		return nil, errors.New("instances.Get returned no details")
 	}
 
 	address := resp.NetworkInterfaces[0].NetworkIP

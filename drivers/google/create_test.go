@@ -247,7 +247,7 @@ var insertInstanceMockB = &compute.Instance{
 	},
 }
 
-func TestCreateWithTransientError(t *testing.T) {
+func TestCreateWithZoneOperationTransientError(t *testing.T) {
 	defer gock.Off()
 
 	gock.New("https://compute.googleapis.com").

@@ -17,6 +17,8 @@ var transientErrorCodes = map[int]bool{
 	http.StatusGatewayTimeout:      true, // 504
 }
 
+// isTransientError reports whether err should be retried strictly based on
+// HTTP status codes; not on any underlying network issues.
 func isTransientError(err error) bool {
 	if gerr, ok := err.(*googleapi.Error); ok {
 		_, isTransient := transientErrorCodes[gerr.Code]

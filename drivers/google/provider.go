@@ -127,11 +127,11 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 func (p *provider) waitZoneOperation(ctx context.Context, name string, zone string) error {
 	var op *compute.Operation
 	for {
-		if err := p.rateLimiter.Wait(ctx); err != nil {
-			return err
-		}
 		err := retry.Do(
 			func() error {
+				if err := p.rateLimiter.Wait(ctx); err != nil {
+					return retry.Unrecoverable(err)
+				}
 				var err error
 				op, err = p.service.ZoneOperations.Get(p.project, zone, name).Context(ctx).Do()
 				if err != nil {
@@ -165,9 +165,6 @@ func (p *provider) waitZoneOperation(ctx context.Context, name string, zone stri
 		if err != nil {
 			return err
 		}
-		if op == nil {
-			return errors.New("zone operation response was nil after retry")
-		}
 
 		if op.Error != nil && len(op.Error.Errors) > 0 {
 			return errors.New(op.Error.Errors[0].Message)
@@ -188,11 +185,11 @@ func (p *provider) waitZoneOperation(ctx context.Context, name string, zone stri
 func (p *provider) waitGlobalOperation(ctx context.Context, name string) error {
 	var op *compute.Operation
 	for {
-		if err := p.rateLimiter.Wait(ctx); err != nil {
-			return err
-		}
 		err := retry.Do(
 			func() error {
+				if err := p.rateLimiter.Wait(ctx); err != nil {
+					return retry.Unrecoverable(err)
+				}
 				var err error
 				op, err = p.service.GlobalOperations.Get(p.project, name).Context(ctx).Do()
 				if err != nil {
@@ -220,9 +217,6 @@ func (p *provider) waitGlobalOperation(ctx context.Context, name string) error {
 		)
 		if err != nil {
 			return err
-		}
-		if op == nil {
-			return errors.New("global operation response was nil after retry")
 		}
 
 		if op.Error != nil && len(op.Error.Errors) > 0 {

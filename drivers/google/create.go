@@ -11,9 +11,7 @@ import (
 	"fmt"
 	"math/rand"
 	"strings"
-	"time"
 
-	"github.com/avast/retry-go"
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/logger"
 	"github.com/google/uuid"
@@ -128,29 +126,11 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	requestID := uuid.New().String()
 
 	var op *compute.Operation
-	err = retry.Do(
-		func() error {
-			var insertErr error
-			op, insertErr = p.service.Instances.Insert(p.project, zone, in).RequestId(requestID).Context(ctx).Do()
-			if insertErr != nil {
-				if isTransientError(insertErr) {
-					return insertErr
-				}
-				return retry.Unrecoverable(insertErr)
-			}
-			return nil
-		},
-		retry.Attempts(5),
-		retry.Context(ctx),
-		retry.LastErrorOnly(true),
-		retry.MaxDelay(time.Second*5),
-		retry.OnRetry(func(n uint, err error) {
-			logger.WithField("attempt", n+1).
-				WithField("name", opts.Name).
-				WithError(err).
-				Debugln("retrying instance insert")
-		}),
-	)
+	err = doWithRetry(ctx, "instances.insert", func() error {
+		var err error
+		op, err = p.service.Instances.Insert(p.project, zone, in).RequestId(requestID).Context(ctx).Do()
+		return err
+	})
 	if err != nil {
 		logger.WithError(err).
 			Errorln("instance insert failed")
@@ -171,29 +151,11 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	logger.Debugln("instance insert operation complete")
 
 	var resp *compute.Instance
-	err = retry.Do(
-		func() error {
-			var err error
-			resp, err = p.service.Instances.Get(p.project, zone, name).Context(ctx).Do()
-			if err != nil {
-				if isTransientError(err) {
-					return err
-				}
-				return retry.Unrecoverable(err)
-			}
-			return nil
-		},
-		retry.Attempts(5),
-		retry.Context(ctx),
-		retry.LastErrorOnly(true),
-		retry.MaxDelay(time.Second*5),
-		retry.OnRetry(func(n uint, err error) {
-			logger.WithField("attempt", n+1).
-				WithField("name", opts.Name).
-				WithError(err).
-				Debugln("retrying instance get")
-		}),
-	)
+	err = doWithRetry(ctx, "instances.get", func() error {
+		var err error
+		resp, err = p.service.Instances.Get(p.project, zone, name).Context(ctx).Do()
+		return err
+	})
 	if err != nil {
 		logger.WithError(err).
 			Errorln("cannot get instance details")

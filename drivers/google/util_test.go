@@ -3,6 +3,7 @@ package google
 import (
 	"net/http"
 	"testing"
+	"time"
 
 	"google.golang.org/api/googleapi"
 )
@@ -29,9 +30,10 @@ func TestIsTransientError(t *testing.T) {
 			transient: true,
 		},
 		{
+			// 429 is handled via asRateLimitError, not isTransientError
 			name:      "429 Too Many Requests",
 			err:       &googleapi.Error{Code: http.StatusTooManyRequests},
-			transient: true,
+			transient: false,
 		},
 		{
 			name:      "502 Bad Gateway",
@@ -80,6 +82,106 @@ func TestIsTransientError(t *testing.T) {
 			result := isTransientError(test.err)
 			if result != test.transient {
 				t.Errorf("isTransientError(%v) = %v, want %v", test.err, result, test.transient)
+			}
+		})
+	}
+}
+
+func TestAsRateLimitError(t *testing.T) {
+	tests := []struct {
+		name        string
+		err         error
+		wantNil     bool
+		wantRetryAt time.Duration
+	}{
+		{
+			name:    "nil error",
+			err:     nil,
+			wantNil: true,
+		},
+		{
+			name:    "non-429 google error",
+			err:     &googleapi.Error{Code: http.StatusServiceUnavailable},
+			wantNil: true,
+		},
+		{
+			name:        "429 with no Retry-After header",
+			err:         &googleapi.Error{Code: http.StatusTooManyRequests, Header: http.Header{}},
+			wantNil:     false,
+			wantRetryAt: 10 * time.Second,
+		},
+		{
+			name: "429 with integer Retry-After",
+			err: &googleapi.Error{
+				Code:   http.StatusTooManyRequests,
+				Header: http.Header{"Retry-After": []string{"30"}},
+			},
+			wantNil:     false,
+			wantRetryAt: 30 * time.Second,
+		},
+		{
+			name: "429 with zero Retry-After",
+			err: &googleapi.Error{
+				Code:   http.StatusTooManyRequests,
+				Header: http.Header{"Retry-After": []string{"0"}},
+			},
+			wantNil:     false,
+			wantRetryAt: 0,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			result := asRateLimitError(test.err)
+			if test.wantNil {
+				if result != nil {
+					t.Errorf("asRateLimitError(%v) = %v, want nil", test.err, result)
+				}
+				return
+			}
+			if result == nil {
+				t.Fatalf("asRateLimitError(%v) = nil, want non-nil", test.err)
+			}
+			if result.retryAfter != test.wantRetryAt {
+				t.Errorf("retryAfter = %v, want %v", result.retryAfter, test.wantRetryAt)
+			}
+		})
+	}
+}
+
+func TestParseRetryAfter(t *testing.T) {
+	tests := []struct {
+		name  string
+		input string
+		want  time.Duration
+	}{
+		{
+			name:  "empty string falls back to 10s",
+			input: "",
+			want:  10 * time.Second,
+		},
+		{
+			name:  "integer seconds",
+			input: "60",
+			want:  60 * time.Second,
+		},
+		{
+			name:  "zero seconds",
+			input: "0",
+			want:  0,
+		},
+		{
+			name:  "unparseable falls back to 10s",
+			input: "not-a-date",
+			want:  10 * time.Second,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			got := parseRetryAfter(test.input)
+			if got != test.want {
+				t.Errorf("parseRetryAfter(%q) = %v, want %v", test.input, got, test.want)
 			}
 		})
 	}

@@ -7,15 +7,14 @@ package google
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"sync"
 	"text/template"
 	"time"
 
-	"github.com/avast/retry-go"
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/drivers/internal/userdata"
-	"github.com/drone/autoscaler/logger"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"golang.org/x/time/rate"
@@ -127,42 +126,33 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 func (p *provider) waitZoneOperation(ctx context.Context, name string, zone string) error {
 	var op *compute.Operation
 	for {
-		err := retry.Do(
-			func() error {
-				if err := p.rateLimiter.Wait(ctx); err != nil {
-					return retry.Unrecoverable(err)
+		err := doWithRetry(ctx, fmt.Sprintf("zone operations.get %s", name), func() error {
+			if err := p.rateLimiter.Wait(ctx); err != nil {
+				return err
+			}
+			var err error
+			op, err = p.service.ZoneOperations.Get(p.project, zone, name).Context(ctx).Do()
+			if err != nil {
+				if gerr, ok := err.(*googleapi.Error); ok &&
+					gerr.Code == http.StatusNotFound {
+					return autoscaler.ErrInstanceNotFound
 				}
-				var err error
-				op, err = p.service.ZoneOperations.Get(p.project, zone, name).Context(ctx).Do()
-				if err != nil {
-					if gerr, ok := err.(*googleapi.Error); ok &&
-						gerr.Code == http.StatusNotFound {
-						return retry.Unrecoverable(autoscaler.ErrInstanceNotFound)
-					}
-					if isTransientError(err) {
-						return err
-					}
-					return retry.Unrecoverable(err)
-				}
-				if op == nil {
-					return errors.New("zone operation get returned nil response")
-				}
-				return nil
-			},
-			retry.Attempts(5),
-			retry.Context(ctx),
-			retry.LastErrorOnly(true),
-			retry.MaxDelay(time.Second*5),
-			retry.OnRetry(func(n uint, err error) {
-				logger.FromContext(ctx).
-					WithField("attempt", n+1).
-					WithField("operation", name).
-					WithField("zone", zone).
-					WithError(err).
-					Debugln("retrying zone operation poll")
-			}),
-		)
+				return err
+			}
+			if op == nil {
+				return errors.New("zone operation get returned nil response")
+			}
+			return nil
+		})
 		if err != nil {
+			if rl, ok := err.(*retryAfterError); ok {
+				select {
+				case <-ctx.Done():
+					return ctx.Err()
+				case <-time.After(rl.retryAfter):
+				}
+				continue
+			}
 			return err
 		}
 
@@ -185,37 +175,29 @@ func (p *provider) waitZoneOperation(ctx context.Context, name string, zone stri
 func (p *provider) waitGlobalOperation(ctx context.Context, name string) error {
 	var op *compute.Operation
 	for {
-		err := retry.Do(
-			func() error {
-				if err := p.rateLimiter.Wait(ctx); err != nil {
-					return retry.Unrecoverable(err)
-				}
-				var err error
-				op, err = p.service.GlobalOperations.Get(p.project, name).Context(ctx).Do()
-				if err != nil {
-					if isTransientError(err) {
-						return err
-					}
-					return retry.Unrecoverable(err)
-				}
-				if op == nil {
-					return errors.New("global operation get returned nil response")
-				}
-				return nil
-			},
-			retry.Attempts(5),
-			retry.Context(ctx),
-			retry.LastErrorOnly(true),
-			retry.MaxDelay(time.Second*5),
-			retry.OnRetry(func(n uint, err error) {
-				logger.FromContext(ctx).
-					WithField("attempt", n+1).
-					WithField("operation", name).
-					WithError(err).
-					Debugln("retrying global operation poll")
-			}),
-		)
+		err := doWithRetry(ctx, fmt.Sprintf("global operations.get %s", name), func() error {
+			if err := p.rateLimiter.Wait(ctx); err != nil {
+				return err
+			}
+			var err error
+			op, err = p.service.GlobalOperations.Get(p.project, name).Context(ctx).Do()
+			if err != nil {
+				return err
+			}
+			if op == nil {
+				return errors.New("global operation get returned nil response")
+			}
+			return nil
+		})
 		if err != nil {
+			if rl, ok := err.(*retryAfterError); ok {
+				select {
+				case <-ctx.Done():
+					return ctx.Err()
+				case <-time.After(rl.retryAfter):
+				}
+				continue
+			}
 			return err
 		}
 

@@ -7,6 +7,7 @@ package google
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"sync"
 	"text/template"
@@ -123,9 +124,14 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 }
 
 func (p *provider) waitZoneOperation(ctx context.Context, name string, zone string) error {
+	var op *compute.Operation
 	for {
-		if p.rateLimiter.Allow() {
-			op, err := p.service.ZoneOperations.Get(p.project, zone, name).Do()
+		err := doWithRetry(ctx, fmt.Sprintf("zone operations.get %s", name), func() error {
+			if err := p.rateLimiter.Wait(ctx); err != nil {
+				return err
+			}
+			var err error
+			op, err = p.service.ZoneOperations.Get(p.project, zone, name).Context(ctx).Do()
 			if err != nil {
 				if gerr, ok := err.(*googleapi.Error); ok &&
 					gerr.Code == http.StatusNotFound {
@@ -133,31 +139,80 @@ func (p *provider) waitZoneOperation(ctx context.Context, name string, zone stri
 				}
 				return err
 			}
-			if op.Error != nil {
-				return errors.New(op.Error.Errors[0].Message)
+			if op == nil {
+				return errors.New("zone operation get returned nil response")
 			}
-			if op.Status == "DONE" {
-				return nil
+			return nil
+		})
+		if err != nil {
+			if rl, ok := err.(*retryAfterError); ok {
+				select {
+				case <-ctx.Done():
+					return ctx.Err()
+				case <-time.After(rl.retryAfter):
+				}
+				continue
 			}
+			return err
 		}
-		time.Sleep(time.Second)
+
+		if op.Error != nil && len(op.Error.Errors) > 0 {
+			return errors.New(op.Error.Errors[0].Message)
+		}
+		if op.Status == "DONE" {
+			return nil
+		}
+
+		// Keep polling cadence at ~1s while still honoring cancellation.
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(time.Second):
+		}
 	}
 }
 
 func (p *provider) waitGlobalOperation(ctx context.Context, name string) error {
+	var op *compute.Operation
 	for {
-		if p.rateLimiter.Allow() {
-			op, err := p.service.GlobalOperations.Get(p.project, name).Do()
+		err := doWithRetry(ctx, fmt.Sprintf("global operations.get %s", name), func() error {
+			if err := p.rateLimiter.Wait(ctx); err != nil {
+				return err
+			}
+			var err error
+			op, err = p.service.GlobalOperations.Get(p.project, name).Context(ctx).Do()
 			if err != nil {
 				return err
 			}
-			if op.Error != nil {
-				return errors.New(op.Error.Errors[0].Message)
+			if op == nil {
+				return errors.New("global operation get returned nil response")
 			}
-			if op.Status == "DONE" {
-				return nil
+			return nil
+		})
+		if err != nil {
+			if rl, ok := err.(*retryAfterError); ok {
+				select {
+				case <-ctx.Done():
+					return ctx.Err()
+				case <-time.After(rl.retryAfter):
+				}
+				continue
 			}
+			return err
 		}
-		time.Sleep(time.Second)
+
+		if op.Error != nil && len(op.Error.Errors) > 0 {
+			return errors.New(op.Error.Errors[0].Message)
+		}
+		if op.Status == "DONE" {
+			return nil
+		}
+
+		// Keep polling cadence at ~1s while still honoring cancellation.
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(time.Second):
+		}
 	}
 }

@@ -7,12 +7,14 @@ package google
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"math/rand"
 	"strings"
 
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/logger"
+	"github.com/google/uuid"
 
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
@@ -118,7 +120,17 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		}
 	}
 
-	op, err := p.service.Instances.Insert(p.project, zone, in).Do()
+	// This UUID is used to make sure retried inserts are treated as the same call
+	// in case an insert returns a transient error but is still actioned on google's
+	// api side.
+	requestID := uuid.New().String()
+
+	var op *compute.Operation
+	err = doWithRetry(ctx, "instances.insert", func() error {
+		var err error
+		op, err = p.service.Instances.Insert(p.project, zone, in).RequestId(requestID).Context(ctx).Do()
+		return err
+	})
 	if err != nil {
 		logger.WithError(err).
 			Errorln("instance insert failed")
@@ -126,7 +138,9 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	}
 
 	logger.Debugln("pending instance insert operation")
-
+	// TODO: may be worth moving these pollings to a separate loop in Allocate
+	// that way polling is decoupled from the initial creation loop and can be more
+	// robust between insert calls / and be safe during autoscaler restarts.
 	err = p.waitZoneOperation(ctx, op.Name, zone)
 	if err != nil {
 		logger.WithError(err).
@@ -136,11 +150,19 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 
 	logger.Debugln("instance insert operation complete")
 
-	resp, err := p.service.Instances.Get(p.project, zone, name).Do()
+	var resp *compute.Instance
+	err = doWithRetry(ctx, "instances.get", func() error {
+		var err error
+		resp, err = p.service.Instances.Get(p.project, zone, name).Context(ctx).Do()
+		return err
+	})
 	if err != nil {
 		logger.WithError(err).
 			Errorln("cannot get instance details")
 		return nil, err
+	}
+	if resp == nil {
+		return nil, errors.New("instances.Get returned no details")
 	}
 
 	address := resp.NetworkInterfaces[0].NetworkIP

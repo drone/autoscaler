@@ -246,3 +246,121 @@ var insertInstanceMockB = &compute.Instance{
 		},
 	},
 }
+
+func TestCreateWithZoneOperationTransientError(t *testing.T) {
+	defer gock.Off()
+
+	gock.New("https://compute.googleapis.com").
+		Post("/compute/v1/projects/my-project/zones/us-central1-a/instances").
+		JSON(insertInstanceMock).
+		Reply(200).
+		BodyString(`{ "name": "operation-name" }`)
+
+	// First call returns 503 Service Unavailable (transient error)
+	gock.New("https://compute.googleapis.com").
+		Get("/compute/v1/projects/my-project/zones/us-central1-a/operations/operation-name").
+		Reply(503).
+		JSON(map[string]interface{}{
+			"error": map[string]interface{}{
+				"code":    503,
+				"message": "Service Unavailable",
+			},
+		})
+
+	// Subsequent calls succeed (operation polling retries)
+	gock.New("https://compute.googleapis.com").
+		Get("/compute/v1/projects/my-project/zones/us-central1-a/operations/operation-name").
+		Times(5).
+		Reply(200).
+		BodyString(`{ "status": "DONE" }`)
+
+	gock.New("https://compute.googleapis.com").
+		Get("/compute/v1/projects/my-project/zones/us-central1-a/instances/agent-807jvfwj").
+		Reply(200).
+		BodyString(`{ "networkInterfaces": [ { "accessConfigs": [ { "natIP": "1.2.3.4" } ] } ] }`)
+
+	v, err := New(
+		WithClient(http.DefaultClient),
+		WithZones("us-central1-a"),
+		WithProject("my-project"),
+		WithUserData("#cloud-init"),
+	)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	p := v.(*provider)
+	p.init.Do(func() {})
+
+	instance, err := p.Create(context.TODO(), autoscaler.InstanceCreateOpts{Name: "agent-807jVFwj"})
+	if err != nil {
+		t.Error(err)
+	}
+
+	if want, got := instance.Address, "1.2.3.4"; got != want {
+		t.Errorf("Want instance IP %q, got %q", want, got)
+	}
+	if want, got := instance.ID, "agent-807jvfwj"; got != want {
+		t.Errorf("Want instance ID %q, got %q", want, got)
+	}
+}
+
+func TestCreateWithInsertTransientError(t *testing.T) {
+	defer gock.Off()
+
+	// First Insert call returns 503 Service Unavailable (transient error)
+	gock.New("https://compute.googleapis.com").
+		Post("/compute/v1/projects/my-project/zones/us-central1-a/instances").
+		JSON(insertInstanceMock).
+		Reply(503).
+		JSON(map[string]interface{}{
+			"error": map[string]interface{}{
+				"code":    503,
+				"message": "Service Unavailable",
+			},
+		})
+
+	// Subsequent Insert calls succeed (Insert retry logic)
+	gock.New("https://compute.googleapis.com").
+		Post("/compute/v1/projects/my-project/zones/us-central1-a/instances").
+		JSON(insertInstanceMock).
+		Times(5).
+		Reply(200).
+		BodyString(`{ "name": "operation-name" }`)
+
+	// Operation polling succeeds
+	gock.New("https://compute.googleapis.com").
+		Get("/compute/v1/projects/my-project/zones/us-central1-a/operations/operation-name").
+		Reply(200).
+		BodyString(`{ "status": "DONE" }`)
+
+	gock.New("https://compute.googleapis.com").
+		Get("/compute/v1/projects/my-project/zones/us-central1-a/instances/agent-807jvfwj").
+		Reply(200).
+		BodyString(`{ "networkInterfaces": [ { "accessConfigs": [ { "natIP": "1.2.3.4" } ] } ] }`)
+
+	v, err := New(
+		WithClient(http.DefaultClient),
+		WithZones("us-central1-a"),
+		WithProject("my-project"),
+		WithUserData("#cloud-init"),
+	)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	p := v.(*provider)
+	p.init.Do(func() {})
+
+	instance, err := p.Create(context.TODO(), autoscaler.InstanceCreateOpts{Name: "agent-807jVFwj"})
+	if err != nil {
+		t.Error(err)
+	}
+
+	if want, got := instance.Address, "1.2.3.4"; got != want {
+		t.Errorf("Want instance IP %q, got %q", want, got)
+	}
+	if want, got := instance.ID, "agent-807jvfwj"; got != want {
+		t.Errorf("Want instance ID %q, got %q", want, got)
+	}
+}

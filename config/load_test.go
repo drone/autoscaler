@@ -93,7 +93,7 @@ func TestLoad(t *testing.T) {
 		"DRONE_DATABASE_DRIVER":            "mysql",
 		"DRONE_DATABASE_DATASOURCE":        "user:password@/dbname",
 		"DRONE_DIGITALOCEAN_TOKEN":         "2573633eb",
-		"DRONE_DIGITALOCEAN_IMAGE":         "docker-18-04",
+		"DRONE_DIGITALOCEAN_IMAGE":         "docker-20-04",
 		"DRONE_DIGITALOCEAN_REGION":        "ncy1",
 		"DRONE_DIGITALOCEAN_SSHKEY":        "/path/to/ssh/key",
 		"DRONE_DIGITALOCEAN_SIZE":          "s-1vcpu-1gb",
@@ -247,7 +247,7 @@ var jsonConfig = []byte(`{
   },
   "DigitalOcean": {
     "Token": "2573633eb",
-    "Image": "docker-18-04",
+    "Image": "docker-20-04",
     "Region": "ncy1",
     "SSHKey": "/path/to/ssh/key",
     "Size": "s-1vcpu-1gb",

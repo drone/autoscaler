@@ -121,6 +121,34 @@ func (s *serverStore) update(server *autoscaler.Server) error {
 	return err
 }
 
+func (s *serverStore) Busy(_ context.Context, server *autoscaler.Server) error {
+	return retry.Do(
+		func() error {
+			if err := s.busy(server); isConnReset(err) {
+				return err
+			} else {
+				return retry.Unrecoverable(err)
+			}
+		},
+		retry.Attempts(5),
+		retry.MaxDelay(time.Second*5),
+		retry.LastErrorOnly(true),
+	)
+}
+
+func (s *serverStore) busy(server *autoscaler.Server) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	server.LastBusy = time.Now().Unix()
+	stmt, args, err := s.db.BindNamed(serverUpdateStmt, server)
+	if err != nil {
+		return err
+	}
+	_, err = s.db.ExecContext(noContext, stmt, args...)
+	return err
+}
+
 func (s *serverStore) Delete(_ context.Context, server *autoscaler.Server) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -167,6 +195,7 @@ SELECT
 ,server_updated
 ,server_started
 ,server_stopped
+,server_lastbusy
 FROM servers
 WHERE server_name=:server_name
 `
@@ -219,6 +248,7 @@ SELECT
 ,server_updated
 ,server_started
 ,server_stopped
+,server_lastbusy
 FROM servers
 WHERE server_state=:server_state
 ORDER BY server_created ASC
@@ -246,6 +276,7 @@ INSERT INTO servers (
 ,server_updated
 ,server_started
 ,server_stopped
+,server_lastbusy
 ) VALUES (
  :server_name
 ,:server_id
@@ -267,6 +298,7 @@ INSERT INTO servers (
 ,:server_updated
 ,:server_started
 ,:server_stopped
+,:server_lastbusy
 )
 `
 
@@ -290,6 +322,7 @@ UPDATE servers SET
 ,server_updated=:server_updated
 ,server_started=:server_started
 ,server_stopped=:server_stopped
+,server_lastbusy=:server_lastbusy
 WHERE server_name=:server_name
 `
 

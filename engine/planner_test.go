@@ -399,6 +399,51 @@ func TestScale_MinAge(t *testing.T) {
 	}
 }
 
+// This test verifies that idle servers are not
+// garbage collected until the min-idle is reached.
+func TestScale_MinIdle(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	// x2 capacity
+	servers := []*autoscaler.Server{
+		{Name: "server1", Capacity: 1, State: autoscaler.StateRunning, Created: time.Now().Unix(), LastBusy: time.Now().Add(time.Minute * 10 * -1).Unix()},
+		{Name: "server2", Capacity: 1, State: autoscaler.StateRunning, Created: time.Now().Unix(), LastBusy: time.Now().Add(time.Minute * 60 * -1).Unix()},
+	}
+
+	// x0 running builds
+	// x0 pending builds
+	builds := []*drone.Stage{}
+
+	store := mocks.NewMockServerStore(controller)
+	store.EXPECT().List(gomock.Any()).Return(servers, nil)
+	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
+	store.EXPECT().ListState(gomock.Any(), autoscaler.StateRunning).Return(servers, nil)
+	// we should expect a call to shut down only server2 since the last busy
+	// time of 1 hour ago satisfies the MinIdle (tti) of 30 minutes.
+	store.EXPECT().Update(gomock.Any(), servers[1]).Return(nil)
+
+	client := mocks.NewMockClient(controller)
+	client.EXPECT().Queue().Return(builds, nil)
+	client.EXPECT().Queue().Return(builds, nil)
+	client.EXPECT().Queue().Return(builds, nil)
+
+	p := planner{
+		cap:     2,
+		min:     1,
+		max:     4,
+		ttu:     0,
+		tti:     time.Minute * 30,
+		client:  client,
+		servers: store,
+	}
+
+	err := p.Plan(context.TODO())
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 func TestPlan_ShutdownIdle(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()

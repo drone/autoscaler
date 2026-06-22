@@ -31,7 +31,7 @@ func (p *provider) Destroy(ctx context.Context, instance *autoscaler.Instance) e
 	_, err = p.client.Server.Delete(ctx, &hcloud.Server{ID: id})
 
 	if err != nil {
-		if err.Error() == "hcloud: server responded with status code 404" {
+		if hcloud.IsError(err, hcloud.ErrorCodeNotFound) {
 			logger.WithError(err).
 				Debugln("instance does not exist")
 			return autoscaler.ErrInstanceNotFound

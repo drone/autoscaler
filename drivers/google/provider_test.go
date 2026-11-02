@@ -6,9 +6,11 @@ package google
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/drone/autoscaler"
 	"github.com/drone/autoscaler/drivers/internal/userdata"
@@ -243,6 +245,57 @@ func TestWaitGlobalOperationTransientErrorRetry(t *testing.T) {
 	}
 }
 
+// TestWaitZoneOperationErrorWaitsForDone verifies that an operation which
+// already carries an error but is still RUNNING keeps being polled, and the
+// error is only returned once the operation is DONE. A failed insert (e.g. a
+// stockout) reports its error while Compute Engine is still tearing the
+// instance down, and the instance name stays reserved until then - so a
+// caller acting on the error early could re-insert the same name and hit a
+// 409 alreadyExists.
+func TestWaitZoneOperationErrorWaitsForDone(t *testing.T) {
+	defer gock.Off()
+
+	opError := map[string]interface{}{
+		"errors": []map[string]interface{}{
+			{
+				"code":    "ZONE_RESOURCE_POOL_EXHAUSTED",
+				"message": "The zone does not have enough resources available",
+			},
+		},
+	}
+	gock.New("https://compute.googleapis.com").
+		Get("/compute/v1/projects/my-project/zones/us-central1-a/operations/op-123").
+		Reply(200).
+		JSON(map[string]interface{}{"status": "RUNNING", "error": opError})
+	gock.New("https://compute.googleapis.com").
+		Get("/compute/v1/projects/my-project/zones/us-central1-a/operations/op-123").
+		Reply(200).
+		JSON(map[string]interface{}{"status": "DONE", "error": opError})
+
+	v, err := New(
+		WithClient(http.DefaultClient),
+		WithProject("my-project"),
+	)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	p := v.(*provider)
+	p.init.Do(func() {})
+
+	err = p.waitZoneOperation(context.Background(), "op-123", "us-central1-a")
+	var opErr *operationError
+	if !errors.As(err, &opErr) {
+		t.Fatalf("Expected an operationError, got %v", err)
+	}
+	if got, want := opErr.Code, "ZONE_RESOURCE_POOL_EXHAUSTED"; got != want {
+		t.Errorf("Want error code %q, got %q", want, got)
+	}
+	if pending := len(gock.Pending()); pending != 0 {
+		t.Errorf("Expected the operation to be polled until DONE, %d poll(s) never made", pending)
+	}
+}
+
 func TestWaitZoneOperationRateLimitRetry(t *testing.T) {
 	defer gock.Off()
 
@@ -308,5 +361,53 @@ func TestWaitGlobalOperationNonTransientError(t *testing.T) {
 	err = p.waitGlobalOperation(context.Background(), "op-123")
 	if err == nil {
 		t.Errorf("Expected error for non-transient error, got nil")
+	}
+}
+
+func TestDefaultTimeouts(t *testing.T) {
+	v, err := New(
+		WithClient(http.DefaultClient),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	p := v.(*provider)
+
+	if got, want := p.createTimeout, 3*time.Minute; got != want {
+		t.Errorf("Want createTimeout %s, got %s", want, got)
+	}
+	if got, want := p.destroyTimeout, 15*time.Minute; got != want {
+		t.Errorf("Want destroyTimeout %s, got %s", want, got)
+	}
+	if got, want := p.maxTransientDelay, 5*time.Second; got != want {
+		t.Errorf("Want maxTransientDelay %s, got %s", want, got)
+	}
+}
+
+func TestWithCreateTimeoutOverridesDefault(t *testing.T) {
+	v, err := New(
+		WithClient(http.DefaultClient),
+		WithCreateTimeout(45*time.Second),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := v.(*provider).createTimeout, 45*time.Second; got != want {
+		t.Errorf("Want createTimeout %s, got %s", want, got)
+	}
+}
+
+func TestNonPositiveCreateTimeoutFallsBackToDefault(t *testing.T) {
+	for _, d := range []time.Duration{0, -time.Second} {
+		v, err := New(
+			WithClient(http.DefaultClient),
+			WithCreateTimeout(d),
+		)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got, want := v.(*provider).createTimeout, 3*time.Minute; got != want {
+			t.Errorf("Want createTimeout %s for %s, got %s", want, d, got)
+		}
 	}
 }

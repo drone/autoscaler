@@ -12,7 +12,7 @@ import (
 )
 
 // transientErrorCodes defines HTTP status codes that should trigger a retry.
-// 429 Too Many Requests is intentionally excluded — it is handled separately
+// Rate limits are intentionally excluded — they are handled separately
 // via asRateLimitError so that the Retry-After header can be honoured.
 var transientErrorCodes = map[int]bool{
 	http.StatusRequestTimeout:      true, // 408
@@ -32,23 +32,62 @@ func isTransientError(err error) bool {
 	return false
 }
 
-// retryAfterError is a 429 rate-limit error carrying the server-requested
-// back-off duration parsed from the Retry-After response header.
+// retryAfterError is a rate-limit error carrying the server-requested
+// back-off duration parsed from the Retry-After response header (or a
+// default when the response didn't send one).
 type retryAfterError struct {
-	error
+	Err        error
 	retryAfter time.Duration
 }
 
-// asRateLimitError converts a 429 googleapi.Error into a *retryAfterError.
-// Returns nil for any other error.
+// Error implements the error interface.
+func (e *retryAfterError) Error() string { return e.Err.Error() }
+
+// Unwrap lets errors.Is/errors.As see through to the underlying error.
+func (e *retryAfterError) Unwrap() error { return e.Err }
+
+// asRateLimitError converts a rate-limited googleapi.Error into a
+// *retryAfterError. Returns nil for any other error.
 func asRateLimitError(err error) *retryAfterError {
 	gerr, ok := err.(*googleapi.Error)
-	if !ok || gerr.Code != http.StatusTooManyRequests {
+	if !ok || !isRateLimitError(gerr) {
 		return nil
 	}
 	return &retryAfterError{
-		error:      err,
+		Err:        err,
 		retryAfter: parseRetryAfter(gerr.Header.Get("Retry-After")),
+	}
+}
+
+// isRateLimitError reports whether gerr represents a rate limit, in either
+// of the two shapes Compute uses:
+//   - 429 Too Many Requests, usually with a Retry-After header.
+//   - 403 Forbidden with an ErrorItem Reason of "rateLimitExceeded", which is
+//     how Compute reports an exhausted per-project-per-region quota (e.g.
+//     "Write requests per minute per region"), without a Retry-After header.
+//     Other 403s (permission denied) have a different Reason and are not
+//     retryable.
+func isRateLimitError(gerr *googleapi.Error) bool {
+	if gerr.Code == http.StatusTooManyRequests {
+		return true
+	}
+	if gerr.Code == http.StatusForbidden {
+		for _, item := range gerr.Errors {
+			if item.Reason == "rateLimitExceeded" {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// sleepOrDone waits out d, returning ctx.Err() if ctx ends first.
+func sleepOrDone(ctx context.Context, d time.Duration) error {
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-time.After(d):
+		return nil
 	}
 }
 
@@ -73,29 +112,31 @@ func parseRetryAfter(s string) time.Duration {
 	return 10 * time.Second
 }
 
-const maxTransientDelay = 5 * time.Second
-
-// retryAfterDelayType is a retry-go DelayTypeFunc that returns the Retry-After
-// duration for 429 rate-limit errors and otherwise applies exponential backoff
-// with jitter, capped at maxTransientDelay.
-func retryAfterDelayType(n uint, err error, config *retry.Config) time.Duration {
-	if rl, ok := err.(*retryAfterError); ok {
-		return rl.retryAfter
+// retryAfterDelayType returns a retry-go DelayTypeFunc that returns the
+// Retry-After duration for rate-limit errors and otherwise applies
+// exponential backoff with jitter, capped at maxDelay. It is a constructor
+// because retry.DelayTypeFunc's signature has no room for a config value.
+func retryAfterDelayType(maxDelay time.Duration) retry.DelayTypeFunc {
+	return func(n uint, err error, config *retry.Config) time.Duration {
+		if rl, ok := err.(*retryAfterError); ok {
+			return rl.retryAfter
+		}
+		d := retry.CombineDelay(retry.BackOffDelay, retry.RandomDelay)(n, err, config)
+		if d > maxDelay {
+			return maxDelay
+		}
+		return d
 	}
-	d := retry.CombineDelay(retry.BackOffDelay, retry.RandomDelay)(n, err, config)
-	if d > maxTransientDelay {
-		return maxTransientDelay
-	}
-	return d
 }
 
 // doWithRetry executes fn with standard retry logic for transient Google API errors.
 // - Transient errors (5xx, timeouts) are retried up to 5 times with exponential backoff
-// - Rate limit errors (429) are wrapped as unrecoverable to break out for external handling
+// - Rate limit errors (see isRateLimitError) are wrapped as unrecoverable to break out for external handling
 // - Other errors fail immediately without retry
+// Backoff between transient retries is capped at maxDelay.
 // The returned error may be a *retryAfterError for rate limits, allowing the caller to
 // implement backoff before retrying at a higher level (e.g., outer polling loop).
-func doWithRetry(ctx context.Context, operation string, fn func() error) error {
+func doWithRetry(ctx context.Context, operation string, maxDelay time.Duration, fn func() error) error {
 	return retry.Do(
 		func() error {
 			err := fn()
@@ -113,7 +154,7 @@ func doWithRetry(ctx context.Context, operation string, fn func() error) error {
 		retry.Attempts(5),
 		retry.Context(ctx),
 		retry.LastErrorOnly(true),
-		retry.DelayType(retryAfterDelayType),
+		retry.DelayType(retryAfterDelayType(maxDelay)),
 		retry.OnRetry(func(n uint, err error) {
 			logger.FromContext(ctx).
 				WithField("attempt", n+1).

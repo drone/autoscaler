@@ -87,6 +87,71 @@ func TestIsTransientError(t *testing.T) {
 	}
 }
 
+func TestIsRateLimitError(t *testing.T) {
+	tests := []struct {
+		name        string
+		err         *googleapi.Error
+		rateLimited bool
+	}{
+		{
+			name:        "429 Too Many Requests",
+			err:         &googleapi.Error{Code: http.StatusTooManyRequests},
+			rateLimited: true,
+		},
+		{
+			name: "403 with rateLimitExceeded reason",
+			err: &googleapi.Error{
+				Code: http.StatusForbidden,
+				Errors: []googleapi.ErrorItem{
+					{Reason: "rateLimitExceeded"},
+				},
+			},
+			rateLimited: true,
+		},
+		{
+			name:        "403 with no Errors items",
+			err:         &googleapi.Error{Code: http.StatusForbidden},
+			rateLimited: false,
+		},
+		{
+			// A genuine permission-denied 403 must not be treated as
+			// retryable - only the specific rateLimitExceeded reason is.
+			name: "403 with an unrelated reason",
+			err: &googleapi.Error{
+				Code: http.StatusForbidden,
+				Errors: []googleapi.ErrorItem{
+					{Reason: "insufficientPermissions"},
+				},
+			},
+			rateLimited: false,
+		},
+		{
+			name: "rateLimitExceeded reason on a non-403/429 code",
+			err: &googleapi.Error{
+				Code: http.StatusBadRequest,
+				Errors: []googleapi.ErrorItem{
+					{Reason: "rateLimitExceeded"},
+				},
+			},
+			rateLimited: false,
+		},
+		{
+			name:        "unrelated error code",
+			err:         &googleapi.Error{Code: http.StatusInternalServerError},
+			rateLimited: false,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			result := isRateLimitError(test.err)
+			if result != test.rateLimited {
+				t.Errorf("isRateLimitError(%v) = %v, want %v", test.err, result, test.rateLimited)
+			}
+		})
+	}
+}
+
 func TestAsRateLimitError(t *testing.T) {
 	tests := []struct {
 		name        string
@@ -127,6 +192,35 @@ func TestAsRateLimitError(t *testing.T) {
 			},
 			wantNil:     false,
 			wantRetryAt: 0,
+		},
+		{
+			// Matches the shape Compute actually returns for an exhausted
+			// per-project-per-region write quota - a 403, not a 429, and
+			// never with a Retry-After header, hence the fallback default.
+			name: "403 write-quota exceeded, no Retry-After header",
+			err: &googleapi.Error{
+				Code:    http.StatusForbidden,
+				Header:  http.Header{},
+				Message: "Quota exceeded for quota metric 'Write requests' and limit 'Write requests per minute per region' of service 'compute.googleapis.com'",
+				Errors: []googleapi.ErrorItem{
+					{
+						Reason:  "rateLimitExceeded",
+						Message: "Quota exceeded for quota metric 'Write requests' and limit 'Write requests per minute per region' of service 'compute.googleapis.com'",
+					},
+				},
+			},
+			wantNil:     false,
+			wantRetryAt: 10 * time.Second,
+		},
+		{
+			name: "403 with an unrelated reason is not rate-limited",
+			err: &googleapi.Error{
+				Code: http.StatusForbidden,
+				Errors: []googleapi.ErrorItem{
+					{Reason: "insufficientPermissions"},
+				},
+			},
+			wantNil: true,
 		},
 	}
 

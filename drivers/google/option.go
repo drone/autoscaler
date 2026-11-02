@@ -169,3 +169,11 @@ func WithRateLimit(limitAmount int) Option {
 		p.rateLimiter = rate.NewLimiter(limit, 1)
 	}
 }
+
+// WithCreateTimeout returns an option to set createTimeout, the upper bound
+// on one Create attempt. Zero leaves the 3-minute default from New in place.
+func WithCreateTimeout(timeout time.Duration) Option {
+	return func(p *provider) {
+		p.createTimeout = timeout
+	}
+}

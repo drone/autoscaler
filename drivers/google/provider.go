@@ -58,6 +58,19 @@ type provider struct {
 
 	rateLimiter *rate.Limiter
 
+	// createTimeout bounds one Create attempt: the insert, its operation poll
+	// and the follow-up get.
+	createTimeout time.Duration
+
+	// destroyTimeout bounds Destroy: asking Google to delete and waiting for
+	// the delete operation to finish.
+	destroyTimeout time.Duration
+
+	// maxTransientDelay caps the exponential+jitter backoff doWithRetry
+	// applies to ordinary transient errors (not rate limits, which use the
+	// server's Retry-After instead).
+	maxTransientDelay time.Duration
+
 	service *compute.Service
 }
 
@@ -78,6 +91,15 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 	}
 	if p.size == "" {
 		p.size = "n1-standard-1"
+	}
+	if p.createTimeout <= 0 {
+		p.createTimeout = 3 * time.Minute
+	}
+	if p.destroyTimeout == 0 {
+		p.destroyTimeout = 15 * time.Minute
+	}
+	if p.maxTransientDelay == 0 {
+		p.maxTransientDelay = 5 * time.Second
 	}
 	if p.image == "" {
 		p.image = "ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20220712"
@@ -123,10 +145,60 @@ func New(opts ...Option) (autoscaler.Provider, error) {
 	return p, nil
 }
 
-func (p *provider) waitZoneOperation(ctx context.Context, name string, zone string) error {
-	var op *compute.Operation
+// operationError preserves Google's structured Code/Message operation-error
+// fields instead of collapsing them to a plain string.
+type operationError struct {
+	Code    string
+	Message string
+}
+
+func (e *operationError) Error() string {
+	return e.Message
+}
+
+// waitOperation polls a compute operation until it is DONE, returning its
+// error (if any) only then, or until ctx ends. get performs one poll; it is
+// shared by waitZoneOperation and waitGlobalOperation, which differ only in
+// the API call they make.
+func (p *provider) waitOperation(ctx context.Context, get func() (*compute.Operation, error)) error {
 	for {
-		err := doWithRetry(ctx, fmt.Sprintf("zone operations.get %s", name), func() error {
+		op, err := get()
+		if err != nil {
+			var rl *retryAfterError
+			if errors.As(err, &rl) {
+				if err := sleepOrDone(ctx, rl.retryAfter); err != nil {
+					return err
+				}
+				continue
+			}
+			return err
+		}
+
+		// Only act on the outcome once the operation is DONE: an operation
+		// can report its error while still RUNNING. A failed instance insert
+		// (e.g. a stockout) does, while Compute Engine tears the instance
+		// down, and the instance name stays reserved until then.
+		if op.Status == "DONE" {
+			if op.Error != nil && len(op.Error.Errors) > 0 {
+				return &operationError{
+					Code:    op.Error.Errors[0].Code,
+					Message: op.Error.Errors[0].Message,
+				}
+			}
+			return nil
+		}
+
+		// Keep polling cadence at ~1s while still honoring cancellation.
+		if err := sleepOrDone(ctx, time.Second); err != nil {
+			return err
+		}
+	}
+}
+
+func (p *provider) waitZoneOperation(ctx context.Context, name string, zone string) error {
+	return p.waitOperation(ctx, func() (*compute.Operation, error) {
+		var op *compute.Operation
+		err := doWithRetry(ctx, fmt.Sprintf("zone operations.get %s", name), p.maxTransientDelay, func() error {
 			if err := p.rateLimiter.Wait(ctx); err != nil {
 				return err
 			}
@@ -144,38 +216,14 @@ func (p *provider) waitZoneOperation(ctx context.Context, name string, zone stri
 			}
 			return nil
 		})
-		if err != nil {
-			if rl, ok := err.(*retryAfterError); ok {
-				select {
-				case <-ctx.Done():
-					return ctx.Err()
-				case <-time.After(rl.retryAfter):
-				}
-				continue
-			}
-			return err
-		}
-
-		if op.Error != nil && len(op.Error.Errors) > 0 {
-			return errors.New(op.Error.Errors[0].Message)
-		}
-		if op.Status == "DONE" {
-			return nil
-		}
-
-		// Keep polling cadence at ~1s while still honoring cancellation.
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-time.After(time.Second):
-		}
-	}
+		return op, err
+	})
 }
 
 func (p *provider) waitGlobalOperation(ctx context.Context, name string) error {
-	var op *compute.Operation
-	for {
-		err := doWithRetry(ctx, fmt.Sprintf("global operations.get %s", name), func() error {
+	return p.waitOperation(ctx, func() (*compute.Operation, error) {
+		var op *compute.Operation
+		err := doWithRetry(ctx, fmt.Sprintf("global operations.get %s", name), p.maxTransientDelay, func() error {
 			if err := p.rateLimiter.Wait(ctx); err != nil {
 				return err
 			}
@@ -189,30 +237,6 @@ func (p *provider) waitGlobalOperation(ctx context.Context, name string) error {
 			}
 			return nil
 		})
-		if err != nil {
-			if rl, ok := err.(*retryAfterError); ok {
-				select {
-				case <-ctx.Done():
-					return ctx.Err()
-				case <-time.After(rl.retryAfter):
-				}
-				continue
-			}
-			return err
-		}
-
-		if op.Error != nil && len(op.Error.Errors) > 0 {
-			return errors.New(op.Error.Errors[0].Message)
-		}
-		if op.Status == "DONE" {
-			return nil
-		}
-
-		// Keep polling cadence at ~1s while still honoring cancellation.
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-time.After(time.Second):
-		}
-	}
+		return op, err
+	})
 }

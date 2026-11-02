@@ -304,7 +304,8 @@ var jsonConfig = []byte(`{
     "UserData": "#cloud-init",
     "UserDataFile": "/path/to/cloud/init.yml",
     "UserDataKey": "user-data",
-	"RateLimit": 20
+	"RateLimit": 20,
+	"CreateTimeout": 180000000000
   },
   "HetznerCloud": {
     "Token": "12345678",

@@ -76,12 +76,12 @@ type (
 		}
 
 		Reaper struct {
-			Enabled  bool          `envconfig:"DRONE_REAPER_ENABLED", default:"false"`
+			Enabled  bool          `envconfig:"DRONE_REAPER_ENABLED" default:"false"`
 			Interval time.Duration `envconfig:"DRONE_REAPER_INTERVAL" default:"1h"`
 		}
 
 		Pinger struct {
-			Enabled  bool          `envconfig:"DRONE_PINGER_ENABLED", default:"false"`
+			Enabled  bool          `envconfig:"DRONE_PINGER_ENABLED" default:"false"`
 			Interval time.Duration `envconfig:"DRONE_PINGER_INTERVAL" default:"10m"`
 		}
 
@@ -180,6 +180,7 @@ type (
 			Zone                []string          `envconfig:"DRONE_GOOGLE_ZONE"`
 			UserDataKey         string            `envconfig:"DRONE_GOOGLE_USERDATA_KEY" default:"user-data"`
 			RateLimit           int               `envconfig:"DRONE_GOOGLE_READ_RATELIMIT" default:"25"`
+			CreateTimeout       time.Duration     `envconfig:"DRONE_GOOGLE_SERVER_CREATE_TIMEOUT" default:"3m"`
 		}
 
 		HetznerCloud struct {

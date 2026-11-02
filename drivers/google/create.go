@@ -20,7 +20,34 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+// insertUnconfirmedError signals that Google may have accepted an Insert (so
+// the name may be reserved and the VM may exist) but its outcome couldn't be
+// confirmed: the Insert got no definitive answer, the operation poll gave up
+// or ctx ended, or the follow-up Get failed. It is not an Insert rejection
+// and must never be retried as one - re-inserting the same name just 409s.
+//
+// It is always returned with a partial *autoscaler.Instance (ID and Region).
+// That lets the engine record the VM on the errored server, so the reaper
+// destroys it instead of only deleting the DB row (empty server.ID) and
+// orphaning a running VM.
+type insertUnconfirmedError struct {
+	Err error
+}
+
+// Error implements the error interface.
+func (e *insertUnconfirmedError) Error() string {
+	return fmt.Sprintf("instance insert may have been accepted but its outcome could not be confirmed: %s", e.Err)
+}
+
+// Unwrap lets errors.Is/errors.As see through to the underlying error.
+func (e *insertUnconfirmedError) Unwrap() error { return e.Err }
+
+// Create provisions an instance. createTimeout bounds the whole call: the
+// insert, its operation poll and the follow-up get.
 func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpts) (*autoscaler.Instance, error) {
+	ctx, cancel := context.WithTimeout(ctx, p.createTimeout)
+	defer cancel()
+
 	p.init.Do(func() {
 		p.setup(ctx)
 	})
@@ -125,13 +152,29 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	// api side.
 	requestID := uuid.New().String()
 
+	// An expired ctx means no request was sent, so there is nothing to
+	// clean up.
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
 	var op *compute.Operation
-	err = doWithRetry(ctx, "instances.insert", func() error {
+	err = doWithRetry(ctx, "instances.insert", p.maxTransientDelay, func() error {
 		var err error
 		op, err = p.service.Instances.Insert(p.project, zone, in).RequestId(requestID).Context(ctx).Do()
 		return err
 	})
 	if err != nil {
+		if !insertOutcomeKnown(err) {
+			if errors.Is(err, context.DeadlineExceeded) {
+				logger.WithError(err).
+					Warnln("slow response from provider: the instance insert request did not complete in time, leaving the instance for the reaper")
+			} else {
+				logger.WithError(err).
+					Errorln("instance insert failed")
+			}
+			return p.unconfirmedInsert(opts, name, zone, err)
+		}
 		logger.WithError(err).
 			Errorln("instance insert failed")
 		return nil, err
@@ -143,23 +186,33 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 	// robust between insert calls / and be safe during autoscaler restarts.
 	err = p.waitZoneOperation(ctx, op.Name, zone)
 	if err != nil {
-		logger.WithError(err).
-			Errorln("instance insert operation failed")
-		return nil, err
+		if errors.Is(err, context.DeadlineExceeded) {
+			logger.WithError(err).
+				Warnln("slow response from provider: the instance insert did not finish in time, leaving the instance for the reaper")
+		} else {
+			logger.WithError(err).
+				Errorln("instance insert operation failed")
+		}
+		return p.unconfirmedInsert(opts, name, zone, err)
 	}
 
 	logger.Debugln("instance insert operation complete")
 
 	var resp *compute.Instance
-	err = doWithRetry(ctx, "instances.get", func() error {
+	err = doWithRetry(ctx, "instances.get", p.maxTransientDelay, func() error {
 		var err error
 		resp, err = p.service.Instances.Get(p.project, zone, name).Context(ctx).Do()
 		return err
 	})
 	if err != nil {
-		logger.WithError(err).
-			Errorln("cannot get instance details")
-		return nil, err
+		if errors.Is(err, context.DeadlineExceeded) {
+			logger.WithError(err).
+				Warnln("slow response from provider: the instance details were not available in time, leaving the instance for the reaper")
+		} else {
+			logger.WithError(err).
+				Errorln("cannot get instance details")
+		}
+		return p.unconfirmedInsert(opts, name, zone, err)
 	}
 	if resp == nil {
 		return nil, errors.New("instances.Get returned no details")
@@ -189,4 +242,36 @@ func (p *provider) Create(ctx context.Context, opts autoscaler.InstanceCreateOpt
 		Debugln("instance inserted")
 
 	return instance, nil
+}
+
+// insertOutcomeKnown reports whether err from an Insert is a definitive answer
+// from Google (a rejection such as a stockout, quota, rate limit or conflict),
+// so nothing was created. Anything else - a context error, a network error, or
+// a transient status that survived every retry - leaves the outcome unknown:
+// the request may have been accepted.
+func insertOutcomeKnown(err error) bool {
+	var gerr *googleapi.Error
+	return errors.As(err, &gerr) && !isTransientError(gerr)
+}
+
+// unconfirmedInsert handles a failure after an Insert that may have been
+// accepted. An *operationError (only reported once DONE) means nothing was
+// created, so err is returned as-is with no instance. Anything else is an
+// unknown outcome: return the instance's identity with an
+// *insertUnconfirmedError.
+func (p *provider) unconfirmedInsert(opts autoscaler.InstanceCreateOpts, name, zone string, err error) (*autoscaler.Instance, error) {
+	var opErr *operationError
+	if errors.As(err, &opErr) {
+		return nil, err
+	}
+	return &autoscaler.Instance{
+		Provider:            autoscaler.ProviderGoogle,
+		ID:                  name,
+		Name:                opts.Name,
+		Image:               p.image,
+		Region:              zone,
+		Size:                p.size,
+		ServiceAccountEmail: p.serviceAccountEmail,
+		Scopes:              p.scopes,
+	}, &insertUnconfirmedError{Err: err}
 }

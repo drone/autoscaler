@@ -251,6 +251,7 @@ func setupProvider(c config.Config) (autoscaler.Provider, error) {
 			google.WithZones(c.Google.Zone...),
 			google.WithUserDataKey(c.Google.UserDataKey),
 			google.WithRateLimit(c.Google.RateLimit),
+			google.WithCreateTimeout(c.Google.CreateTimeout),
 		)
 	case c.DigitalOcean.Token != "":
 		return digitalocean.New(
